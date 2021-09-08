@@ -6,6 +6,12 @@
 
 namespace exp {
 
+struct unexpect_t {
+  explicit unexpect_t() = default;
+};
+
+inline constexpr unexpect_t unexpect{};
+
 template <class E> class bad_expected_access;
 
 template <> class bad_expected_access<void> : public std::exception {
