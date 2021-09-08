@@ -2,6 +2,7 @@
 #define INCLUDE_EXP_EXPECTED_H
 
 #include <exception>
+#include <type_traits>
 #include <utility>
 
 namespace exp {
@@ -37,8 +38,36 @@ private:
 
 template <class E> class unexpected {
 public:
+  static_assert(!std::is_same_v<E, void>);
+  static_assert(!std::is_reference_v<E>);
+
+  unexpected() = delete;
+
+  constexpr unexpected(const unexpected&) = default;
+  constexpr unexpected(unexpected&&) = default;
+
+  template <class Err = E,
+            std::enable_if_t<
+                std::is_constructible_v<E, Err&&> &&
+                !std::is_same_v<std::decay_t<Err>, std::in_place_t> &&
+                !std::is_same_v<std::decay_t<Err>, unexpected<E>>>* = nullptr>
+  constexpr explicit unexpected(Err&& val) : val_(std::forward<Err>(val)) {}
+
+  ~unexpected() = default;
+
+  constexpr unexpected& operator=(const unexpected&) = default;
+  constexpr unexpected& operator=(unexpected&&) = default;
+
+  constexpr const E& value() const& noexcept { return val_; }
+  constexpr E& value() & noexcept { return val_; }
+  constexpr const E&& value() const&& noexcept { return std::move(val_); }
+  constexpr E&& value() && noexcept { return std::move(val_); }
+
 private:
+  E val_;
 };
+
+template <class E> unexpected(E) -> unexpected<E>;
 
 template <class T, class E> class expected {
 public:
