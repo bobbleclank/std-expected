@@ -12,3 +12,5 @@ endif()
 
 add_library(expected INTERFACE)
 target_include_directories(expected INTERFACE "${CMAKE_SOURCE_DIR}/include")
+
+add_subdirectory(test)
