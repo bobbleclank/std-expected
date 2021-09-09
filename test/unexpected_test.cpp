@@ -29,6 +29,9 @@ struct Err {
   int e = 0;
 };
 
+bool operator==(Err lhs, Err rhs) { return lhs.e == rhs.e; }
+bool operator!=(Err lhs, Err rhs) { return !(lhs == rhs); }
+
 struct Err2 {
   Err2() = default;
   explicit Err2(const Err& err_) : err(err_) {}
@@ -36,6 +39,9 @@ struct Err2 {
 
   Err err;
 };
+
+bool operator==(Err lhs, Err2 rhs) { return lhs.e == rhs.err.e; }
+bool operator!=(Err lhs, Err2 rhs) { return !(lhs == rhs); }
 
 struct Err3 {
   Err3() = default;
@@ -200,4 +206,25 @@ TEST(unexpected, constructors) {
     ASSERT_EQ(e.value().err.e, 20);
     ASSERT_EQ(val.e, -1);
   }
+}
+
+TEST(unexpected, equality_operators) {
+  unexpected<Err> e_one(1);
+  unexpected<Err> e1(1);
+  unexpected<Err> e2(2);
+
+  ASSERT_TRUE(e_one == e1);
+  ASSERT_FALSE(e_one == e2);
+
+  ASSERT_FALSE(e_one != e1);
+  ASSERT_TRUE(e_one != e2);
+
+  unexpected<Err2> ee1(Err(1));
+  unexpected<Err2> ee2(Err(2));
+
+  ASSERT_TRUE(e_one == ee1);
+  ASSERT_FALSE(e_one == ee2);
+
+  ASSERT_FALSE(e_one != ee1);
+  ASSERT_TRUE(e_one != ee2);
 }

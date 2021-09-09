@@ -82,6 +82,16 @@ private:
 
 template <class E> unexpected(E) -> unexpected<E>;
 
+template <class E1, class E2>
+constexpr bool operator==(const unexpected<E1>& x, const unexpected<E2>& y) {
+  return x.value() == y.value();
+}
+
+template <class E1, class E2>
+constexpr bool operator!=(const unexpected<E1>& x, const unexpected<E2>& y) {
+  return x.value() != y.value();
+}
+
 template <class T, class E> class expected {
 public:
 private:
