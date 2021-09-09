@@ -2,6 +2,7 @@
 #define INCLUDE_EXP_EXPECTED_H
 
 #include <exception>
+#include <initializer_list>
 #include <type_traits>
 #include <utility>
 
@@ -52,6 +53,18 @@ public:
                 !std::is_same_v<std::decay_t<Err>, std::in_place_t> &&
                 !std::is_same_v<std::decay_t<Err>, unexpected<E>>>* = nullptr>
   constexpr explicit unexpected(Err&& val) : val_(std::forward<Err>(val)) {}
+
+  template <class... Args,
+            std::enable_if_t<std::is_constructible_v<E, Args&&...>>* = nullptr>
+  constexpr explicit unexpected(std::in_place_t, Args&&... args)
+      : val_(std::forward<Args>(args)...) {}
+
+  template <class U, class... Args,
+            std::enable_if_t<std::is_constructible_v<
+                E, std::initializer_list<U>, Args&&...>>* = nullptr>
+  constexpr explicit unexpected(std::in_place_t, std::initializer_list<U> il,
+                                Args&&... args)
+      : val_(il, std::forward<Args>(args)...) {}
 
   ~unexpected() = default;
 

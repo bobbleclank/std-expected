@@ -1,6 +1,8 @@
 #include "exp/expected.h"
 
+#include <initializer_list>
 #include <utility>
+#include <vector>
 
 #include <gtest/gtest.h>
 
@@ -32,6 +34,23 @@ struct Err2 {
   explicit Err2(const Err& err_) : err(err_) {}
   explicit Err2(Err&& err_) : err(std::move(err_)) {}
 
+  Err err;
+};
+
+struct Err3 {
+  Err3() = default;
+  explicit Err3(int e_) : e(e_) {}
+  Err3(int e_, const Err& err_) : e(e_), err(err_) {}
+  Err3(int e_, Err&& err_) : e(e_), err(std::move(err_)) {}
+
+  explicit Err3(std::initializer_list<int> il) : v(il) {}
+  Err3(std::initializer_list<int> il, const Err& err_) : v(il), err(err_) {}
+
+  Err3(std::initializer_list<int> il, int e_, Err&& err_)
+      : v(il), e(e_), err(std::move(err_)) {}
+
+  std::vector<int> v;
+  int e = 0;
   Err err;
 };
 
@@ -125,6 +144,60 @@ TEST(unexpected, constructors) {
     Err val(6);
     unexpected<Err2> e(std::move(val));
     ASSERT_EQ(e.value().err.e, 6);
+    ASSERT_EQ(val.e, -1);
+  }
+  // (std::in_place_t, Args&&...)
+  {
+    unexpected<Err3> e(std::in_place);
+    ASSERT_EQ(e.value().e, 0);
+    ASSERT_EQ(e.value().err.e, 0);
+  }
+  {
+    int val = 7;
+    unexpected<Err3> e(std::in_place, val);
+    ASSERT_EQ(e.value().e, 7);
+    ASSERT_EQ(e.value().err.e, 0);
+    ASSERT_EQ(val, 7);
+  }
+  {
+    Err val(9);
+    unexpected<Err3> e(std::in_place, 8, val);
+    ASSERT_EQ(e.value().e, 8);
+    ASSERT_EQ(e.value().err.e, 9);
+    ASSERT_EQ(val.e, 9);
+  }
+  {
+    Err val(11);
+    unexpected<Err3> e(std::in_place, 10, std::move(val));
+    ASSERT_EQ(e.value().e, 10);
+    ASSERT_EQ(e.value().err.e, 11);
+    ASSERT_EQ(val.e, -1);
+  }
+  // (std::in_place_t, std::initializer_list<U>, Args&&...)
+  {
+    unexpected<Err3> e(std::in_place, {12, 13, 14});
+    ASSERT_EQ(e.value().v.size(), 3);
+    ASSERT_EQ(e.value().v[0], 12);
+    ASSERT_EQ(e.value().v[1], 13);
+    ASSERT_EQ(e.value().v[2], 14);
+  }
+  {
+    Err val(17);
+    unexpected<Err3> e(std::in_place, {15, 16}, val);
+    ASSERT_EQ(e.value().v.size(), 2);
+    ASSERT_EQ(e.value().v[0], 15);
+    ASSERT_EQ(e.value().v[1], 16);
+    ASSERT_EQ(e.value().e, 0);
+    ASSERT_EQ(e.value().err.e, 17);
+    ASSERT_EQ(val.e, 17);
+  }
+  {
+    Err val(20);
+    unexpected<Err3> e(std::in_place, {18}, 19, std::move(val));
+    ASSERT_EQ(e.value().v.size(), 1);
+    ASSERT_EQ(e.value().v[0], 18);
+    ASSERT_EQ(e.value().e, 19);
+    ASSERT_EQ(e.value().err.e, 20);
     ASSERT_EQ(val.e, -1);
   }
 }
