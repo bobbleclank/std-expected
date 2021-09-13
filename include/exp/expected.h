@@ -49,6 +49,12 @@ public:
   constexpr unexpected(const unexpected&) = default;
   constexpr unexpected(unexpected&&) = default;
 
+  // template <class Err>
+  // constexpr explicit(see below) unexpected(const unexpected<Err>& other);
+
+  // template <class Err>
+  // constexpr explicit(see below) unexpected(unexpected<Err>&& other);
+
   template <class Err = E,
             std::enable_if_t<
                 std::is_constructible_v<E, Err&&> &&
@@ -73,10 +79,18 @@ public:
   constexpr unexpected& operator=(const unexpected&) = default;
   constexpr unexpected& operator=(unexpected&&) = default;
 
+  // template <class Err = E>
+  // constexpr unexpected& operator=(const unexpected<Err>& other);
+
+  // template <class Err = E>
+  // constexpr unexpected& operator=(unexpected<Err>&& other);
+
   constexpr const E& value() const& noexcept { return val_; }
   constexpr E& value() & noexcept { return val_; }
   constexpr const E&& value() const&& noexcept { return std::move(val_); }
   constexpr E&& value() && noexcept { return std::move(val_); }
+
+  // void swap(unexpected& other) noexcept(see below);
 
 private:
   E val_;
@@ -93,6 +107,9 @@ template <class E1, class E2>
 constexpr bool operator!=(const unexpected<E1>& x, const unexpected<E2>& y) {
   return x.value() != y.value();
 }
+
+// template <class E>
+// void swap(unexpected<E>& x, unexpected<E>& y) noexcept(noexcept(x.swap(y)));
 
 template <class T, class E> class expected {
 public:
