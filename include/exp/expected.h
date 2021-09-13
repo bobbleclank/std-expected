@@ -26,7 +26,9 @@ class bad_expected_access : public bad_expected_access<void> {
 public:
   explicit bad_expected_access(E val) : val_(std::move(val)) {}
 
-  const char* what() const noexcept override { return "bad expected access"; }
+  virtual const char* what() const noexcept override {
+    return "bad expected access";
+  }
 
   const E& error() const& { return val_; }
   E& error() & { return val_; }
