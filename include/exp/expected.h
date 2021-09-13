@@ -3,6 +3,8 @@
 
 #include <exception>
 #include <initializer_list>
+#include <memory>
+#include <optional>
 #include <type_traits>
 #include <utility>
 
@@ -113,7 +115,50 @@ constexpr bool operator!=(const unexpected<E1>& x, const unexpected<E2>& y) {
 
 template <class T, class E> class expected {
 public:
+  static_assert(!std::is_same_v<T, std::remove_cv_t<unexpected<E>>>);
+  static_assert(!std::is_same_v<T, std::remove_cv_t<std::in_place_t>>);
+  static_assert(!std::is_same_v<T, std::remove_cv_t<unexpect_t>>);
+  static_assert(!std::is_reference_v<T>);
+
+  static_assert(!std::is_same_v<E, void>);
+  static_assert(!std::is_reference_v<E>);
+
+  using value_type = T;
+  using error_type = E;
+  using unexpected_type = unexpected<E>;
+
+  template <class U> using rebind = expected<U, error_type>;
+
+  constexpr expected() : val_(std::in_place), has_val_(true) {}
+
+  constexpr expected(const expected&) = default;
+  constexpr expected(expected&&) = default;
+
+  ~expected() = default;
+
+  expected& operator=(const expected&) = default;
+  expected& operator=(expected&&) = default;
+
+  constexpr const T* operator->() const { return std::addressof(*val_); }
+  constexpr T* operator->() { return std::addressof(*val_); }
+
+  constexpr const T& operator*() const& { return *val_; }
+  constexpr T& operator*() & { return *val_; }
+  constexpr const T&& operator*() const&& { return std::move(*val_); }
+  constexpr T&& operator*() && { return std::move(*val_); }
+
+  constexpr explicit operator bool() const noexcept { return has_val_; }
+  constexpr bool has_value() const noexcept { return has_val_; }
+
+  constexpr const E& error() const& { return unexpect_->value(); }
+  constexpr E& error() & { return unexpect_->value(); }
+  constexpr const E&& error() const&& { return std::move(unexpect_->value()); }
+  constexpr E&& error() && { return std::move(unexpect_->value()); }
+
 private:
+  std::optional<T> val_;
+  std::optional<unexpected<E>> unexpect_;
+  bool has_val_;
 };
 
 } // namespace exp
