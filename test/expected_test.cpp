@@ -244,6 +244,60 @@ TEST(expected, error) {
   }
 }
 
+TEST(expected, value) {
+  // const& overload
+  {
+    const expected<Val, Err> e(std::in_place, 1);
+    const Val& val = e.value();
+    ASSERT_EQ(val.x, 1);
+    ASSERT_EQ(e.value().x, 1);
+  }
+  // non-const& overload
+  {
+    expected<Val, Err> e(std::in_place, 3);
+    Val& val = e.value();
+    ASSERT_EQ(val.x, 3);
+    ASSERT_EQ(e.value().x, 3);
+    val.x = 30;
+    ASSERT_EQ(val.x, 30);
+    ASSERT_EQ(e.value().x, 30);
+  }
+  // const&& overload
+  {
+    const expected<Val, Err> e(std::in_place, 5);
+    Val val = std::move(e).value();
+    ASSERT_EQ(val.x, 5);
+    ASSERT_EQ(e.value().x, 5);
+    // Since the r-value reference is const, Val's copy constructor is called,
+    // and not Val's move constructor (which takes a non-const r-value
+    // reference).
+  }
+  {
+    const expected<Val, Err> e(std::in_place, 6);
+    Val val;
+    val = std::move(e).value();
+    ASSERT_EQ(val.x, 6);
+    ASSERT_EQ(e.value().x, 6);
+    // Since the r-value reference is const, Val's copy assignment is called,
+    // and not Val's move assignment (which takes a non-const r-value
+    // reference).
+  }
+  // non-const&& overload
+  {
+    expected<Val, Err> e(std::in_place, 8);
+    Val val = std::move(e).value();
+    ASSERT_EQ(val.x, 8);
+    ASSERT_EQ(e.value().x, -1);
+  }
+  {
+    expected<Val, Err> e(std::in_place, 9);
+    Val val;
+    val = std::move(e).value();
+    ASSERT_EQ(val.x, 9);
+    ASSERT_EQ(e.value().x, -2);
+  }
+}
+
 TEST(expected, has_value) {
   {
     expected<Val, Err> e;

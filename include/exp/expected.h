@@ -177,6 +177,30 @@ public:
   constexpr explicit operator bool() const noexcept { return has_val_; }
   constexpr bool has_value() const noexcept { return has_val_; }
 
+  constexpr const T& value() const& {
+    if (!has_val_)
+      throw bad_expected_access(unexpect_->value());
+    return *val_;
+  }
+
+  constexpr T& value() & {
+    if (!has_val_)
+      throw bad_expected_access(unexpect_->value());
+    return *val_;
+  }
+
+  constexpr const T&& value() const&& {
+    if (!has_val_)
+      throw bad_expected_access(unexpect_->value());
+    return std::move(*val_);
+  }
+
+  constexpr T&& value() && {
+    if (!has_val_)
+      throw bad_expected_access(unexpect_->value());
+    return std::move(*val_);
+  }
+
   constexpr const E& error() const& { return unexpect_->value(); }
   constexpr E& error() & { return unexpect_->value(); }
   constexpr const E&& error() const&& { return std::move(unexpect_->value()); }
