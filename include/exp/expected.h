@@ -134,6 +134,33 @@ public:
   constexpr expected(const expected&) = default;
   constexpr expected(expected&&) = default;
 
+  template <class... Args,
+            std::enable_if_t<std::is_constructible_v<T, Args&&...>>* = nullptr>
+  constexpr explicit expected(std::in_place_t, Args&&... args)
+      : val_(std::in_place, std::forward<Args>(args)...), has_val_(true) {}
+
+  template <class U, class... Args,
+            std::enable_if_t<std::is_constructible_v<
+                T, std::initializer_list<U>, Args&&...>>* = nullptr>
+  constexpr explicit expected(std::in_place_t, std::initializer_list<U> il,
+                              Args&&... args)
+      : val_(std::in_place, il, std::forward<Args>(args)...), has_val_(true) {}
+
+  template <class... Args,
+            std::enable_if_t<std::is_constructible_v<E, Args&&...>>* = nullptr>
+  constexpr explicit expected(unexpect_t, Args&&... args)
+      : unexpect_(std::in_place, std::in_place, std::forward<Args>(args)...),
+        has_val_(false) {}
+
+  template <class U, class... Args,
+            std::enable_if_t<std::is_constructible_v<
+                E, std::initializer_list<U>, Args&&...>>* = nullptr>
+  constexpr explicit expected(unexpect_t, std::initializer_list<U> il,
+                              Args&&... args)
+      : unexpect_(std::in_place, std::in_place, il,
+                  std::forward<Args>(args)...),
+        has_val_(false) {}
+
   ~expected() = default;
 
   expected& operator=(const expected&) = default;
