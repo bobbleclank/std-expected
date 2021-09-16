@@ -86,7 +86,9 @@ TEST(unexpected, value) {
     Err err = std::move(e).value();
     ASSERT_EQ(err.e, 3);
     ASSERT_EQ(e.value().e, 3);
-    // Is this correct? I need to better understand const&&.
+    // Since the r-value reference is const, Err's copy constructor is called,
+    // and not Err's move constructor (which takes a non-const r-value
+    // reference).
   }
   {
     const unexpected<Err> e(4);
@@ -94,7 +96,9 @@ TEST(unexpected, value) {
     err = std::move(e).value();
     ASSERT_EQ(err.e, 4);
     ASSERT_EQ(e.value().e, 4);
-    // Is this correct? I need to better understand const&&.
+    // Since the r-value reference is const, Err's copy assignment is called,
+    // and not Err's move assignment (which takes a non-const r-value
+    // reference).
   }
   // non-const&& overload
   {
