@@ -25,6 +25,21 @@ enum class State {
 struct Arg {
   Arg() = default;
   explicit Arg(int x_) : x(x_) {}
+  ~Arg() = default;
+
+  Arg(const Arg&) = default;
+  Arg& operator=(const Arg&) = default;
+
+  Arg(Arg&& other) {
+    x = other.x;
+    other.x = -1;
+  }
+
+  Arg& operator=(Arg&& other) {
+    x = other.x;
+    other.x = -2;
+    return *this;
+  }
 
   int x = 0;
 };
@@ -46,9 +61,21 @@ template <class Tag> struct Obj {
     x = arg.x;
   }
 
+  Obj(Arg&& arg_, int) {
+    s = State::args_constructed;
+    Arg arg = std::move(arg_);
+    x = arg.x;
+  }
+
   Obj(std::initializer_list<int>, const Arg& arg_, int) {
     s = State::list_constructed;
     Arg arg = arg_;
+    x = arg.x;
+  }
+
+  Obj(std::initializer_list<int>, Arg&& arg_, int) {
+    s = State::list_constructed;
+    Arg arg = std::move(arg_);
     x = arg.x;
   }
 
@@ -257,4 +284,106 @@ TEST(expected, default_constructor) {
   ASSERT_EQ(Val::s, State::destructed);
   ASSERT_EQ(Err::s, State::none);
   Val::reset();
+}
+
+TEST(expected, args_constructor) {
+  Val::reset();
+  Err::reset();
+  // in_place overload
+  {
+    Arg arg(1);
+    expected<Val, Err> e(std::in_place, arg, 1);
+    ASSERT_EQ(Val::s, State::args_constructed);
+    ASSERT_EQ(Err::s, State::none);
+    ASSERT_EQ(e->x, 1);
+    ASSERT_EQ(arg.x, 1);
+  }
+  ASSERT_EQ(Val::s, State::destructed);
+  ASSERT_EQ(Err::s, State::none);
+  Val::reset();
+  {
+    Arg arg(2);
+    expected<Val, Err> e(std::in_place, std::move(arg), 2);
+    ASSERT_EQ(Val::s, State::args_constructed);
+    ASSERT_EQ(Err::s, State::none);
+    ASSERT_EQ(e->x, 2);
+    ASSERT_EQ(arg.x, -1);
+  }
+  ASSERT_EQ(Val::s, State::destructed);
+  ASSERT_EQ(Err::s, State::none);
+  Val::reset();
+  // unexpect overload
+  {
+    Arg arg(3);
+    expected<Val, Err> e(unexpect, arg, 3);
+    ASSERT_EQ(Val::s, State::none);
+    ASSERT_EQ(Err::s, State::args_constructed);
+    ASSERT_EQ(e.error().x, 3);
+    ASSERT_EQ(arg.x, 3);
+  }
+  ASSERT_EQ(Val::s, State::none);
+  ASSERT_EQ(Err::s, State::destructed);
+  Err::reset();
+  {
+    Arg arg(4);
+    expected<Val, Err> e(unexpect, std::move(arg), 4);
+    ASSERT_EQ(Val::s, State::none);
+    ASSERT_EQ(Err::s, State::args_constructed);
+    ASSERT_EQ(e.error().x, 4);
+    ASSERT_EQ(arg.x, -1);
+  }
+  ASSERT_EQ(Val::s, State::none);
+  ASSERT_EQ(Err::s, State::destructed);
+  Err::reset();
+}
+
+TEST(expected, list_constructor) {
+  Val::reset();
+  Err::reset();
+  // in_place overload
+  {
+    Arg arg(1);
+    expected<Val, Err> e(std::in_place, {1}, arg, 1);
+    ASSERT_EQ(Val::s, State::list_constructed);
+    ASSERT_EQ(Err::s, State::none);
+    ASSERT_EQ(e->x, 1);
+    ASSERT_EQ(arg.x, 1);
+  }
+  ASSERT_EQ(Val::s, State::destructed);
+  ASSERT_EQ(Err::s, State::none);
+  Val::reset();
+  {
+    Arg arg(2);
+    expected<Val, Err> e(std::in_place, {2}, std::move(arg), 2);
+    ASSERT_EQ(Val::s, State::list_constructed);
+    ASSERT_EQ(Err::s, State::none);
+    ASSERT_EQ(e->x, 2);
+    ASSERT_EQ(arg.x, -1);
+  }
+  ASSERT_EQ(Val::s, State::destructed);
+  ASSERT_EQ(Err::s, State::none);
+  Val::reset();
+  // unexpect overload
+  {
+    Arg arg(3);
+    expected<Val, Err> e(unexpect, {3}, arg, 3);
+    ASSERT_EQ(Val::s, State::none);
+    ASSERT_EQ(Err::s, State::list_constructed);
+    ASSERT_EQ(e.error().x, 3);
+    ASSERT_EQ(arg.x, 3);
+  }
+  ASSERT_EQ(Val::s, State::none);
+  ASSERT_EQ(Err::s, State::destructed);
+  Err::reset();
+  {
+    Arg arg(4);
+    expected<Val, Err> e(unexpect, {4}, std::move(arg), 4);
+    ASSERT_EQ(Val::s, State::none);
+    ASSERT_EQ(Err::s, State::list_constructed);
+    ASSERT_EQ(e.error().x, 4);
+    ASSERT_EQ(arg.x, -1);
+  }
+  ASSERT_EQ(Val::s, State::none);
+  ASSERT_EQ(Err::s, State::destructed);
+  Err::reset();
 }
