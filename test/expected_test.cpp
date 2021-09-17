@@ -252,6 +252,18 @@ TEST(expected, value) {
     ASSERT_EQ(val.x, 1);
     ASSERT_EQ(e.value().x, 1);
   }
+  {
+    const expected<Val, Err> e(unexpect, 2);
+    bool did_throw = false;
+    try {
+      e.value();
+    } catch (const bad_expected_access<Err>& ex) {
+      ASSERT_EQ(ex.error().x, 2);
+      did_throw = true;
+    }
+    ASSERT_EQ(e.error().x, 2);
+    ASSERT_TRUE(did_throw);
+  }
   // non-const& overload
   {
     expected<Val, Err> e(std::in_place, 3);
@@ -261,6 +273,18 @@ TEST(expected, value) {
     val.x = 30;
     ASSERT_EQ(val.x, 30);
     ASSERT_EQ(e.value().x, 30);
+  }
+  {
+    expected<Val, Err> e(unexpect, 4);
+    bool did_throw = false;
+    try {
+      e.value();
+    } catch (const bad_expected_access<Err>& ex) {
+      ASSERT_EQ(ex.error().x, 4);
+      did_throw = true;
+    }
+    ASSERT_EQ(e.error().x, 4);
+    ASSERT_TRUE(did_throw);
   }
   // const&& overload
   {
@@ -282,6 +306,18 @@ TEST(expected, value) {
     // and not Val's move assignment (which takes a non-const r-value
     // reference).
   }
+  {
+    const expected<Val, Err> e(unexpect, 7);
+    bool did_throw = false;
+    try {
+      std::move(e).value();
+    } catch (const bad_expected_access<Err>& ex) {
+      ASSERT_EQ(ex.error().x, 7);
+      did_throw = true;
+    }
+    ASSERT_EQ(e.error().x, 7);
+    ASSERT_TRUE(did_throw);
+  }
   // non-const&& overload
   {
     expected<Val, Err> e(std::in_place, 8);
@@ -295,6 +331,18 @@ TEST(expected, value) {
     val = std::move(e).value();
     ASSERT_EQ(val.x, 9);
     ASSERT_EQ(e.value().x, -2);
+  }
+  {
+    expected<Val, Err> e(unexpect, 10);
+    bool did_throw = false;
+    try {
+      std::move(e).value();
+    } catch (const bad_expected_access<Err>& ex) {
+      ASSERT_EQ(ex.error().x, 10);
+      did_throw = true;
+    }
+    ASSERT_EQ(e.error().x, 10);
+    ASSERT_TRUE(did_throw);
   }
 }
 
