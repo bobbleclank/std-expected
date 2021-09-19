@@ -191,13 +191,13 @@ public:
 
   constexpr const T&& value() const&& {
     if (!has_val_)
-      throw bad_expected_access(unexpect_->value());
+      throw bad_expected_access(std::move(unexpect_->value()));
     return std::move(*val_);
   }
 
   constexpr T&& value() && {
     if (!has_val_)
-      throw bad_expected_access(unexpect_->value());
+      throw bad_expected_access(std::move(unexpect_->value()));
     return std::move(*val_);
   }
 

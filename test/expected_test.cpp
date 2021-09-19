@@ -317,6 +317,9 @@ TEST(expected, value) {
     }
     ASSERT_EQ(e.error().x, 7);
     ASSERT_TRUE(did_throw);
+    // Since the r-value reference is const, Err's copy constructor is called,
+    // and not Err's move constructor (which takes a non-const r-value
+    // reference).
   }
   // non-const&& overload
   {
@@ -341,7 +344,7 @@ TEST(expected, value) {
       ASSERT_EQ(ex.error().x, 10);
       did_throw = true;
     }
-    ASSERT_EQ(e.error().x, 10);
+    ASSERT_EQ(e.error().x, -1);
     ASSERT_TRUE(did_throw);
   }
 }
