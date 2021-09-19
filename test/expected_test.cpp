@@ -114,6 +114,21 @@ using Val = Obj<Val_tag>;
 struct Err_tag {};
 using Err = Obj<Err_tag>;
 
+struct Con {
+  Con() = default;
+  explicit Con(int x_) : x(x_) {}
+
+  operator Val() const& { return Val(x); }
+
+  operator Val() && {
+    Val val(x);
+    x = -3;
+    return val;
+  }
+
+  int x = 0;
+};
+
 } // namespace
 
 TEST(expected, member_access_operator) {
@@ -346,6 +361,91 @@ TEST(expected, value) {
     }
     ASSERT_EQ(e.error().x, -1);
     ASSERT_TRUE(did_throw);
+  }
+}
+
+TEST(expected, value_or) {
+  // const& overload
+  {
+    expected<Val, Err> e(std::in_place, 1);
+    Val v(10);
+    Val val = e.value_or(v);
+    ASSERT_EQ(val.x, 1);
+    ASSERT_EQ(e->x, 1);
+    ASSERT_EQ(v.x, 10);
+  }
+  {
+    expected<Val, Err> e(unexpect, 2);
+    Val v(20);
+    Val val = e.value_or(v);
+    ASSERT_EQ(val.x, 20);
+    ASSERT_EQ(e.error().x, 2);
+    ASSERT_EQ(v.x, 20);
+  }
+  {
+    expected<Val, Err> e(unexpect, 3);
+    Val v(30);
+    Val val = e.value_or(std::move(v));
+    ASSERT_EQ(val.x, 30);
+    ASSERT_EQ(e.error().x, 3);
+    ASSERT_EQ(v.x, -1);
+  }
+  {
+    expected<Val, Err> e(unexpect, 4);
+    Con c(40);
+    Val val = e.value_or(c);
+    ASSERT_EQ(val.x, 40);
+    ASSERT_EQ(e.error().x, 4);
+    ASSERT_EQ(c.x, 40);
+  }
+  {
+    expected<Val, Err> e(unexpect, 5);
+    Con c(50);
+    Val val = e.value_or(std::move(c));
+    ASSERT_EQ(val.x, 50);
+    ASSERT_EQ(e.error().x, 5);
+    ASSERT_EQ(c.x, -3);
+  }
+  // non-const&& overload
+  {
+    expected<Val, Err> e(std::in_place, 6);
+    Val v(60);
+    Val val = std::move(e).value_or(v);
+    ASSERT_EQ(val.x, 6);
+    ASSERT_EQ(e->x, -1);
+    ASSERT_EQ(v.x, 60);
+  }
+  {
+    expected<Val, Err> e(unexpect, 7);
+    Val v(70);
+    Val val = std::move(e).value_or(v);
+    ASSERT_EQ(val.x, 70);
+    ASSERT_EQ(e.error().x, 7);
+    ASSERT_EQ(v.x, 70);
+  }
+  {
+    expected<Val, Err> e(unexpect, 8);
+    Val v(80);
+    Val val = std::move(e).value_or(std::move(v));
+    ASSERT_EQ(val.x, 80);
+    ASSERT_EQ(e.error().x, 8);
+    ASSERT_EQ(v.x, -1);
+  }
+  {
+    expected<Val, Err> e(unexpect, 9);
+    Con c(90);
+    Val val = std::move(e).value_or(c);
+    ASSERT_EQ(val.x, 90);
+    ASSERT_EQ(e.error().x, 9);
+    ASSERT_EQ(c.x, 90);
+  }
+  {
+    expected<Val, Err> e(unexpect, 10);
+    Con c(100);
+    Val val = std::move(e).value_or(std::move(c));
+    ASSERT_EQ(val.x, 100);
+    ASSERT_EQ(e.error().x, 10);
+    ASSERT_EQ(c.x, -3);
   }
 }
 

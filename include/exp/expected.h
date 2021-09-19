@@ -206,6 +206,18 @@ public:
   constexpr const E&& error() const&& { return std::move(unexpect_->value()); }
   constexpr E&& error() && { return std::move(unexpect_->value()); }
 
+  template <class U> constexpr T value_or(U&& v) const& {
+    static_assert(std::is_copy_constructible_v<T> &&
+                  std::is_convertible_v<U&&, T>);
+    return has_val_ ? *val_ : static_cast<T>(std::forward<U>(v));
+  }
+
+  template <class U> constexpr T value_or(U&& v) && {
+    static_assert(std::is_move_constructible_v<T> &&
+                  std::is_convertible_v<U&&, T>);
+    return has_val_ ? std::move(*val_) : static_cast<T>(std::forward<U>(v));
+  }
+
 private:
   std::optional<T> val_;
   std::optional<unexpected<E>> unexpect_;
