@@ -108,6 +108,14 @@ template <class Tag> struct Obj {
   int x = 0;
 };
 
+template <class Tag> bool operator==(Obj<Tag> lhs, Obj<Tag> rhs) {
+  return lhs.x == rhs.x;
+}
+
+template <class Tag> bool operator!=(Obj<Tag> lhs, Obj<Tag> rhs) {
+  return !(lhs == rhs);
+}
+
 struct Val_tag {};
 using Val = Obj<Val_tag>;
 
@@ -128,6 +136,18 @@ struct Con {
 
   int x = 0;
 };
+
+struct Val2_tag {};
+using Val2 = Obj<Val2_tag>;
+
+bool operator==(Val2 lhs, Val rhs) { return lhs.x == rhs.x; }
+bool operator!=(Val2 lhs, Val rhs) { return !(lhs == rhs); }
+
+struct Err2_tag {};
+using Err2 = Obj<Err2_tag>;
+
+bool operator==(Err2 lhs, Err rhs) { return lhs.x == rhs.x; }
+bool operator!=(Err2 lhs, Err rhs) { return !(lhs == rhs); }
 
 } // namespace
 
@@ -591,4 +611,62 @@ TEST(expected, list_constructor) {
   ASSERT_EQ(Val::s, State::none);
   ASSERT_EQ(Err::s, State::destructed);
   Err::reset();
+}
+
+TEST(expected, equality_operators) {
+  expected<Val, Err> e_one(std::in_place, 1);
+  expected<Val, Err> u_one(unexpect, 1);
+
+  expected<Val, Err> e1(std::in_place, 1);
+  expected<Val, Err> e2(std::in_place, 2);
+
+  expected<Val, Err> u1(unexpect, 1);
+  expected<Val, Err> u2(unexpect, 2);
+
+  expected<Val2, Err2> e_two(std::in_place, 2);
+  expected<Val2, Err2> u_two(unexpect, 2);
+
+  // Operands have same type.
+
+  ASSERT_TRUE(e_one == e1);
+  ASSERT_FALSE(e_one == e2);
+  ASSERT_FALSE(e_one != e1);
+  ASSERT_TRUE(e_one != e2);
+
+  ASSERT_TRUE(u_one == u1);
+  ASSERT_FALSE(u_one == u2);
+  ASSERT_FALSE(u_one != u1);
+  ASSERT_TRUE(u_one != u2);
+
+  ASSERT_FALSE(e_one == u1);
+  ASSERT_FALSE(e_one == u2);
+  ASSERT_TRUE(e_one != u1);
+  ASSERT_TRUE(e_one != u2);
+
+  ASSERT_FALSE(u_one == e1);
+  ASSERT_FALSE(u_one == e2);
+  ASSERT_TRUE(u_one != e1);
+  ASSERT_TRUE(u_one != e2);
+
+  // Operands have different types.
+
+  ASSERT_FALSE(e_two == e1);
+  ASSERT_TRUE(e_two == e2);
+  ASSERT_TRUE(e_two != e1);
+  ASSERT_FALSE(e_two != e2);
+
+  ASSERT_FALSE(u_two == u1);
+  ASSERT_TRUE(u_two == u2);
+  ASSERT_TRUE(u_two != u1);
+  ASSERT_FALSE(u_two != u2);
+
+  ASSERT_FALSE(e_two == u1);
+  ASSERT_FALSE(e_two == u2);
+  ASSERT_TRUE(e_two != u1);
+  ASSERT_TRUE(e_two != u2);
+
+  ASSERT_FALSE(u_two == e1);
+  ASSERT_FALSE(u_two == e2);
+  ASSERT_TRUE(u_two != e1);
+  ASSERT_TRUE(u_two != e2);
 }

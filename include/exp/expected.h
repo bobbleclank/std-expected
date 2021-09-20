@@ -224,6 +224,22 @@ private:
   bool has_val_;
 };
 
+template <class T1, class E1, class T2, class E2>
+constexpr bool operator==(const expected<T1, E1>& x,
+                          const expected<T2, E2>& y) {
+  return x.has_value() != y.has_value()
+             ? false
+             : (!x.has_value() ? x.error() == y.error() : *x == *y);
+}
+
+template <class T1, class E1, class T2, class E2>
+constexpr bool operator!=(const expected<T1, E1>& x,
+                          const expected<T2, E2>& y) {
+  return x.has_value() != y.has_value()
+             ? true
+             : (!x.has_value() ? x.error() != y.error() : *x != *y);
+}
+
 } // namespace exp
 
 #endif
