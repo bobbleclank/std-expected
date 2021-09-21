@@ -725,3 +725,58 @@ TEST(expected, comparison_with_T) {
   ASSERT_TRUE(v1 != u_two);
   ASSERT_TRUE(v2 != u_two);
 }
+
+TEST(expected, comparison_with_unexpected_E) {
+  expected<Val, Err> e_one(std::in_place, 1);
+  expected<Val, Err> u_one(unexpect, 1);
+
+  unexpected<Err> v1(1);
+  unexpected<Err> v2(2);
+
+  expected<Val2, Err2> e_two(std::in_place, 2);
+  expected<Val2, Err2> u_two(unexpect, 2);
+
+  // expected::error_type and E have same type.
+
+  ASSERT_TRUE(u_one == v1);
+  ASSERT_FALSE(u_one == v2);
+  ASSERT_FALSE(u_one != v1);
+  ASSERT_TRUE(u_one != v2);
+
+  ASSERT_FALSE(e_one == v1);
+  ASSERT_FALSE(e_one == v2);
+  ASSERT_TRUE(e_one != v1);
+  ASSERT_TRUE(e_one != v2);
+
+  ASSERT_TRUE(v1 == u_one);
+  ASSERT_FALSE(v2 == u_one);
+  ASSERT_FALSE(v1 != u_one);
+  ASSERT_TRUE(v2 != u_one);
+
+  ASSERT_FALSE(v1 == e_one);
+  ASSERT_FALSE(v2 == e_one);
+  ASSERT_TRUE(v1 != e_one);
+  ASSERT_TRUE(v2 != e_one);
+
+  // expected::error_type and E have different types.
+
+  ASSERT_FALSE(u_two == v1);
+  ASSERT_TRUE(u_two == v2);
+  ASSERT_TRUE(u_two != v1);
+  ASSERT_FALSE(u_two != v2);
+
+  ASSERT_FALSE(e_two == v1);
+  ASSERT_FALSE(e_two == v2);
+  ASSERT_TRUE(e_two != v1);
+  ASSERT_TRUE(e_two != v2);
+
+  ASSERT_FALSE(v1 == u_two);
+  ASSERT_TRUE(v2 == u_two);
+  ASSERT_TRUE(v1 != u_two);
+  ASSERT_FALSE(v2 != u_two);
+
+  ASSERT_FALSE(v1 == e_two);
+  ASSERT_FALSE(v2 == e_two);
+  ASSERT_TRUE(v1 != e_two);
+  ASSERT_TRUE(v2 != e_two);
+}

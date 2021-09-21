@@ -260,6 +260,26 @@ constexpr bool operator!=(const T2& v, const expected<T1, E1>& x) {
   return x.has_value() ? *x != v : true;
 }
 
+template <class T1, class E1, class E2>
+constexpr bool operator==(const expected<T1, E1>& x, const unexpected<E2>& e) {
+  return x.has_value() ? false : x.error() == e.value();
+}
+
+template <class T1, class E1, class E2>
+constexpr bool operator==(const unexpected<E2>& e, const expected<T1, E1>& x) {
+  return x.has_value() ? false : x.error() == e.value();
+}
+
+template <class T1, class E1, class E2>
+constexpr bool operator!=(const expected<T1, E1>& x, const unexpected<E2>& e) {
+  return x.has_value() ? true : x.error() != e.value();
+}
+
+template <class T1, class E1, class E2>
+constexpr bool operator!=(const unexpected<E2>& e, const expected<T1, E1>& x) {
+  return x.has_value() ? true : x.error() != e.value();
+}
+
 } // namespace exp
 
 #endif
