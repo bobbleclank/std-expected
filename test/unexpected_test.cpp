@@ -219,7 +219,6 @@ TEST(unexpected, equality_operators) {
 
   ASSERT_TRUE(e_one == e1);
   ASSERT_FALSE(e_one == e2);
-
   ASSERT_FALSE(e_one != e1);
   ASSERT_TRUE(e_one != e2);
 
@@ -228,7 +227,6 @@ TEST(unexpected, equality_operators) {
 
   ASSERT_TRUE(e_one == ee1);
   ASSERT_FALSE(e_one == ee2);
-
   ASSERT_FALSE(e_one != ee1);
   ASSERT_TRUE(e_one != ee2);
 }
