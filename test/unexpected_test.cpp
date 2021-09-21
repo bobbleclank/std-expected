@@ -214,6 +214,9 @@ TEST(unexpected, constructors) {
 
 TEST(unexpected, equality_operators) {
   unexpected<Err> e_one(1);
+
+  // Operands have same type.
+
   unexpected<Err> e1(1);
   unexpected<Err> e2(2);
 
@@ -221,6 +224,8 @@ TEST(unexpected, equality_operators) {
   ASSERT_FALSE(e_one == e2);
   ASSERT_FALSE(e_one != e1);
   ASSERT_TRUE(e_one != e2);
+
+  // Operands have different types.
 
   unexpected<Err2> ee1(Err(1));
   unexpected<Err2> ee2(Err(2));
