@@ -16,7 +16,10 @@ struct Err {
   Err(const Err&) = default;
   Err& operator=(const Err&) = default;
 
-  Err(Err&& other) : e(other.e) { other.e = -1; }
+  Err(Err&& other) {
+    e = other.e;
+    other.e = -1;
+  }
 
   Err& operator=(Err&& other) {
     e = other.e;
@@ -30,7 +33,7 @@ struct Err {
 } // namespace
 
 TEST(bad_expected_access, what) {
-  bad_expected_access<int> e(1);
+  bad_expected_access<Err> e(Err(1));
   ASSERT_STREQ(e.what(), "bad expected access");
 }
 

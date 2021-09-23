@@ -18,7 +18,10 @@ struct Err {
   Err(const Err&) = default;
   Err& operator=(const Err&) = default;
 
-  Err(Err&& other) : e(other.e) { other.e = -1; }
+  Err(Err&& other) {
+    e = other.e;
+    other.e = -1;
+  }
 
   Err& operator=(Err&& other) {
     e = other.e;
@@ -40,7 +43,7 @@ struct Err2 {
   Err err;
 };
 
-bool operator==(Err lhs, Err2 rhs) { return lhs.e == rhs.err.e; }
+bool operator==(Err lhs, Err2 rhs) { return lhs == rhs.err; }
 bool operator!=(Err lhs, Err2 rhs) { return !(lhs == rhs); }
 
 struct Err3 {
