@@ -43,7 +43,6 @@ struct Err2 {
   Err2(int e_, const Err& err_) : e(e_), err(err_) {}
   Err2(int e_, Err&& err_) : e(e_), err(std::move(err_)) {}
 
-  explicit Err2(std::initializer_list<int> il) : v(il) {}
   Err2(std::initializer_list<int> il, const Err& err_) : v(il), err(err_) {}
 
   Err2(std::initializer_list<int> il, int e_, Err&& err_)
@@ -136,12 +135,6 @@ TEST(unexpected, constructors) {
   }
   // (Err&&) with Err != E
   {
-    int val = 4;
-    unexpected<Err> e(val);
-    ASSERT_EQ(e.value().e, 4);
-    ASSERT_EQ(val, 4);
-  }
-  {
     Err val(5);
     unexpected<Err2> e(val);
     ASSERT_EQ(e.value().err.e, 5);
@@ -154,18 +147,6 @@ TEST(unexpected, constructors) {
     ASSERT_EQ(val.e, -1);
   }
   // (std::in_place_t, Args&&...)
-  {
-    unexpected<Err2> e(std::in_place);
-    ASSERT_EQ(e.value().e, 0);
-    ASSERT_EQ(e.value().err.e, 0);
-  }
-  {
-    int val = 7;
-    unexpected<Err2> e(std::in_place, val);
-    ASSERT_EQ(e.value().e, 7);
-    ASSERT_EQ(e.value().err.e, 0);
-    ASSERT_EQ(val, 7);
-  }
   {
     Err val(9);
     unexpected<Err2> e(std::in_place, 8, val);
@@ -181,13 +162,6 @@ TEST(unexpected, constructors) {
     ASSERT_EQ(val.e, -1);
   }
   // (std::in_place_t, std::initializer_list<U>, Args&&...)
-  {
-    unexpected<Err2> e(std::in_place, {12, 13, 14});
-    ASSERT_EQ(e.value().v.size(), 3);
-    ASSERT_EQ(e.value().v[0], 12);
-    ASSERT_EQ(e.value().v[1], 13);
-    ASSERT_EQ(e.value().v[2], 14);
-  }
   {
     Err val(17);
     unexpected<Err2> e(std::in_place, {15, 16}, val);
