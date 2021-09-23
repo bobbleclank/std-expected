@@ -43,7 +43,8 @@ struct Err2 {
   Err2(int e_, const Err& err_) : e(e_), err(err_) {}
   Err2(int e_, Err&& err_) : e(e_), err(std::move(err_)) {}
 
-  Err2(std::initializer_list<int> il, const Err& err_) : v(il), err(err_) {}
+  Err2(std::initializer_list<int> il, int e_, const Err& err_)
+      : v(il), e(e_), err(err_) {}
 
   Err2(std::initializer_list<int> il, int e_, Err&& err_)
       : v(il), e(e_), err(std::move(err_)) {}
@@ -53,8 +54,8 @@ struct Err2 {
   Err err;
 };
 
-bool operator==(Err lhs, Err2 rhs) { return lhs == rhs.err; }
-bool operator!=(Err lhs, Err2 rhs) { return !(lhs == rhs); }
+bool operator==(Err2 lhs, Err rhs) { return lhs.e == rhs.e; }
+bool operator!=(Err2 lhs, Err rhs) { return !(lhs == rhs); }
 
 } // namespace
 
@@ -164,11 +165,11 @@ TEST(unexpected, constructors) {
   // (std::in_place_t, std::initializer_list<U>, Args&&...)
   {
     Err val(17);
-    unexpected<Err2> e(std::in_place, {15, 16}, val);
+    unexpected<Err2> e(std::in_place, {15, 16}, 21, val);
     ASSERT_EQ(e.value().v.size(), 2);
     ASSERT_EQ(e.value().v[0], 15);
     ASSERT_EQ(e.value().v[1], 16);
-    ASSERT_EQ(e.value().e, 0);
+    ASSERT_EQ(e.value().e, 21);
     ASSERT_EQ(e.value().err.e, 17);
     ASSERT_EQ(val.e, 17);
   }
@@ -186,10 +187,12 @@ TEST(unexpected, constructors) {
 TEST(unexpected, equality_operators) {
   unexpected<Err> e_one(1);
 
-  // Operands have same type.
-
   unexpected<Err> e1(1);
   unexpected<Err> e2(2);
+
+  unexpected<Err2> e_two(2);
+
+  // Operands have same type.
 
   ASSERT_TRUE(e_one == e1);
   ASSERT_FALSE(e_one == e2);
@@ -198,11 +201,8 @@ TEST(unexpected, equality_operators) {
 
   // Operands have different types.
 
-  unexpected<Err2> ee1(Err(1));
-  unexpected<Err2> ee2(Err(2));
-
-  ASSERT_TRUE(e_one == ee1);
-  ASSERT_FALSE(e_one == ee2);
-  ASSERT_FALSE(e_one != ee1);
-  ASSERT_TRUE(e_one != ee2);
+  ASSERT_FALSE(e_two == e1);
+  ASSERT_TRUE(e_two == e2);
+  ASSERT_TRUE(e_two != e1);
+  ASSERT_FALSE(e_two != e2);
 }
