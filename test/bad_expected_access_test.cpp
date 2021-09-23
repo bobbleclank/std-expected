@@ -31,7 +31,7 @@ struct Err {
 
 TEST(bad_expected_access, what) {
   bad_expected_access<int> e(1);
-  ASSERT_EQ(e.what(), "bad expected access");
+  ASSERT_STREQ(e.what(), "bad expected access");
 }
 
 TEST(bad_expected_access, error) {
