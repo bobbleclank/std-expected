@@ -35,20 +35,11 @@ struct Err {
 bool operator==(Err lhs, Err rhs) { return lhs.e == rhs.e; }
 bool operator!=(Err lhs, Err rhs) { return !(lhs == rhs); }
 
-struct Err2 {
-  Err2() = default;
-  explicit Err2(const Err& err_) : err(err_) {}
-  explicit Err2(Err&& err_) : err(std::move(err_)) {}
-
-  Err err;
-};
-
-bool operator==(Err lhs, Err2 rhs) { return lhs == rhs.err; }
-bool operator!=(Err lhs, Err2 rhs) { return !(lhs == rhs); }
-
 struct Err3 {
   Err3() = default;
   explicit Err3(int e_) : e(e_) {}
+  explicit Err3(const Err& err_) : err(err_) {}
+  explicit Err3(Err&& err_) : err(std::move(err_)) {}
   Err3(int e_, const Err& err_) : e(e_), err(err_) {}
   Err3(int e_, Err&& err_) : e(e_), err(std::move(err_)) {}
 
@@ -62,6 +53,9 @@ struct Err3 {
   int e = 0;
   Err err;
 };
+
+bool operator==(Err lhs, Err3 rhs) { return lhs == rhs.err; }
+bool operator!=(Err lhs, Err3 rhs) { return !(lhs == rhs); }
 
 } // namespace
 
@@ -149,13 +143,13 @@ TEST(unexpected, constructors) {
   }
   {
     Err val(5);
-    unexpected<Err2> e(val);
+    unexpected<Err3> e(val);
     ASSERT_EQ(e.value().err.e, 5);
     ASSERT_EQ(val.e, 5);
   }
   {
     Err val(6);
-    unexpected<Err2> e(std::move(val));
+    unexpected<Err3> e(std::move(val));
     ASSERT_EQ(e.value().err.e, 6);
     ASSERT_EQ(val.e, -1);
   }
@@ -230,8 +224,8 @@ TEST(unexpected, equality_operators) {
 
   // Operands have different types.
 
-  unexpected<Err2> ee1(Err(1));
-  unexpected<Err2> ee2(Err(2));
+  unexpected<Err3> ee1(Err(1));
+  unexpected<Err3> ee2(Err(2));
 
   ASSERT_TRUE(e_one == ee1);
   ASSERT_FALSE(e_one == ee2);
