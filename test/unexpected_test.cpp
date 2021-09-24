@@ -1,8 +1,8 @@
 #include "exp/expected.h"
 
+#include <cstddef>
 #include <initializer_list>
 #include <utility>
-#include <vector>
 
 #include <gtest/gtest.h>
 
@@ -44,12 +44,12 @@ struct Err2 {
   Err2(int e_, Err&& err_) : e(e_), err(std::move(err_)) {}
 
   Err2(std::initializer_list<int> il, int e_, const Err& err_)
-      : v(il), e(e_), err(err_) {}
+      : il_size(il.size()), e(e_), err(err_) {}
 
   Err2(std::initializer_list<int> il, int e_, Err&& err_)
-      : v(il), e(e_), err(std::move(err_)) {}
+      : il_size(il.size()), e(e_), err(std::move(err_)) {}
 
-  std::vector<int> v;
+  std::size_t il_size = 0;
   int e = 0;
   Err err;
 };
@@ -166,9 +166,7 @@ TEST(unexpected, constructors) {
   {
     Err val(17);
     unexpected<Err2> e(std::in_place, {15, 16}, 21, val);
-    ASSERT_EQ(e.value().v.size(), 2);
-    ASSERT_EQ(e.value().v[0], 15);
-    ASSERT_EQ(e.value().v[1], 16);
+    ASSERT_EQ(e.value().il_size, 2);
     ASSERT_EQ(e.value().e, 21);
     ASSERT_EQ(e.value().err.e, 17);
     ASSERT_EQ(val.e, 17);
@@ -176,8 +174,7 @@ TEST(unexpected, constructors) {
   {
     Err val(20);
     unexpected<Err2> e(std::in_place, {18}, 19, std::move(val));
-    ASSERT_EQ(e.value().v.size(), 1);
-    ASSERT_EQ(e.value().v[0], 18);
+    ASSERT_EQ(e.value().il_size, 1);
     ASSERT_EQ(e.value().e, 19);
     ASSERT_EQ(e.value().err.e, 20);
     ASSERT_EQ(val.e, -1);
