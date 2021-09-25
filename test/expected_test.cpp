@@ -683,6 +683,161 @@ TEST(expected, variadic_template_constructor) {
   Err::reset();
 }
 
+TEST(expected, copy_assignment) {
+  Val::reset();
+  Err::reset();
+  // (const expected&)
+  {
+    expected<Val, Err> other(std::in_place, 1);
+    Val::reset();
+    {
+      expected<Val, Err> e(std::in_place, 10);
+      e = other;
+      ASSERT_EQ(Val::s, State::copy_assigned);
+      ASSERT_EQ(Err::s, State::none);
+      ASSERT_TRUE(e.has_value());
+      ASSERT_TRUE(other.has_value());
+      ASSERT_EQ(e->x, 1);
+      ASSERT_EQ(other->x, 1);
+    }
+    ASSERT_EQ(Val::s, State::destructed);
+    ASSERT_EQ(Err::s, State::none);
+    Val::reset();
+  }
+  Val::reset();
+  {
+    expected<Val, Err> other(std::in_place, 2);
+    Val::reset();
+    {
+      expected<Val, Err> e(unexpect, 20);
+      e = other;
+      ASSERT_EQ(Val::s, State::copy_constructed);
+      ASSERT_EQ(Err::s, State::destructed);
+      ASSERT_TRUE(e.has_value());
+      ASSERT_TRUE(other.has_value());
+      ASSERT_EQ(e->x, 2);
+      ASSERT_EQ(other->x, 2);
+      Err::reset();
+    }
+    ASSERT_EQ(Val::s, State::destructed);
+    ASSERT_EQ(Err::s, State::none);
+    Val::reset();
+  }
+  Val::reset();
+  {
+    expected<Val, Err> other(unexpect, 3);
+    Err::reset();
+    {
+      expected<Val, Err> e(unexpect, 30);
+      e = other;
+      ASSERT_EQ(Val::s, State::none);
+      ASSERT_EQ(Err::s, State::copy_assigned);
+      ASSERT_FALSE(e.has_value());
+      ASSERT_FALSE(other.has_value());
+      ASSERT_EQ(e.error().x, 3);
+      ASSERT_EQ(other.error().x, 3);
+    }
+    ASSERT_EQ(Val::s, State::none);
+    ASSERT_EQ(Err::s, State::destructed);
+    Err::reset();
+  }
+  Err::reset();
+  {
+    expected<Val, Err> other(unexpect, 4);
+    Err::reset();
+    {
+      expected<Val, Err> e(std::in_place, 40);
+      e = other;
+      ASSERT_EQ(Val::s, State::destructed);
+      ASSERT_EQ(Err::s, State::copy_constructed);
+      ASSERT_FALSE(e.has_value());
+      ASSERT_FALSE(other.has_value());
+      ASSERT_EQ(e.error().x, 4);
+      ASSERT_EQ(other.error().x, 4);
+      Val::reset();
+    }
+    ASSERT_EQ(Val::s, State::none);
+    ASSERT_EQ(Err::s, State::destructed);
+    Err::reset();
+  }
+  Err::reset();
+  // (expected&&)
+  {
+    expected<Val, Err> other(std::in_place, 5);
+    Val::reset();
+    {
+      expected<Val, Err> e(std::in_place, 50);
+      e = std::move(other);
+      ASSERT_EQ(Val::s, State::move_assigned);
+      ASSERT_EQ(Err::s, State::none);
+      ASSERT_TRUE(e.has_value());
+      ASSERT_TRUE(other.has_value());
+      ASSERT_EQ(e->x, 5);
+      ASSERT_EQ(other->x, -2);
+    }
+    ASSERT_EQ(Val::s, State::destructed);
+    ASSERT_EQ(Err::s, State::none);
+    Val::reset();
+  }
+  Val::reset();
+  {
+    expected<Val, Err> other(std::in_place, 6);
+    Val::reset();
+    {
+      expected<Val, Err> e(unexpect, 60);
+      e = std::move(other);
+      ASSERT_EQ(Val::s, State::move_constructed);
+      ASSERT_EQ(Err::s, State::destructed);
+      ASSERT_TRUE(e.has_value());
+      ASSERT_TRUE(other.has_value());
+      ASSERT_EQ(e->x, 6);
+      ASSERT_EQ(other->x, -1);
+      Err::reset();
+    }
+    ASSERT_EQ(Val::s, State::destructed);
+    ASSERT_EQ(Err::s, State::none);
+    Val::reset();
+  }
+  Val::reset();
+  {
+    expected<Val, Err> other(unexpect, 7);
+    Err::reset();
+    {
+      expected<Val, Err> e(unexpect, 70);
+      e = std::move(other);
+      ASSERT_EQ(Val::s, State::none);
+      ASSERT_EQ(Err::s, State::move_assigned);
+      ASSERT_FALSE(e.has_value());
+      ASSERT_FALSE(other.has_value());
+      ASSERT_EQ(e.error().x, 7);
+      ASSERT_EQ(other.error().x, -2);
+    }
+    ASSERT_EQ(Val::s, State::none);
+    ASSERT_EQ(Err::s, State::destructed);
+    Err::reset();
+  }
+  Err::reset();
+  {
+    expected<Val, Err> other(unexpect, 8);
+    Err::reset();
+    {
+      expected<Val, Err> e(std::in_place, 80);
+      e = std::move(other);
+      ASSERT_EQ(Val::s, State::destructed);
+      ASSERT_EQ(Err::s, State::move_constructed);
+      ASSERT_FALSE(e.has_value());
+      ASSERT_FALSE(other.has_value());
+      ASSERT_EQ(e.error().x, 8);
+      ASSERT_EQ(other.error().x, -1);
+      Val::reset();
+    }
+    ASSERT_EQ(Val::s, State::none);
+    ASSERT_EQ(Err::s, State::destructed);
+    Err::reset();
+  }
+  Err::reset();
+}
+
 TEST(expected, equality_operators) {
   expected<Val, Err> e_one(std::in_place, 1);
   expected<Val, Err> u_one(unexpect, 1);
