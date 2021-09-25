@@ -511,10 +511,10 @@ TEST(expected, default_constructor) {
   Val::reset();
 }
 
-TEST(expected, args_constructor) {
+TEST(expected, variadic_template_constructor) {
   Val::reset();
   Err::reset();
-  // in_place overload
+  // (std::in_place_t, Args&&...)
   {
     Arg arg(1);
     expected<Val, Err> e(std::in_place, arg, 1);
@@ -537,7 +537,7 @@ TEST(expected, args_constructor) {
   ASSERT_EQ(Val::s, State::destructed);
   ASSERT_EQ(Err::s, State::none);
   Val::reset();
-  // unexpect overload
+  // (unexpect_t, Args&&...)
   {
     Arg arg(3);
     expected<Val, Err> e(unexpect, arg, 3);
@@ -560,12 +560,7 @@ TEST(expected, args_constructor) {
   ASSERT_EQ(Val::s, State::none);
   ASSERT_EQ(Err::s, State::destructed);
   Err::reset();
-}
-
-TEST(expected, list_constructor) {
-  Val::reset();
-  Err::reset();
-  // in_place overload
+  // (std::in_place_t, std::initializer_list<U>, Args&&...)
   {
     Arg arg(1);
     expected<Val, Err> e(std::in_place, {1}, arg, 1);
@@ -588,7 +583,7 @@ TEST(expected, list_constructor) {
   ASSERT_EQ(Val::s, State::destructed);
   ASSERT_EQ(Err::s, State::none);
   Val::reset();
-  // unexpect overload
+  // (unexpect_t, std::initializer_list<U>, Args&&...)
   {
     Arg arg(3);
     expected<Val, Err> e(unexpect, {3}, arg, 3);
