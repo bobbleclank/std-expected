@@ -511,6 +511,81 @@ TEST(expected, default_constructor) {
   Val::reset();
 }
 
+TEST(expected, copy_constructor) {
+  Val::reset();
+  Err::reset();
+  // (const expected&)
+  {
+    expected<Val, Err> other(std::in_place, 1);
+    Val::reset();
+    {
+      expected<Val, Err> e(other);
+      ASSERT_EQ(Val::s, State::copy_constructed);
+      ASSERT_EQ(Err::s, State::none);
+      ASSERT_TRUE(e.has_value());
+      ASSERT_TRUE(other.has_value());
+      ASSERT_EQ(e->x, 1);
+      ASSERT_EQ(other->x, 1);
+    }
+    ASSERT_EQ(Val::s, State::destructed);
+    ASSERT_EQ(Err::s, State::none);
+    Val::reset();
+  }
+  Val::reset();
+  {
+    expected<Val, Err> other(unexpect, 2);
+    Err::reset();
+    {
+      expected<Val, Err> e(other);
+      ASSERT_EQ(Val::s, State::none);
+      ASSERT_EQ(Err::s, State::copy_constructed);
+      ASSERT_FALSE(e.has_value());
+      ASSERT_FALSE(other.has_value());
+      ASSERT_EQ(e.error().x, 2);
+      ASSERT_EQ(other.error().x, 2);
+    }
+    ASSERT_EQ(Val::s, State::none);
+    ASSERT_EQ(Err::s, State::destructed);
+    Err::reset();
+  }
+  Err::reset();
+  // (expected&&)
+  {
+    expected<Val, Err> other(std::in_place, 3);
+    Val::reset();
+    {
+      expected<Val, Err> e(std::move(other));
+      ASSERT_EQ(Val::s, State::move_constructed);
+      ASSERT_EQ(Err::s, State::none);
+      ASSERT_TRUE(e.has_value());
+      ASSERT_TRUE(other.has_value());
+      ASSERT_EQ(e->x, 3);
+      ASSERT_EQ(other->x, -1);
+    }
+    ASSERT_EQ(Val::s, State::destructed);
+    ASSERT_EQ(Err::s, State::none);
+    Val::reset();
+  }
+  Val::reset();
+  {
+    expected<Val, Err> other(unexpect, 4);
+    Err::reset();
+    {
+      expected<Val, Err> e(std::move(other));
+      ASSERT_EQ(Val::s, State::none);
+      ASSERT_EQ(Err::s, State::move_constructed);
+      ASSERT_FALSE(e.has_value());
+      ASSERT_FALSE(other.has_value());
+      ASSERT_EQ(e.error().x, 4);
+      ASSERT_EQ(other.error().x, -1);
+    }
+    ASSERT_EQ(Val::s, State::none);
+    ASSERT_EQ(Err::s, State::destructed);
+    Err::reset();
+  }
+  Err::reset();
+}
+
 TEST(expected, variadic_template_constructor) {
   Val::reset();
   Err::reset();
