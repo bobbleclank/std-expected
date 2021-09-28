@@ -12,9 +12,7 @@ namespace {
 enum class State {
   none,
   default_constructed,
-  single_parameter_constructed,
-  args_constructed,
-  list_constructed,
+  constructed,
   copy_constructed,
   move_constructed,
   copy_assigned,
@@ -51,32 +49,36 @@ template <class Tag> struct Obj {
   Obj() { s = State::default_constructed; }
 
   explicit Obj(int x_) {
-    s = State::single_parameter_constructed;
+    s = State::constructed;
     x = x_;
   }
 
   Obj(const Arg& arg_, int) {
-    s = State::args_constructed;
+    s = State::constructed;
     Arg arg = arg_;
     x = arg.x;
   }
 
   Obj(Arg&& arg_, int) {
-    s = State::args_constructed;
+    s = State::constructed;
     Arg arg = std::move(arg_);
     x = arg.x;
   }
 
-  Obj(std::initializer_list<int>, const Arg& arg_, int) {
-    s = State::list_constructed;
+  Obj(std::initializer_list<int> il, const Arg& arg_, int) {
+    s = State::constructed;
     Arg arg = arg_;
     x = arg.x;
+    if (!std::empty(il))
+      x += *il.begin();
   }
 
-  Obj(std::initializer_list<int>, Arg&& arg_, int) {
-    s = State::list_constructed;
+  Obj(std::initializer_list<int> il, Arg&& arg_, int) {
+    s = State::constructed;
     Arg arg = std::move(arg_);
     x = arg.x;
+    if (!std::empty(il))
+      x += *il.begin();
   }
 
   Obj(const Obj& other) {
@@ -593,7 +595,7 @@ TEST(expected, variadic_template_constructor) {
   {
     Arg arg(1);
     expected<Val, Err> e(std::in_place, arg, 1);
-    ASSERT_EQ(Val::s, State::args_constructed);
+    ASSERT_EQ(Val::s, State::constructed);
     ASSERT_EQ(Err::s, State::none);
     ASSERT_EQ(e->x, 1);
     ASSERT_EQ(arg.x, 1);
@@ -604,7 +606,7 @@ TEST(expected, variadic_template_constructor) {
   {
     Arg arg(2);
     expected<Val, Err> e(std::in_place, std::move(arg), 2);
-    ASSERT_EQ(Val::s, State::args_constructed);
+    ASSERT_EQ(Val::s, State::constructed);
     ASSERT_EQ(Err::s, State::none);
     ASSERT_EQ(e->x, 2);
     ASSERT_EQ(arg.x, -1);
@@ -617,7 +619,7 @@ TEST(expected, variadic_template_constructor) {
     Arg arg(3);
     expected<Val, Err> e(unexpect, arg, 3);
     ASSERT_EQ(Val::s, State::none);
-    ASSERT_EQ(Err::s, State::args_constructed);
+    ASSERT_EQ(Err::s, State::constructed);
     ASSERT_EQ(e.error().x, 3);
     ASSERT_EQ(arg.x, 3);
   }
@@ -628,7 +630,7 @@ TEST(expected, variadic_template_constructor) {
     Arg arg(4);
     expected<Val, Err> e(unexpect, std::move(arg), 4);
     ASSERT_EQ(Val::s, State::none);
-    ASSERT_EQ(Err::s, State::args_constructed);
+    ASSERT_EQ(Err::s, State::constructed);
     ASSERT_EQ(e.error().x, 4);
     ASSERT_EQ(arg.x, -1);
   }
@@ -639,9 +641,9 @@ TEST(expected, variadic_template_constructor) {
   {
     Arg arg(1);
     expected<Val, Err> e(std::in_place, {1}, arg, 1);
-    ASSERT_EQ(Val::s, State::list_constructed);
+    ASSERT_EQ(Val::s, State::constructed);
     ASSERT_EQ(Err::s, State::none);
-    ASSERT_EQ(e->x, 1);
+    ASSERT_EQ(e->x, 1 + 1);
     ASSERT_EQ(arg.x, 1);
   }
   ASSERT_EQ(Val::s, State::destructed);
@@ -650,9 +652,9 @@ TEST(expected, variadic_template_constructor) {
   {
     Arg arg(2);
     expected<Val, Err> e(std::in_place, {2}, std::move(arg), 2);
-    ASSERT_EQ(Val::s, State::list_constructed);
+    ASSERT_EQ(Val::s, State::constructed);
     ASSERT_EQ(Err::s, State::none);
-    ASSERT_EQ(e->x, 2);
+    ASSERT_EQ(e->x, 2 + 2);
     ASSERT_EQ(arg.x, -1);
   }
   ASSERT_EQ(Val::s, State::destructed);
@@ -663,8 +665,8 @@ TEST(expected, variadic_template_constructor) {
     Arg arg(3);
     expected<Val, Err> e(unexpect, {3}, arg, 3);
     ASSERT_EQ(Val::s, State::none);
-    ASSERT_EQ(Err::s, State::list_constructed);
-    ASSERT_EQ(e.error().x, 3);
+    ASSERT_EQ(Err::s, State::constructed);
+    ASSERT_EQ(e.error().x, 3 + 3);
     ASSERT_EQ(arg.x, 3);
   }
   ASSERT_EQ(Val::s, State::none);
@@ -674,8 +676,8 @@ TEST(expected, variadic_template_constructor) {
     Arg arg(4);
     expected<Val, Err> e(unexpect, {4}, std::move(arg), 4);
     ASSERT_EQ(Val::s, State::none);
-    ASSERT_EQ(Err::s, State::list_constructed);
-    ASSERT_EQ(e.error().x, 4);
+    ASSERT_EQ(Err::s, State::constructed);
+    ASSERT_EQ(e.error().x, 4 + 4);
     ASSERT_EQ(arg.x, -1);
   }
   ASSERT_EQ(Val::s, State::none);
