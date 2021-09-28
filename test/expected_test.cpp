@@ -30,12 +30,12 @@ struct Arg {
   Arg(const Arg&) = default;
   Arg& operator=(const Arg&) = default;
 
-  Arg(Arg&& other) {
+  Arg(Arg&& other) noexcept {
     x = other.x;
     other.x = -1;
   }
 
-  Arg& operator=(Arg&& other) {
+  Arg& operator=(Arg&& other) noexcept {
     x = other.x;
     other.x = -2;
     return *this;
@@ -84,7 +84,7 @@ template <class Tag> struct Obj {
     x = other.x;
   }
 
-  Obj(Obj&& other) {
+  Obj(Obj&& other) noexcept {
     s = State::move_constructed;
     x = other.x;
     other.x = -1;
@@ -96,7 +96,7 @@ template <class Tag> struct Obj {
     return *this;
   }
 
-  Obj& operator=(Obj&& other) {
+  Obj& operator=(Obj&& other) noexcept {
     s = State::move_assigned;
     x = other.x;
     other.x = -2;

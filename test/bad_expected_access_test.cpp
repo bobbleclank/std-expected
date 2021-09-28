@@ -16,12 +16,12 @@ struct Err {
   Err(const Err&) = default;
   Err& operator=(const Err&) = default;
 
-  Err(Err&& other) {
+  Err(Err&& other) noexcept {
     e = other.e;
     other.e = -1;
   }
 
-  Err& operator=(Err&& other) {
+  Err& operator=(Err&& other) noexcept {
     e = other.e;
     other.e = -2;
     return *this;
