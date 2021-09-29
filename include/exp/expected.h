@@ -134,6 +134,16 @@ public:
   constexpr expected(const expected&) = default;
   constexpr expected(expected&&) = default;
 
+  // template <class U, class G>
+  // constexpr explicit(see below) expected(const expected<U, G>& other);
+
+  // template <class U, class G>
+  // constexpr explicit(see below) expected(expected<U, G>&& other);
+
+  // template <class U = T> constexpr explicit(see below) expected(U&& v);
+  // template <class G = E> constexpr expected(const unexpected<G>&);
+  // template <class G = E> constexpr expected(unexpected<G>&&);
+
   template <class... Args,
             std::enable_if_t<std::is_constructible_v<T, Args&&...>>* = nullptr>
   constexpr explicit expected(std::in_place_t, Args&&... args)
@@ -165,6 +175,10 @@ public:
 
   expected& operator=(const expected&) = default;
   expected& operator=(expected&&) = default;
+
+  // template <class U = T> expected& operator=(U&& v);
+  // template <class G = E> expected& operator=(const unexpected<G>&);
+  // template <class G = E> expected& operator=(unexpected<G>&&);
 
   template <class... Args,
             std::enable_if_t<std::is_constructible_v<T, Args&&...>>* = nullptr>
@@ -276,6 +290,8 @@ public:
     return has_val_ ? std::move(*val_) : static_cast<T>(std::forward<U>(v));
   }
 
+  // void swap(expected& other) noexcept(see below);
+
 private:
   std::optional<T> val_;
   std::optional<unexpected<E>> unexpect_;
@@ -337,6 +353,9 @@ template <class T1, class E1, class E2>
 constexpr bool operator!=(const unexpected<E2>& e, const expected<T1, E1>& x) {
   return x.has_value() ? true : x.error() != e.value();
 }
+
+// template <class T, class E>
+// void swap(expected<T, E>& x, expected<T, E>& y) noexcept(noexcept(x.swap(y)))
 
 } // namespace exp
 
