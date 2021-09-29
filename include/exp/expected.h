@@ -166,6 +166,64 @@ public:
   expected& operator=(const expected&) = default;
   expected& operator=(expected&&) = default;
 
+  template <class... Args,
+            std::enable_if_t<std::is_constructible_v<T, Args&&...>>* = nullptr>
+  T& emplace(Args&&... args) {
+    if (has_val_) {
+      val_ = T(std::forward<Args>(args)...);
+    } else if constexpr (std::is_nothrow_constructible_v<T, Args&&...>) {
+      unexpect_.reset();
+      val_.emplace(std::forward<Args>(args)...);
+      has_val_ = true;
+    } else if constexpr (std::is_nothrow_move_constructible_v<T>) {
+      T tmp(std::forward<Args>(args)...);
+      unexpect_.reset();
+      val_ = std::move(tmp);
+      has_val_ = true;
+    } else {
+      unexpected<E> tmp(std::move(unexpect_->value()));
+      unexpect_.reset();
+      try {
+        val_.emplace(std::forward<Args>(args)...);
+        has_val_ = true;
+      } catch (...) {
+        unexpect_ = std::move(tmp);
+        throw;
+      }
+    }
+    return *val_;
+  }
+
+  template <class U, class... Args,
+            std::enable_if_t<std::is_constructible_v<
+                T, std::initializer_list<U>, Args&&...>>* = nullptr>
+  T& emplace(std::initializer_list<U> il, Args&&... args) {
+    if (has_val_) {
+      val_ = T(il, std::forward<Args>(args)...);
+    } else if constexpr (std::is_nothrow_constructible_v<
+                             T, std::initializer_list<U>, Args&&...>) {
+      unexpect_.reset();
+      val_.emplace(il, std::forward<Args>(args)...);
+      has_val_ = true;
+    } else if constexpr (std::is_nothrow_move_constructible_v<T>) {
+      T tmp(il, std::forward<Args>(args)...);
+      unexpect_.reset();
+      val_ = std::move(tmp);
+      has_val_ = true;
+    } else {
+      unexpected<E> tmp(std::move(unexpect_->value()));
+      unexpect_.reset();
+      try {
+        val_.emplace(il, std::forward<Args>(args)...);
+        has_val_ = true;
+      } catch (...) {
+        unexpect_ = std::move(tmp);
+        throw;
+      }
+    }
+    return *val_;
+  }
+
   constexpr const T* operator->() const { return std::addressof(*val_); }
   constexpr T* operator->() { return std::addressof(*val_); }
 
