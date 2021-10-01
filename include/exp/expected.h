@@ -139,11 +139,28 @@ template <class T, class E> struct expected_storage_base<T, E, false> {
   constexpr explicit expected_storage_base(std::in_place_t, Args&&... args)
       : val_(std::forward<Args>(args)...), has_val_(true) {}
 
+  template <class U, class... Args,
+            std::enable_if_t<std::is_constructible_v<
+                T, std::initializer_list<U>, Args&&...>>* = nullptr>
+  constexpr explicit expected_storage_base(std::in_place_t,
+                                           std::initializer_list<U> il,
+                                           Args&&... args)
+      : val_(il, std::forward<Args>(args)...), has_val_(true) {}
+
   template <class... Args,
             std::enable_if_t<std::is_constructible_v<E, Args&&...>>* = nullptr>
   constexpr explicit expected_storage_base(unexpect_t, Args&&... args)
       : unexpect_(std::in_place, std::forward<Args>(args)...), has_val_(false) {
   }
+
+  template <class U, class... Args,
+            std::enable_if_t<std::is_constructible_v<
+                E, std::initializer_list<U>, Args&&...>>* = nullptr>
+  constexpr explicit expected_storage_base(unexpect_t,
+                                           std::initializer_list<U> il,
+                                           Args&&... args)
+      : unexpect_(std::in_place, il, std::forward<Args>(args)...),
+        has_val_(false) {}
 
   ~expected_storage_base() {
     if (has_val_) {
@@ -175,11 +192,28 @@ template <class T, class E> struct expected_storage_base<T, E, true> {
   constexpr explicit expected_storage_base(std::in_place_t, Args&&... args)
       : val_(std::forward<Args>(args)...), has_val_(true) {}
 
+  template <class U, class... Args,
+            std::enable_if_t<std::is_constructible_v<
+                T, std::initializer_list<U>, Args&&...>>* = nullptr>
+  constexpr explicit expected_storage_base(std::in_place_t,
+                                           std::initializer_list<U> il,
+                                           Args&&... args)
+      : val_(il, std::forward<Args>(args)...), has_val_(true) {}
+
   template <class... Args,
             std::enable_if_t<std::is_constructible_v<E, Args&&...>>* = nullptr>
   constexpr explicit expected_storage_base(unexpect_t, Args&&... args)
       : unexpect_(std::in_place, std::forward<Args>(args)...), has_val_(false) {
   }
+
+  template <class U, class... Args,
+            std::enable_if_t<std::is_constructible_v<
+                E, std::initializer_list<U>, Args&&...>>* = nullptr>
+  constexpr explicit expected_storage_base(unexpect_t,
+                                           std::initializer_list<U> il,
+                                           Args&&... args)
+      : unexpect_(std::in_place, il, std::forward<Args>(args)...),
+        has_val_(false) {}
 
   ~expected_storage_base() = default;
 
@@ -206,6 +240,15 @@ template <class E> struct expected_storage_base<void, E, false> {
   constexpr explicit expected_storage_base(unexpect_t, Args&&... args)
       : unexpect_(std::in_place, std::forward<Args>(args)...), has_val_(false) {
   }
+
+  template <class U, class... Args,
+            std::enable_if_t<std::is_constructible_v<
+                E, std::initializer_list<U>, Args&&...>>* = nullptr>
+  constexpr explicit expected_storage_base(unexpect_t,
+                                           std::initializer_list<U> il,
+                                           Args&&... args)
+      : unexpect_(std::in_place, il, std::forward<Args>(args)...),
+        has_val_(false) {}
 
   ~expected_storage_base() {
     if (!has_val_) {
@@ -237,6 +280,15 @@ template <class E> struct expected_storage_base<void, E, true> {
   constexpr explicit expected_storage_base(unexpect_t, Args&&... args)
       : unexpect_(std::in_place, std::forward<Args>(args)...), has_val_(false) {
   }
+
+  template <class U, class... Args,
+            std::enable_if_t<std::is_constructible_v<
+                E, std::initializer_list<U>, Args&&...>>* = nullptr>
+  constexpr explicit expected_storage_base(unexpect_t,
+                                           std::initializer_list<U> il,
+                                           Args&&... args)
+      : unexpect_(std::in_place, il, std::forward<Args>(args)...),
+        has_val_(false) {}
 
   ~expected_storage_base() = default;
 

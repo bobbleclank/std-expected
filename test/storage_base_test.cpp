@@ -2,6 +2,7 @@
 
 #include "arg.h"
 
+#include <initializer_list>
 #include <type_traits>
 #include <utility>
 
@@ -25,6 +26,14 @@ template <class Tag> struct Not_trivial {
     x = arg.x;
   }
 
+  Not_trivial(std::initializer_list<int> il, Arg&& arg_, int) {
+    s = State::constructed;
+    Arg arg = std::move(arg_);
+    x = arg.x;
+    if (!std::empty(il))
+      x += *il.begin();
+  }
+
   ~Not_trivial() { s = State::destructed; }
 
   int x = 0;
@@ -40,6 +49,14 @@ template <class Tag> struct Trivial {
     s = State::constructed;
     Arg arg = std::move(arg_);
     x = arg.x;
+  }
+
+  Trivial(std::initializer_list<int> il, Arg&& arg_, int) {
+    s = State::constructed;
+    Arg arg = std::move(arg_);
+    x = arg.x;
+    if (!std::empty(il))
+      x += *il.begin();
   }
 
   ~Trivial() = default;
@@ -345,6 +362,137 @@ TEST(expected_storage_base, unexpect_t_constructor) {
     Arg arg(6);
     Base_void_trivial b(exp::unexpect, std::move(arg), 6);
     ASSERT_EQ(b.unexpect_.value().x, 6);
+    ASSERT_FALSE(b.has_val_);
+    ASSERT_EQ(arg.x, -1);
+    ASSERT_EQ(Trivial_e::s, State::constructed);
+  }
+  ASSERT_EQ(Trivial_e::s, State::constructed);
+  Trivial_e::reset();
+}
+
+TEST(expected_storage_base, in_place_t_initializer_list_constructor) {
+  Not_trivial_t::reset();
+  Not_trivial_e::reset();
+  Trivial_t::reset();
+  Trivial_e::reset();
+  {
+    Arg arg(1);
+    Base_not_trivial b(std::in_place, {1}, std::move(arg), 1);
+    ASSERT_EQ(b.val_.x, 1 + 1);
+    ASSERT_TRUE(b.has_val_);
+    ASSERT_EQ(arg.x, -1);
+    ASSERT_EQ(Not_trivial_t::s, State::constructed);
+    ASSERT_EQ(Not_trivial_e::s, State::none);
+  }
+  ASSERT_EQ(Not_trivial_t::s, State::destructed);
+  ASSERT_EQ(Not_trivial_e::s, State::none);
+  Not_trivial_t::reset();
+  {
+    Arg arg(2);
+    Base_t_not_trivial b(std::in_place, {2}, std::move(arg), 2);
+    ASSERT_EQ(b.val_.x, 2 + 2);
+    ASSERT_TRUE(b.has_val_);
+    ASSERT_EQ(arg.x, -1);
+    ASSERT_EQ(Not_trivial_t::s, State::constructed);
+    ASSERT_EQ(Trivial_e::s, State::none);
+  }
+  ASSERT_EQ(Not_trivial_t::s, State::destructed);
+  ASSERT_EQ(Trivial_e::s, State::none);
+  Not_trivial_t::reset();
+  {
+    Arg arg(3);
+    Base_e_not_trivial b(std::in_place, {3}, std::move(arg), 3);
+    ASSERT_EQ(b.val_.x, 3 + 3);
+    ASSERT_TRUE(b.has_val_);
+    ASSERT_EQ(arg.x, -1);
+    ASSERT_EQ(Trivial_t::s, State::constructed);
+    ASSERT_EQ(Not_trivial_e::s, State::none);
+  }
+  ASSERT_EQ(Trivial_t::s, State::constructed);
+  ASSERT_EQ(Not_trivial_e::s, State::none);
+  Trivial_t::reset();
+  {
+    Arg arg(4);
+    Base_trivial b(std::in_place, {4}, std::move(arg), 4);
+    ASSERT_EQ(b.val_.x, 4 + 4);
+    ASSERT_TRUE(b.has_val_);
+    ASSERT_EQ(arg.x, -1);
+    ASSERT_EQ(Trivial_t::s, State::constructed);
+    ASSERT_EQ(Trivial_e::s, State::none);
+  }
+  ASSERT_EQ(Trivial_t::s, State::constructed);
+  ASSERT_EQ(Trivial_e::s, State::none);
+  Trivial_t::reset();
+}
+
+TEST(expected_storage_base, unexpect_t_initializer_list_constructor) {
+  Not_trivial_t::reset();
+  Not_trivial_e::reset();
+  Trivial_t::reset();
+  Trivial_e::reset();
+  {
+    Arg arg(1);
+    Base_not_trivial b(exp::unexpect, {1}, std::move(arg), 1);
+    ASSERT_EQ(b.unexpect_.value().x, 1 + 1);
+    ASSERT_FALSE(b.has_val_);
+    ASSERT_EQ(arg.x, -1);
+    ASSERT_EQ(Not_trivial_t::s, State::none);
+    ASSERT_EQ(Not_trivial_e::s, State::constructed);
+  }
+  ASSERT_EQ(Not_trivial_t::s, State::none);
+  ASSERT_EQ(Not_trivial_e::s, State::destructed);
+  Not_trivial_e::reset();
+  {
+    Arg arg(2);
+    Base_t_not_trivial b(exp::unexpect, {2}, std::move(arg), 2);
+    ASSERT_EQ(b.unexpect_.value().x, 2 + 2);
+    ASSERT_FALSE(b.has_val_);
+    ASSERT_EQ(arg.x, -1);
+    ASSERT_EQ(Not_trivial_t::s, State::none);
+    ASSERT_EQ(Trivial_e::s, State::constructed);
+  }
+  ASSERT_EQ(Not_trivial_t::s, State::none);
+  ASSERT_EQ(Trivial_e::s, State::constructed);
+  Trivial_e::reset();
+  {
+    Arg arg(3);
+    Base_e_not_trivial b(exp::unexpect, {3}, std::move(arg), 3);
+    ASSERT_EQ(b.unexpect_.value().x, 3 + 3);
+    ASSERT_FALSE(b.has_val_);
+    ASSERT_EQ(arg.x, -1);
+    ASSERT_EQ(Trivial_t::s, State::none);
+    ASSERT_EQ(Not_trivial_e::s, State::constructed);
+  }
+  ASSERT_EQ(Trivial_t::s, State::none);
+  ASSERT_EQ(Not_trivial_e::s, State::destructed);
+  Not_trivial_e::reset();
+  {
+    Arg arg(4);
+    Base_trivial b(exp::unexpect, {4}, std::move(arg), 4);
+    ASSERT_EQ(b.unexpect_.value().x, 4 + 4);
+    ASSERT_FALSE(b.has_val_);
+    ASSERT_EQ(arg.x, -1);
+    ASSERT_EQ(Trivial_t::s, State::none);
+    ASSERT_EQ(Trivial_e::s, State::constructed);
+  }
+  ASSERT_EQ(Trivial_t::s, State::none);
+  ASSERT_EQ(Trivial_e::s, State::constructed);
+  Trivial_e::reset();
+  // T is void
+  {
+    Arg arg(5);
+    Base_void_not_trivial b(exp::unexpect, {5}, std::move(arg), 5);
+    ASSERT_EQ(b.unexpect_.value().x, 5 + 5);
+    ASSERT_FALSE(b.has_val_);
+    ASSERT_EQ(arg.x, -1);
+    ASSERT_EQ(Not_trivial_e::s, State::constructed);
+  }
+  ASSERT_EQ(Not_trivial_e::s, State::destructed);
+  Not_trivial_e::reset();
+  {
+    Arg arg(6);
+    Base_void_trivial b(exp::unexpect, {6}, std::move(arg), 6);
+    ASSERT_EQ(b.unexpect_.value().x, 6 + 6);
     ASSERT_FALSE(b.has_val_);
     ASSERT_EQ(arg.x, -1);
     ASSERT_EQ(Trivial_e::s, State::constructed);
