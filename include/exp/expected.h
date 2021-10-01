@@ -134,6 +134,17 @@ template <class T, class E> struct expected_storage_base<T, E, false> {
   constexpr explicit expected_storage_base(uninit_t)
       : uninit_(), has_val_(false) {}
 
+  template <class... Args,
+            std::enable_if_t<std::is_constructible_v<T, Args&&...>>* = nullptr>
+  constexpr explicit expected_storage_base(std::in_place_t, Args&&... args)
+      : val_(std::forward<Args>(args)...), has_val_(true) {}
+
+  template <class... Args,
+            std::enable_if_t<std::is_constructible_v<E, Args&&...>>* = nullptr>
+  constexpr explicit expected_storage_base(unexpect_t, Args&&... args)
+      : unexpect_(std::in_place, std::forward<Args>(args)...), has_val_(false) {
+  }
+
   ~expected_storage_base() {
     if (has_val_) {
       if constexpr (!std::is_trivially_destructible_v<T>)
@@ -159,6 +170,17 @@ template <class T, class E> struct expected_storage_base<T, E, true> {
   constexpr explicit expected_storage_base(uninit_t)
       : uninit_(), has_val_(false) {}
 
+  template <class... Args,
+            std::enable_if_t<std::is_constructible_v<T, Args&&...>>* = nullptr>
+  constexpr explicit expected_storage_base(std::in_place_t, Args&&... args)
+      : val_(std::forward<Args>(args)...), has_val_(true) {}
+
+  template <class... Args,
+            std::enable_if_t<std::is_constructible_v<E, Args&&...>>* = nullptr>
+  constexpr explicit expected_storage_base(unexpect_t, Args&&... args)
+      : unexpect_(std::in_place, std::forward<Args>(args)...), has_val_(false) {
+  }
+
   ~expected_storage_base() = default;
 
   union {
@@ -175,6 +197,15 @@ template <class E> struct expected_storage_base<void, E, false> {
 
   constexpr explicit expected_storage_base(uninit_t)
       : uninit_(), has_val_(false) {}
+
+  constexpr explicit expected_storage_base(std::in_place_t)
+      : dummy_(), has_val_(true) {}
+
+  template <class... Args,
+            std::enable_if_t<std::is_constructible_v<E, Args&&...>>* = nullptr>
+  constexpr explicit expected_storage_base(unexpect_t, Args&&... args)
+      : unexpect_(std::in_place, std::forward<Args>(args)...), has_val_(false) {
+  }
 
   ~expected_storage_base() {
     if (!has_val_) {
@@ -197,6 +228,15 @@ template <class E> struct expected_storage_base<void, E, true> {
 
   constexpr explicit expected_storage_base(uninit_t)
       : uninit_(), has_val_(false) {}
+
+  constexpr explicit expected_storage_base(std::in_place_t)
+      : dummy_(), has_val_(true) {}
+
+  template <class... Args,
+            std::enable_if_t<std::is_constructible_v<E, Args&&...>>* = nullptr>
+  constexpr explicit expected_storage_base(unexpect_t, Args&&... args)
+      : unexpect_(std::in_place, std::forward<Args>(args)...), has_val_(false) {
+  }
 
   ~expected_storage_base() = default;
 
