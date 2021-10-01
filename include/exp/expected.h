@@ -113,6 +113,104 @@ constexpr bool operator!=(const unexpected<E1>& x, const unexpected<E2>& y) {
 // template <class E>
 // void swap(unexpected<E>& x, unexpected<E>& y) noexcept(noexcept(x.swap(y)));
 
+namespace internal {
+
+struct uninit_t {};
+
+inline constexpr uninit_t uninit{};
+
+// Storage of values. Trivially destructible if both T and E are.
+// clang-format off
+template <class T, class E,
+          bool = (std::is_void_v<T> || std::is_trivially_destructible_v<T>) &&
+                 std::is_trivially_destructible_v<E>>
+struct expected_storage_base;
+// clang-format on
+
+// Either T, E or both are not trivially destructible.
+template <class T, class E> struct expected_storage_base<T, E, false> {
+  constexpr expected_storage_base() : val_(), has_val_(true) {}
+
+  constexpr explicit expected_storage_base(uninit_t)
+      : uninit_(), has_val_(false) {}
+
+  ~expected_storage_base() {
+    if (has_val_) {
+      if constexpr (!std::is_trivially_destructible_v<T>)
+        val_.~T();
+    } else {
+      if constexpr (!std::is_trivially_destructible_v<E>)
+        unexpect_.~unexpected<E>();
+    }
+  }
+
+  union {
+    T val_;
+    unexpected<E> unexpect_;
+    char uninit_;
+  };
+  bool has_val_;
+};
+
+// Both T and E are trivially destructible.
+template <class T, class E> struct expected_storage_base<T, E, true> {
+  constexpr expected_storage_base() : val_(), has_val_(true) {}
+
+  constexpr explicit expected_storage_base(uninit_t)
+      : uninit_(), has_val_(false) {}
+
+  ~expected_storage_base() = default;
+
+  union {
+    T val_;
+    unexpected<E> unexpect_;
+    char uninit_;
+  };
+  bool has_val_;
+};
+
+// T is void, E is not trivially destructible.
+template <class E> struct expected_storage_base<void, E, false> {
+  constexpr expected_storage_base() : dummy_(), has_val_(true) {}
+
+  constexpr explicit expected_storage_base(uninit_t)
+      : uninit_(), has_val_(false) {}
+
+  ~expected_storage_base() {
+    if (!has_val_) {
+      unexpect_.~unexpected<E>();
+    }
+  }
+
+  struct dummy {};
+  union {
+    dummy dummy_;
+    unexpected<E> unexpect_;
+    char uninit_;
+  };
+  bool has_val_;
+};
+
+// T is void, E is trivially destructible.
+template <class E> struct expected_storage_base<void, E, true> {
+  constexpr expected_storage_base() : dummy_(), has_val_(true) {}
+
+  constexpr explicit expected_storage_base(uninit_t)
+      : uninit_(), has_val_(false) {}
+
+  ~expected_storage_base() = default;
+
+  struct dummy {};
+  union {
+    dummy dummy_;
+    unexpected<E> unexpect_;
+    char uninit_;
+  };
+  bool has_val_;
+};
+
+} // namespace internal
+
 template <class T, class E> class expected {
 public:
   static_assert(!std::is_same_v<T, std::remove_cv_t<unexpected<E>>>);
