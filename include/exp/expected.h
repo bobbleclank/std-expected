@@ -301,6 +301,62 @@ template <class E> struct expected_storage_base<void, E, true> {
   bool has_val_;
 };
 
+// Construction and assignment.
+template <class T, class E>
+struct expected_operations_base : expected_storage_base<T, E> {
+  using base_type = expected_storage_base<T, E>;
+
+  using base_type::base_type;
+
+  template <class... Args>
+  constexpr void construct(std::in_place_t, Args&&... args) {
+    ::new (std::addressof(this->val_)) T(std::forward<Args>(args)...);
+    this->has_val_ = true;
+  }
+
+  template <class... Args>
+  constexpr void construct(unexpect_t, Args&&... args) {
+    ::new (std::addressof(this->unexpect_))
+        unexpected<E>(std::forward<Args>(args)...);
+    this->has_val_ = false;
+  }
+
+  constexpr void destroy(std::in_place_t) {
+    if constexpr (!std::is_trivially_destructible_v<T>)
+      this->val_.~T();
+  }
+
+  constexpr void destroy(unexpect_t) {
+    if constexpr (!std::is_trivially_destructible_v<E>)
+      this->unexpect_.~unexpected<E>();
+  }
+};
+
+template <class E>
+struct expected_operations_base<void, E> : expected_storage_base<void, E> {
+  using base_type = expected_storage_base<void, E>;
+
+  using base_type::base_type;
+
+  template <class... Args> constexpr void construct(std::in_place_t) {
+    this->has_val_ = true;
+  }
+
+  template <class... Args>
+  constexpr void construct(unexpect_t, Args&&... args) {
+    ::new (std::addressof(this->unexpect_))
+        unexpected<E>(std::forward<Args>(args)...);
+    this->has_val_ = false;
+  }
+
+  constexpr void destroy(std::in_place_t) {}
+
+  constexpr void destroy(unexpect_t) {
+    if constexpr (!std::is_trivially_destructible_v<E>)
+      this->unexpect_.~unexpected<E>();
+  }
+};
+
 } // namespace internal
 
 template <class T, class E> class expected {
