@@ -1,5 +1,7 @@
 #include "exp/expected.h"
 
+#include "arg.h"
+
 #include <initializer_list>
 #include <type_traits>
 #include <utility>
@@ -19,28 +21,6 @@ enum class State {
   copy_assigned,
   move_assigned,
   destructed
-};
-
-struct Arg {
-  Arg() = default;
-  explicit Arg(int x_) : x(x_) {}
-  ~Arg() = default;
-
-  Arg(const Arg&) = default;
-  Arg& operator=(const Arg&) = default;
-
-  Arg(Arg&& other) noexcept {
-    x = other.x;
-    other.x = -1;
-  }
-
-  Arg& operator=(Arg&& other) noexcept {
-    x = other.x;
-    other.x = -2;
-    return *this;
-  }
-
-  int x = 0;
 };
 
 enum class May_throw { do_not_throw, do_throw };
