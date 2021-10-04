@@ -1,5 +1,7 @@
 #include "exp/expected.h"
 
+#include "arg.h"
+
 #include <initializer_list>
 #include <utility>
 
@@ -13,6 +15,18 @@ struct Err {
   Err() = default;
   explicit Err(int e_) : e(e_) {}
   ~Err() = default;
+
+  Err(Arg&& arg_, int) {
+    Arg arg = std::move(arg_);
+    e = arg.x;
+  }
+
+  Err(std::initializer_list<int> il, Arg&& arg_, int) {
+    Arg arg = std::move(arg_);
+    e = arg.x;
+    if (!std::empty(il))
+      e += *il.begin();
+  }
 
   Err(const Err&) = default;
   Err& operator=(const Err&) = default;
@@ -39,13 +53,6 @@ struct Err2 {
   explicit Err2(int e_) : e(e_) {}
   explicit Err2(const Err& err_) : err(err_) {}
   explicit Err2(Err&& err_) : err(std::move(err_)) {}
-  Err2(int e_, Err&& err_) : e(e_), err(std::move(err_)) {}
-
-  Err2(std::initializer_list<int> il, int e_, Err&& err_)
-      : e(e_), err(std::move(err_)) {
-    if (!std::empty(il))
-      e += *il.begin();
-  }
 
   int e = 0;
   Err err;
@@ -146,19 +153,17 @@ TEST(unexpected, constructors) {
   }
   // (std::in_place_t, Args&&...)
   {
-    Err val(11);
-    unexpected<Err2> e(std::in_place, 10, std::move(val));
-    ASSERT_EQ(e.value().e, 10);
-    ASSERT_EQ(e.value().err.e, 11);
-    ASSERT_EQ(val.e, -1);
+    Arg arg(7);
+    unexpected<Err> e(std::in_place, std::move(arg), 7);
+    ASSERT_EQ(e.value().e, 7);
+    ASSERT_EQ(arg.x, -1);
   }
   // (std::in_place_t, std::initializer_list<U>, Args&&...)
   {
-    Err val(20);
-    unexpected<Err2> e(std::in_place, {18}, 19, std::move(val));
-    ASSERT_EQ(e.value().e, 18 + 19);
-    ASSERT_EQ(e.value().err.e, 20);
-    ASSERT_EQ(val.e, -1);
+    Arg arg(8);
+    unexpected<Err> e(std::in_place, {8}, std::move(arg), 8);
+    ASSERT_EQ(e.value().e, 8 + 8);
+    ASSERT_EQ(arg.x, -1);
   }
 }
 
