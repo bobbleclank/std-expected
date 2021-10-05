@@ -32,7 +32,7 @@ template <class Tag> struct Obj {
       x += *il.begin();
   }
 
-  Obj(const Obj& other) {
+  Obj(const Obj& other) noexcept {
     s = State::copy_constructed;
     x = other.x;
   }
@@ -43,7 +43,7 @@ template <class Tag> struct Obj {
     other.x = -1;
   }
 
-  Obj& operator=(const Obj& other) {
+  Obj& operator=(const Obj& other) noexcept {
     s = State::copy_assigned;
     x = other.x;
     return *this;
