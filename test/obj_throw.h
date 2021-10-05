@@ -114,6 +114,8 @@ template <class Tag> struct Obj_throw_2 {
     s = State::move_constructed;
     x = other.x;
     other.x = -1;
+    if (t == May_throw::do_throw)
+      throw t;
   }
 
   Obj_throw_2& operator=(const Obj_throw_2& other) {
@@ -128,6 +130,8 @@ template <class Tag> struct Obj_throw_2 {
     s = State::move_assigned;
     x = other.x;
     other.x = -2;
+    if (t == May_throw::do_throw)
+      throw t;
     return *this;
   }
 

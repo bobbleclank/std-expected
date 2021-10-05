@@ -378,6 +378,46 @@ struct expected_operations_base : expected_storage_base<T, E> {
       }
     }
   }
+
+  void assign(expected_operations_base&& other) {
+    if (this->has_val_) {
+      if (other.has_val_) {
+        this->val_ = std::move(other).val_; // This can throw.
+      } else {
+        if constexpr (std::is_nothrow_move_constructible_v<E>) {
+          destroy(std::in_place);
+          construct(unexpect, std::move(other).unexpect_);
+        } else { // std::is_nothrow_move_constructible_v<T>
+          T tmp = std::move(this->val_);
+          destroy(std::in_place);
+          try {
+            construct(unexpect, std::move(other).unexpect_); // This can throw.
+          } catch (...) {
+            construct(std::in_place, std::move(tmp));
+            throw;
+          }
+        }
+      }
+    } else {
+      if (other.has_val_) {
+        if constexpr (std::is_nothrow_move_constructible_v<T>) {
+          destroy(unexpect);
+          construct(std::in_place, std::move(other).val_);
+        } else { // std::is_nothrow_move_constructible_v<E>
+          unexpected<E> tmp = std::move(this->unexpect_);
+          destroy(unexpect);
+          try {
+            construct(std::in_place, std::move(other).val_); // This can throw.
+          } catch (...) {
+            construct(unexpect, std::move(tmp));
+            throw;
+          }
+        }
+      } else {
+        this->unexpect_ = std::move(other).unexpect_; // This can throw.
+      }
+    }
+  }
 };
 
 template <class E>
@@ -418,6 +458,24 @@ struct expected_operations_base<void, E> : expected_storage_base<void, E> {
         construct(std::in_place);
       } else {
         this->unexpect_ = other.unexpect_; // This can throw.
+      }
+    }
+  }
+
+  void assign(expected_operations_base&& other) {
+    if (this->has_val_) {
+      if (other.has_val_) {
+        // Nothing to do.
+      } else {
+        destroy(std::in_place);
+        construct(unexpect, std::move(other).unexpect_); // This can throw.
+      }
+    } else {
+      if (other.has_val_) {
+        destroy(unexpect);
+        construct(std::in_place);
+      } else {
+        this->unexpect_ = std::move(other).unexpect_; // This can throw.
       }
     }
   }
