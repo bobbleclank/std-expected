@@ -534,7 +534,6 @@ TEST(expected, default_constructor) {
 TEST(expected, copy_constructor) {
   Val::reset();
   Err::reset();
-  // (const expected&)
   {
     expected<Val, Err> other(std::in_place, 1);
     Val::reset();
@@ -569,7 +568,11 @@ TEST(expected, copy_constructor) {
     Err::reset();
   }
   Err::reset();
-  // (expected&&)
+}
+
+TEST(expected, move_constructor) {
+  Val::reset();
+  Err::reset();
   {
     expected<Val, Err> other(std::in_place, 3);
     Val::reset();
@@ -662,7 +665,6 @@ TEST(expected, variadic_template_constructor) {
 TEST(expected, copy_assignment) {
   Val::reset();
   Err::reset();
-  // (const expected&)
   {
     expected<Val, Err> other(std::in_place, 1);
     Val::reset();
@@ -737,7 +739,11 @@ TEST(expected, copy_assignment) {
     Err::reset();
   }
   Err::reset();
-  // (expected&&)
+}
+
+TEST(expected, move_assignment) {
+  Val::reset();
+  Err::reset();
   {
     expected<Val, Err> other(std::in_place, 5);
     Val::reset();
