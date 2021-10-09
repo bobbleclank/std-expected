@@ -344,7 +344,7 @@ struct expected_operations_base : expected_storage_base<T, E> {
           destroy(std::in_place);
           construct(unexpect, std::move(tmp));
         } else { // std::is_nothrow_move_constructible_v<T>
-          T tmp = this->val_; // This can throw.
+          T tmp = std::move(this->val_);
           destroy(std::in_place);
           try {
             construct(unexpect, other.unexpect_); // This can throw.
@@ -364,7 +364,7 @@ struct expected_operations_base : expected_storage_base<T, E> {
           destroy(unexpect);
           construct(std::in_place, std::move(tmp));
         } else { // std::is_nothrow_move_constructible_v<E>
-          unexpected<E> tmp = this->unexpect_; // This can throw.
+          unexpected<E> tmp = std::move(this->unexpect_);
           destroy(unexpect);
           try {
             construct(std::in_place, other.val_); // This can throw.

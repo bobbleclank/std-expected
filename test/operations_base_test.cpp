@@ -250,7 +250,7 @@ TEST(expected_operations_base, copy_assign) {
         Err_throw_2::t = May_throw::do_throw;
         b.assign(other);
       } catch (...) {
-        // copy_constructed (tmp), move_constructed (this), destructed (tmp)
+        // move_constructed (tmp), move_constructed (this), destructed (tmp)
         ASSERT_EQ(Val::s, State::destructed);
         ASSERT_EQ(Err_throw_2::s, State::copy_constructed); // failed
         did_throw = true;
@@ -417,7 +417,7 @@ TEST(expected_operations_base, copy_assign) {
         b.assign(other);
       } catch (...) {
         ASSERT_EQ(Val_throw_2::s, State::copy_constructed); // failed
-        // copy_constructed (tmp), move_constructed (this), destructed (tmp)
+        // move_constructed (tmp), move_constructed (this), destructed (tmp)
         ASSERT_EQ(Err::s, State::destructed);
         did_throw = true;
         Val_throw_2::t = May_throw::do_not_throw;
