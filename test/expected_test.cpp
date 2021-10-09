@@ -43,7 +43,10 @@ template <class Tag> struct Obj {
     x = arg.x;
   }
 
-  Obj(Arg&& arg, May_throw t) : Obj(std::move(arg), 0) {
+  Obj(Arg&& arg_, May_throw t) {
+    s = State::constructed;
+    Arg arg = std::move(arg_);
+    x = arg.x;
     if (t == May_throw::do_throw)
       throw t;
   }
@@ -57,8 +60,12 @@ template <class Tag> struct Obj {
       x += *il.begin();
   }
 
-  Obj(std::initializer_list<int> il, Arg&& arg, May_throw t)
-      : Obj(il, std::move(arg), 0) {
+  Obj(std::initializer_list<int> il, Arg&& arg_, May_throw t) {
+    s = State::constructed;
+    Arg arg = std::move(arg_);
+    x = arg.x;
+    if (!std::empty(il))
+      x += *il.begin();
     if (t == May_throw::do_throw)
       throw t;
   }
@@ -845,14 +852,13 @@ TEST(expected, emplace) {
     try {
       e.emplace(Arg(3), May_throw::do_throw);
     } catch (...) {
-      ASSERT_EQ(Val::s, State::destructed); // constructed (failed)
+      ASSERT_EQ(Val::s, State::constructed); // failed
       ASSERT_EQ(Err::s, State::none);
       did_throw = true;
     }
     ASSERT_TRUE(e.has_value());
     ASSERT_EQ(e->x, 30);
     ASSERT_TRUE(did_throw);
-    Val::s = State::constructed;
   }
   ASSERT_EQ(Val::s, State::destructed);
   ASSERT_EQ(Err::s, State::none);
@@ -894,7 +900,7 @@ TEST(expected, emplace) {
     try {
       e.emplace(Arg(8), May_throw::do_throw);
     } catch (...) {
-      ASSERT_EQ(Val::s, State::destructed); // constructed (failed)
+      ASSERT_EQ(Val::s, State::constructed); // failed
       ASSERT_EQ(Err::s, State::constructed);
       did_throw = true;
     }
@@ -967,14 +973,13 @@ TEST(expected, emplace_initializer_list_overload) {
     try {
       e.emplace({3}, Arg(3), May_throw::do_throw);
     } catch (...) {
-      ASSERT_EQ(Val::s, State::destructed); // constructed (failed)
+      ASSERT_EQ(Val::s, State::constructed); // failed
       ASSERT_EQ(Err::s, State::none);
       did_throw = true;
     }
     ASSERT_TRUE(e.has_value());
     ASSERT_EQ(e->x, 30);
     ASSERT_TRUE(did_throw);
-    Val::s = State::constructed;
   }
   ASSERT_EQ(Val::s, State::destructed);
   ASSERT_EQ(Err::s, State::none);
@@ -1017,7 +1022,7 @@ TEST(expected, emplace_initializer_list_overload) {
     try {
       e.emplace({8}, Arg(8), May_throw::do_throw);
     } catch (...) {
-      ASSERT_EQ(Val::s, State::destructed); // constructed (failed)
+      ASSERT_EQ(Val::s, State::constructed); // failed
       ASSERT_EQ(Err::s, State::constructed);
       did_throw = true;
     }
