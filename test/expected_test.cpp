@@ -836,7 +836,8 @@ TEST(expected, emplace) {
     Arg arg(2);
     expected<Val, Err> e(std::in_place, 20);
     e.emplace(std::move(arg), 2);
-    ASSERT_EQ(Val::s, State::destructed); // constructed, move_assigned
+    // constructed (tmp), move_assigned (this), destructed (tmp)
+    ASSERT_EQ(Val::s, State::destructed);
     ASSERT_EQ(Err::s, State::none);
     ASSERT_TRUE(e.has_value());
     ASSERT_EQ(e->x, 2);
@@ -883,7 +884,8 @@ TEST(expected, emplace) {
     Arg arg(7);
     expected<Val, Err> e(unexpect, 70);
     e.emplace(std::move(arg), May_throw::do_not_throw);
-    ASSERT_EQ(Val::s, State::destructed); // constructed, move_constructed
+    // constructed (tmp), move_constructed (this), destructed (tmp)
+    ASSERT_EQ(Val::s, State::destructed);
     ASSERT_EQ(Err::s, State::destructed);
     ASSERT_TRUE(e.has_value());
     ASSERT_EQ(e->x, 7);
@@ -934,7 +936,8 @@ TEST(expected, emplace) {
       e.emplace(Arg(11), May_throw::do_throw);
     } catch (...) {
       ASSERT_EQ(Val_throw::s, State::constructed); // failed
-      ASSERT_EQ(Err::s, State::destructed);        // move_constructed (twice)
+      // move_constructed (tmp), move_constructed (this), destructed (tmp)
+      ASSERT_EQ(Err::s, State::destructed);
       did_throw = true;
     }
     ASSERT_FALSE(e.has_value());
@@ -957,7 +960,8 @@ TEST(expected, emplace_initializer_list_overload) {
     Arg arg(2);
     expected<Val, Err> e(std::in_place, 20);
     e.emplace({2}, std::move(arg), 2);
-    ASSERT_EQ(Val::s, State::destructed); // constructed, move_assigned
+    // constructed (tmp), move_assigned (this), destructed (tmp)
+    ASSERT_EQ(Val::s, State::destructed);
     ASSERT_EQ(Err::s, State::none);
     ASSERT_TRUE(e.has_value());
     ASSERT_EQ(e->x, 2 + 2);
@@ -1005,7 +1009,8 @@ TEST(expected, emplace_initializer_list_overload) {
     Arg arg(7);
     expected<Val, Err> e(unexpect, 70);
     e.emplace({7}, std::move(arg), May_throw::do_not_throw);
-    ASSERT_EQ(Val::s, State::destructed); // constructed, move_constructed
+    // constructed (tmp), move_constructed (this), destructed (tmp)
+    ASSERT_EQ(Val::s, State::destructed);
     ASSERT_EQ(Err::s, State::destructed);
     ASSERT_TRUE(e.has_value());
     ASSERT_EQ(e->x, 7 + 7);
@@ -1056,7 +1061,8 @@ TEST(expected, emplace_initializer_list_overload) {
       e.emplace({11}, Arg(11), May_throw::do_throw);
     } catch (...) {
       ASSERT_EQ(Val_throw::s, State::constructed); // failed
-      ASSERT_EQ(Err::s, State::destructed);        // move_constructed (twice)
+      // move_constructed (tmp), move_constructed (this), destructed (tmp)
+      ASSERT_EQ(Err::s, State::destructed);
       did_throw = true;
     }
     ASSERT_FALSE(e.has_value());
