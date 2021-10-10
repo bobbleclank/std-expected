@@ -51,11 +51,18 @@ bool operator!=(Err lhs, Err rhs) { return !(lhs == rhs); }
 struct Err2 {
   Err2() = default;
   explicit Err2(int e_) : e(e_) {}
-  explicit Err2(const Err& err_) : err(err_) {}
-  explicit Err2(Err&& err_) : err(std::move(err_)) {}
+
+  explicit Err2(const Err& err_) {
+    Err err = err_;
+    e = err.e;
+  }
+
+  explicit Err2(Err&& err_) {
+    Err err = std::move(err_);
+    e = err.e;
+  }
 
   int e = 0;
-  Err err;
 };
 
 bool operator==(Err2 lhs, Err rhs) { return lhs.e == rhs.e; }
@@ -142,13 +149,13 @@ TEST(unexpected, constructors) {
   {
     Err val(5);
     unexpected<Err2> e(val);
-    ASSERT_EQ(e.value().err.e, 5);
+    ASSERT_EQ(e.value().e, 5);
     ASSERT_EQ(val.e, 5);
   }
   {
     Err val(6);
     unexpected<Err2> e(std::move(val));
-    ASSERT_EQ(e.value().err.e, 6);
+    ASSERT_EQ(e.value().e, 6);
     ASSERT_EQ(val.e, -1);
   }
   // (std::in_place_t, Args&&...)
