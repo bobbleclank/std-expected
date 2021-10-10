@@ -8,8 +8,8 @@
 
 struct Err {
   Err() = default;
+
   explicit Err(int e_) : e(e_) {}
-  ~Err() = default;
 
   Err(Arg&& arg_, int) {
     Arg arg = std::move(arg_);
@@ -24,18 +24,21 @@ struct Err {
   }
 
   Err(const Err&) = default;
-  Err& operator=(const Err&) = default;
 
   Err(Err&& other) noexcept {
     e = other.e;
     other.e = -1;
   }
 
+  Err& operator=(const Err&) = default;
+
   Err& operator=(Err&& other) noexcept {
     e = other.e;
     other.e = -2;
     return *this;
   }
+
+  ~Err() = default;
 
   int e = 0;
 };

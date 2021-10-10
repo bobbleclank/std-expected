@@ -13,6 +13,7 @@ namespace {
 
 struct Err2 {
   Err2() = default;
+
   explicit Err2(int e_) : e(e_) {}
 
   explicit Err2(const Err& err_) {

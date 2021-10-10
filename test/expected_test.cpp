@@ -143,6 +143,7 @@ struct Val_throw {
 
 struct Con {
   Con() = default;
+
   explicit Con(int x_) : x(x_) {}
 
   operator Val() const& { return Val(x); }
