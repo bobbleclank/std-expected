@@ -1,36 +1,12 @@
 #include "exp/expected.h"
 
+#include "err.h"
+
 #include <utility>
 
 #include <gtest/gtest.h>
 
 using namespace exp;
-
-namespace {
-
-struct Err {
-  Err() = default;
-  explicit Err(int e_) : e(e_) {}
-  ~Err() = default;
-
-  Err(const Err&) = default;
-  Err& operator=(const Err&) = default;
-
-  Err(Err&& other) noexcept {
-    e = other.e;
-    other.e = -1;
-  }
-
-  Err& operator=(Err&& other) noexcept {
-    e = other.e;
-    other.e = -2;
-    return *this;
-  }
-
-  int e = 0;
-};
-
-} // namespace
 
 TEST(bad_expected_access, what) {
   bad_expected_access<Err> e(Err(1));
