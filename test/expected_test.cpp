@@ -101,7 +101,7 @@ struct Val_throw {
     x = x_;
   }
 
-  Val_throw(Arg&& arg_, May_throw t) {
+  Val_throw(Arg&& arg_, int) {
     s = State::constructed;
     Arg arg = std::move(arg_);
     x = arg.x;
@@ -109,7 +109,7 @@ struct Val_throw {
       throw t;
   }
 
-  Val_throw(std::initializer_list<int> il, Arg&& arg_, May_throw t) {
+  Val_throw(std::initializer_list<int> il, Arg&& arg_, int) {
     s = State::constructed;
     Arg arg = std::move(arg_);
     x = arg.x;
@@ -135,13 +135,14 @@ struct Val_throw {
   ~Val_throw() { s = State::destructed; }
 
   int x = 0;
+  inline static May_throw t = May_throw::do_not_throw;
 };
 
 struct Val_throw_2 {
   inline static State s = State::none;
   static void reset() { s = State::none; }
 
-  Val_throw_2(Arg&& arg_, May_throw t) {
+  Val_throw_2(Arg&& arg_, int) {
     s = State::constructed;
     Arg arg = std::move(arg_);
     x = arg.x;
@@ -149,7 +150,7 @@ struct Val_throw_2 {
       throw t;
   }
 
-  Val_throw_2(std::initializer_list<int> il, Arg&& arg_, May_throw t) {
+  Val_throw_2(std::initializer_list<int> il, Arg&& arg_, int) {
     s = State::constructed;
     Arg arg = std::move(arg_);
     x = arg.x;
@@ -175,6 +176,7 @@ struct Val_throw_2 {
   ~Val_throw_2() { s = State::destructed; }
 
   int x = 0;
+  inline static May_throw t = May_throw::do_not_throw;
 };
 
 struct Con {
@@ -881,11 +883,13 @@ TEST(expected, emplace) {
     expected<Val_throw, Err> e(std::in_place, 30);
     bool did_throw = false;
     try {
-      e.emplace(Arg(3), May_throw::do_throw);
+      Val_throw::t = May_throw::do_throw;
+      e.emplace(Arg(3), 3);
     } catch (...) {
       ASSERT_EQ(Val_throw::s, State::constructed); // failed
       ASSERT_EQ(Err::s, State::none);
       did_throw = true;
+      Val_throw::t = May_throw::do_not_throw;
     }
     ASSERT_TRUE(e.has_value());
     ASSERT_EQ(e->x, 30);
@@ -913,7 +917,7 @@ TEST(expected, emplace) {
   {
     Arg arg(7);
     expected<Val_throw, Err> e(unexpect, 70);
-    e.emplace(std::move(arg), May_throw::do_not_throw);
+    e.emplace(std::move(arg), 7);
     // constructed (tmp), move_constructed (this), destructed (tmp)
     ASSERT_EQ(Val_throw::s, State::destructed);
     ASSERT_EQ(Err::s, State::destructed);
@@ -930,11 +934,13 @@ TEST(expected, emplace) {
     expected<Val_throw, Err> e(unexpect, 80);
     bool did_throw = false;
     try {
-      e.emplace(Arg(8), May_throw::do_throw);
+      Val_throw::t = May_throw::do_throw;
+      e.emplace(Arg(8), 8);
     } catch (...) {
       ASSERT_EQ(Val_throw::s, State::constructed); // failed
       ASSERT_EQ(Err::s, State::constructed);
       did_throw = true;
+      Val_throw::t = May_throw::do_not_throw;
     }
     ASSERT_FALSE(e.has_value());
     ASSERT_EQ(e.error().x, 80);
@@ -948,7 +954,7 @@ TEST(expected, emplace) {
   {
     Arg arg(10);
     expected<Val_throw_2, Err> e(unexpect, 100);
-    e.emplace(std::move(arg), May_throw::do_not_throw);
+    e.emplace(std::move(arg), 10);
     ASSERT_EQ(Val_throw_2::s, State::constructed);
     ASSERT_EQ(Err::s, State::destructed);
     ASSERT_TRUE(e.has_value());
@@ -963,12 +969,14 @@ TEST(expected, emplace) {
     expected<Val_throw_2, Err> e(unexpect, 110);
     bool did_throw = false;
     try {
-      e.emplace(Arg(11), May_throw::do_throw);
+      Val_throw_2::t = May_throw::do_throw;
+      e.emplace(Arg(11), 11);
     } catch (...) {
       ASSERT_EQ(Val_throw_2::s, State::constructed); // failed
       // move_constructed (tmp), move_constructed (this), destructed (tmp)
       ASSERT_EQ(Err::s, State::destructed);
       did_throw = true;
+      Val_throw_2::t = May_throw::do_not_throw;
     }
     ASSERT_FALSE(e.has_value());
     ASSERT_EQ(e.error().x, 110);
@@ -1006,11 +1014,13 @@ TEST(expected, emplace_initializer_list_overload) {
     expected<Val_throw, Err> e(std::in_place, 30);
     bool did_throw = false;
     try {
-      e.emplace({3}, Arg(3), May_throw::do_throw);
+      Val_throw::t = May_throw::do_throw;
+      e.emplace({3}, Arg(3), 3);
     } catch (...) {
       ASSERT_EQ(Val_throw::s, State::constructed); // failed
       ASSERT_EQ(Err::s, State::none);
       did_throw = true;
+      Val_throw::t = May_throw::do_not_throw;
     }
     ASSERT_TRUE(e.has_value());
     ASSERT_EQ(e->x, 30);
@@ -1038,7 +1048,7 @@ TEST(expected, emplace_initializer_list_overload) {
   {
     Arg arg(7);
     expected<Val_throw, Err> e(unexpect, 70);
-    e.emplace({7}, std::move(arg), May_throw::do_not_throw);
+    e.emplace({7}, std::move(arg), 7);
     // constructed (tmp), move_constructed (this), destructed (tmp)
     ASSERT_EQ(Val_throw::s, State::destructed);
     ASSERT_EQ(Err::s, State::destructed);
@@ -1055,11 +1065,13 @@ TEST(expected, emplace_initializer_list_overload) {
     expected<Val_throw, Err> e(unexpect, 80);
     bool did_throw = false;
     try {
-      e.emplace({8}, Arg(8), May_throw::do_throw);
+      Val_throw::t = May_throw::do_throw;
+      e.emplace({8}, Arg(8), 8);
     } catch (...) {
       ASSERT_EQ(Val_throw::s, State::constructed); // failed
       ASSERT_EQ(Err::s, State::constructed);
       did_throw = true;
+      Val_throw::t = May_throw::do_not_throw;
     }
     ASSERT_FALSE(e.has_value());
     ASSERT_EQ(e.error().x, 80);
@@ -1073,7 +1085,7 @@ TEST(expected, emplace_initializer_list_overload) {
   {
     Arg arg(10);
     expected<Val_throw_2, Err> e(unexpect, 100);
-    e.emplace({10}, std::move(arg), May_throw::do_not_throw);
+    e.emplace({10}, std::move(arg), 10);
     ASSERT_EQ(Val_throw_2::s, State::constructed);
     ASSERT_EQ(Err::s, State::destructed);
     ASSERT_TRUE(e.has_value());
@@ -1088,12 +1100,14 @@ TEST(expected, emplace_initializer_list_overload) {
     expected<Val_throw_2, Err> e(unexpect, 110);
     bool did_throw = false;
     try {
-      e.emplace({11}, Arg(11), May_throw::do_throw);
+      Val_throw_2::t = May_throw::do_throw;
+      e.emplace({11}, Arg(11), 11);
     } catch (...) {
       ASSERT_EQ(Val_throw_2::s, State::constructed); // failed
       // move_constructed (tmp), move_constructed (this), destructed (tmp)
       ASSERT_EQ(Err::s, State::destructed);
       did_throw = true;
+      Val_throw_2::t = May_throw::do_not_throw;
     }
     ASSERT_FALSE(e.has_value());
     ASSERT_EQ(e.error().x, 110);
