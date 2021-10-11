@@ -831,7 +831,7 @@ TEST(expected, emplace) {
   Val::reset();
   Err::reset();
   Val_throw::reset();
-  // (Args&&...) via has_value()
+  // has_value()
   {
     Arg arg(2);
     expected<Val, Err> e(std::in_place, 20);
@@ -864,7 +864,7 @@ TEST(expected, emplace) {
   ASSERT_EQ(Val::s, State::destructed);
   ASSERT_EQ(Err::s, State::none);
   Val::reset();
-  // (Args&&...) via std::is_nothrow_constructible_v
+  // !has_value() via std::is_nothrow_constructible_v<T, Args...>
   {
     Arg arg(5);
     expected<Val, Err> e(unexpect, 50);
@@ -879,7 +879,7 @@ TEST(expected, emplace) {
   ASSERT_EQ(Val::s, State::destructed);
   ASSERT_EQ(Err::s, State::none);
   Val::reset();
-  // (Args&&...) via std::is_nothrow_move_constructible_v
+  // !has_value() via std::is_nothrow_move_constructible_v<T>
   {
     Arg arg(7);
     expected<Val, Err> e(unexpect, 70);
@@ -914,7 +914,7 @@ TEST(expected, emplace) {
   ASSERT_EQ(Val::s, State::none);
   ASSERT_EQ(Err::s, State::destructed);
   Err::reset();
-  // (Args&&...) via std::is_constructible_v
+  // !has_value() via std::is_constructible_v<T, Args...>
   {
     Arg arg(10);
     expected<Val_throw, Err> e(unexpect, 100);
@@ -955,7 +955,7 @@ TEST(expected, emplace_initializer_list_overload) {
   Val::reset();
   Err::reset();
   Val_throw::reset();
-  // (std::initializer_list<U>, Args&&...) via has_value()
+  // has_value()
   {
     Arg arg(2);
     expected<Val, Err> e(std::in_place, 20);
@@ -988,7 +988,7 @@ TEST(expected, emplace_initializer_list_overload) {
   ASSERT_EQ(Val::s, State::destructed);
   ASSERT_EQ(Err::s, State::none);
   Val::reset();
-  // (std::initializer_list<U>, Args&&...) via std::is_nothrow_constructible_v
+  // !has_value() via std::is_nothrow_constructible_v<T, Args...>
   {
     Arg arg(5);
     expected<Val, Err> e(unexpect, 50);
@@ -1003,8 +1003,7 @@ TEST(expected, emplace_initializer_list_overload) {
   ASSERT_EQ(Val::s, State::destructed);
   ASSERT_EQ(Err::s, State::none);
   Val::reset();
-  // (std::initializer_list<U>, Args&&...) via
-  // std::is_nothrow_move_constructible_v
+  // !has_value() via std::is_nothrow_move_constructible_v<T>
   {
     Arg arg(7);
     expected<Val, Err> e(unexpect, 70);
@@ -1039,7 +1038,7 @@ TEST(expected, emplace_initializer_list_overload) {
   ASSERT_EQ(Val::s, State::none);
   ASSERT_EQ(Err::s, State::destructed);
   Err::reset();
-  // (std::initializer_list<U>, Args&&...) via std::is_constructible_v
+  // !has_value() via std::is_constructible_v<T, Args...>
   {
     Arg arg(10);
     expected<Val_throw, Err> e(unexpect, 100);
