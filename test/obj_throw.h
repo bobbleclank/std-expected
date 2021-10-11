@@ -9,16 +9,16 @@
 
 enum class May_throw { do_not_throw, do_throw };
 
-struct Val_throw {
+template <class Tag> struct Obj_throw {
   inline static State s = State::none;
   static void reset() { s = State::none; }
 
-  explicit Val_throw(int x_) {
+  explicit Obj_throw(int x_) {
     s = State::constructed;
     x = x_;
   }
 
-  Val_throw(Arg&& arg_, int) {
+  Obj_throw(Arg&& arg_, int) {
     s = State::constructed;
     Arg arg = std::move(arg_);
     x = arg.x;
@@ -26,7 +26,7 @@ struct Val_throw {
       throw t;
   }
 
-  Val_throw(std::initializer_list<int> il, Arg&& arg_, int) {
+  Obj_throw(std::initializer_list<int> il, Arg&& arg_, int) {
     s = State::constructed;
     Arg arg = std::move(arg_);
     x = arg.x;
@@ -36,30 +36,33 @@ struct Val_throw {
       throw t;
   }
 
-  Val_throw(Val_throw&& other) noexcept {
+  Obj_throw(Obj_throw&& other) noexcept {
     s = State::move_constructed;
     x = other.x;
     other.x = -1;
   }
 
-  Val_throw& operator=(Val_throw&& other) noexcept {
+  Obj_throw& operator=(Obj_throw&& other) noexcept {
     s = State::move_assigned;
     x = other.x;
     other.x = -2;
     return *this;
   }
 
-  ~Val_throw() { s = State::destructed; }
+  ~Obj_throw() { s = State::destructed; }
 
   int x = 0;
   inline static May_throw t = May_throw::do_not_throw;
 };
 
-struct Val_throw_2 {
+struct Val_throw_tag {};
+using Val_throw = Obj_throw<Val_throw_tag>;
+
+template <class Tag> struct Obj_throw_2 {
   inline static State s = State::none;
   static void reset() { s = State::none; }
 
-  Val_throw_2(Arg&& arg_, int) {
+  Obj_throw_2(Arg&& arg_, int) {
     s = State::constructed;
     Arg arg = std::move(arg_);
     x = arg.x;
@@ -67,7 +70,7 @@ struct Val_throw_2 {
       throw t;
   }
 
-  Val_throw_2(std::initializer_list<int> il, Arg&& arg_, int) {
+  Obj_throw_2(std::initializer_list<int> il, Arg&& arg_, int) {
     s = State::constructed;
     Arg arg = std::move(arg_);
     x = arg.x;
@@ -77,23 +80,26 @@ struct Val_throw_2 {
       throw t;
   }
 
-  Val_throw_2(Val_throw_2&& other) {
+  Obj_throw_2(Obj_throw_2&& other) {
     s = State::move_constructed;
     x = other.x;
     other.x = -1;
   }
 
-  Val_throw_2& operator=(Val_throw_2&& other) {
+  Obj_throw_2& operator=(Obj_throw_2&& other) {
     s = State::move_assigned;
     x = other.x;
     other.x = -2;
     return *this;
   }
 
-  ~Val_throw_2() { s = State::destructed; }
+  ~Obj_throw_2() { s = State::destructed; }
 
   int x = 0;
   inline static May_throw t = May_throw::do_not_throw;
 };
+
+struct Val_throw_2_tag {};
+using Val_throw_2 = Obj_throw_2<Val_throw_2_tag>;
 
 #endif
