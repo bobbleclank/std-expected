@@ -331,6 +331,14 @@ struct expected_operations_base : expected_storage_base<T, E> {
       this->unexpect_.~unexpected<E>();
   }
 
+  template <class That> void construct_from(That&& other) {
+    if (other.has_val_) {
+      construct(std::in_place, std::forward<That>(other).val_);
+    } else {
+      construct(unexpect, std::forward<That>(other).unexpect_);
+    }
+  }
+
   void assign(const expected_operations_base& other) {
     if (this->has_val_) {
       if (other.has_val_) {
@@ -442,6 +450,14 @@ struct expected_operations_base<void, E> : expected_storage_base<void, E> {
   constexpr void destroy(unexpect_t) {
     if constexpr (!std::is_trivially_destructible_v<E>)
       this->unexpect_.~unexpected<E>();
+  }
+
+  template <class That> void construct_from(That&& other) {
+    if (other.has_val_) {
+      construct(std::in_place);
+    } else {
+      construct(unexpect, std::forward<That>(other).unexpect_);
+    }
   }
 
   void assign(const expected_operations_base& other) {
