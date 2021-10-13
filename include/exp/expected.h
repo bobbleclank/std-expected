@@ -115,6 +115,14 @@ constexpr bool operator!=(const unexpected<E1>& x, const unexpected<E2>& y) {
 
 namespace internal {
 
+template <class T>
+using is_trivially_destructible_or_void =
+    std::disjunction<std::is_void<T>, std::is_trivially_destructible<T>>;
+
+template <class T>
+inline constexpr bool is_trivially_destructible_or_void_v =
+    is_trivially_destructible_or_void<T>::value;
+
 struct uninit_t {};
 
 inline constexpr uninit_t uninit{};
@@ -122,7 +130,7 @@ inline constexpr uninit_t uninit{};
 // Storage of values. Trivially destructible if both T and E are.
 // clang-format off
 template <class T, class E,
-          bool = (std::is_void_v<T> || std::is_trivially_destructible_v<T>) &&
+          bool = is_trivially_destructible_or_void_v<T> &&
                  std::is_trivially_destructible_v<E>>
 struct expected_storage_base;
 // clang-format on
