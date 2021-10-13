@@ -116,6 +116,14 @@ constexpr bool operator!=(const unexpected<E1>& x, const unexpected<E2>& y) {
 namespace internal {
 
 template <class T>
+using is_trivially_copy_constructible_or_void =
+    std::disjunction<std::is_void<T>, std::is_trivially_copy_constructible<T>>;
+
+template <class T>
+inline constexpr bool is_trivially_copy_constructible_or_void_v =
+    is_trivially_copy_constructible_or_void<T>::value;
+
+template <class T>
 using is_trivially_destructible_or_void =
     std::disjunction<std::is_void<T>, std::is_trivially_destructible<T>>;
 
@@ -503,6 +511,40 @@ struct expected_operations_base<void, E> : expected_storage_base<void, E> {
       }
     }
   }
+};
+
+// Copy constructor. Trivially copy constructible if both T and E are.
+// clang-format off
+template <class T, class E,
+          bool = is_trivially_copy_constructible_or_void_v<T> &&
+                 std::is_trivially_copy_constructible_v<E>>
+struct expected_copy_base;
+// clang-format on
+
+// Both T and E are trivially copy constructible.
+template <class T, class E>
+struct expected_copy_base<T, E, true> : expected_operations_base<T, E> {
+  using base_type = expected_operations_base<T, E>;
+
+  using base_type::base_type;
+};
+
+// Either T, E or both are not trivially copy constructible.
+template <class T, class E>
+struct expected_copy_base<T, E, false> : expected_operations_base<T, E> {
+  using base_type = expected_operations_base<T, E>;
+
+  using base_type::base_type;
+
+  expected_copy_base() = default;
+
+  expected_copy_base(const expected_copy_base& other) : base_type(uninit) {
+    this->construct_from(other);
+  }
+
+  expected_copy_base(expected_copy_base&&) = default;
+  expected_copy_base& operator=(const expected_copy_base&) = default;
+  expected_copy_base& operator=(expected_copy_base&&) = default;
 };
 
 } // namespace internal

@@ -21,6 +21,8 @@ template <class Tag> struct Obj_trivial {
       x += *il.begin();
   }
 
+  Obj_trivial(const Obj_trivial&) = default;
+
   ~Obj_trivial() = default;
 
   int x = 20100;
