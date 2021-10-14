@@ -33,11 +33,11 @@ TEST(expected_operations_base, in_place_t_construct_destroy) {
     Arg arg(1);
     Base b(uninit);
     b.construct(std::in_place, std::move(arg), 1);
-    ASSERT_EQ(b.val_.x, 1);
-    ASSERT_TRUE(b.has_val_);
-    ASSERT_EQ(arg.x, -1);
     ASSERT_EQ(Val::s, State::constructed);
     ASSERT_EQ(Err::s, State::none);
+    ASSERT_TRUE(b.has_val_);
+    ASSERT_EQ(b.val_.x, 1);
+    ASSERT_EQ(arg.x, -1);
     b.destroy(std::in_place);
     ASSERT_EQ(Val::s, State::destructed);
     ASSERT_EQ(Err::s, State::none);
@@ -50,9 +50,9 @@ TEST(expected_operations_base, in_place_t_construct_destroy) {
   {
     Base_void b(uninit);
     b.construct(std::in_place);
-    (void)b.dummy_;
-    ASSERT_TRUE(b.has_val_);
     ASSERT_EQ(Err::s, State::none);
+    ASSERT_TRUE(b.has_val_);
+    (void)b.dummy_;
     b.destroy(std::in_place);
     ASSERT_EQ(Err::s, State::none);
   }
@@ -66,11 +66,11 @@ TEST(expected_operations_base, unexpect_t_construct_destroy) {
     Arg arg(1);
     Base b(uninit);
     b.construct(exp::unexpect, std::in_place, std::move(arg), 1);
-    ASSERT_EQ(b.unexpect_.value().x, 1);
-    ASSERT_FALSE(b.has_val_);
-    ASSERT_EQ(arg.x, -1);
     ASSERT_EQ(Val::s, State::none);
     ASSERT_EQ(Err::s, State::constructed);
+    ASSERT_FALSE(b.has_val_);
+    ASSERT_EQ(b.unexpect_.value().x, 1);
+    ASSERT_EQ(arg.x, -1);
     b.destroy(exp::unexpect);
     ASSERT_EQ(Val::s, State::none);
     ASSERT_EQ(Err::s, State::destructed);
@@ -84,10 +84,10 @@ TEST(expected_operations_base, unexpect_t_construct_destroy) {
     Arg arg(2);
     Base_void b(uninit);
     b.construct(exp::unexpect, std::in_place, std::move(arg), 2);
-    ASSERT_EQ(b.unexpect_.value().x, 2);
-    ASSERT_FALSE(b.has_val_);
-    ASSERT_EQ(arg.x, -1);
     ASSERT_EQ(Err::s, State::constructed);
+    ASSERT_FALSE(b.has_val_);
+    ASSERT_EQ(b.unexpect_.value().x, 2);
+    ASSERT_EQ(arg.x, -1);
     b.destroy(exp::unexpect);
     ASSERT_EQ(Err::s, State::destructed);
     Err::reset();
