@@ -14,22 +14,22 @@ using namespace exp::internal;
 
 namespace {
 
-template <class Tag> struct Trivial {
-  Trivial() = default;
+template <class Tag> struct Obj_trivial {
+  Obj_trivial() = default;
 
-  Trivial(Arg&& arg_, int) {
+  Obj_trivial(Arg&& arg_, int) {
     Arg arg = std::move(arg_);
     x = arg.x;
   }
 
-  Trivial(std::initializer_list<int> il, Arg&& arg_, int) {
+  Obj_trivial(std::initializer_list<int> il, Arg&& arg_, int) {
     Arg arg = std::move(arg_);
     x = arg.x;
     if (!std::empty(il))
       x += *il.begin();
   }
 
-  ~Trivial() = default;
+  ~Obj_trivial() = default;
 
   int x = 20100;
 };
@@ -41,10 +41,10 @@ struct Not_trivial_e_tag {};
 using Not_trivial_e = Obj<Not_trivial_e_tag>;
 
 struct Trivial_t_tag {};
-using Trivial_t = Trivial<Trivial_t_tag>;
+using Trivial_t = Obj_trivial<Trivial_t_tag>;
 
 struct Trivial_e_tag {};
-using Trivial_e = Trivial<Trivial_e_tag>;
+using Trivial_e = Obj_trivial<Trivial_e_tag>;
 
 using Base_not_trivial = expected_storage_base<Not_trivial_t, Not_trivial_e>;
 using Base_t_not_trivial = expected_storage_base<Not_trivial_t, Trivial_e>;
