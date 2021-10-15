@@ -2,9 +2,9 @@
 
 #include "arg.h"
 #include "obj.h"
+#include "obj_trivial.h"
 #include "state.h"
 
-#include <initializer_list>
 #include <type_traits>
 #include <utility>
 
@@ -13,26 +13,6 @@
 using namespace exp::internal;
 
 namespace {
-
-template <class Tag> struct Obj_trivial {
-  Obj_trivial() = default;
-
-  Obj_trivial(Arg&& arg_, int) {
-    Arg arg = std::move(arg_);
-    x = arg.x;
-  }
-
-  Obj_trivial(std::initializer_list<int> il, Arg&& arg_, int) {
-    Arg arg = std::move(arg_);
-    x = arg.x;
-    if (!std::empty(il))
-      x += *il.begin();
-  }
-
-  ~Obj_trivial() = default;
-
-  int x = 20100;
-};
 
 struct Not_trivial_t_tag {};
 using Not_trivial_t = Obj<Not_trivial_t_tag>;
