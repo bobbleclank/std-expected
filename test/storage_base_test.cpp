@@ -14,27 +14,21 @@ using namespace exp::internal;
 
 namespace {
 
-struct Trivial_t_tag {};
-using Trivial_t = Obj_trivial<Trivial_t_tag>;
-
-struct Trivial_e_tag {};
-using Trivial_e = Obj_trivial<Trivial_e_tag>;
-
 using Base_not_trivial = expected_storage_base<Val, Err>;
-using Base_t_not_trivial = expected_storage_base<Val, Trivial_e>;
-using Base_e_not_trivial = expected_storage_base<Trivial_t, Err>;
-using Base_trivial = expected_storage_base<Trivial_t, Trivial_e>;
+using Base_t_not_trivial = expected_storage_base<Val, Err_trivial>;
+using Base_e_not_trivial = expected_storage_base<Val_trivial, Err>;
+using Base_trivial = expected_storage_base<Val_trivial, Err_trivial>;
 
 using Base_void_not_trivial = expected_storage_base<void, Err>;
-using Base_void_trivial = expected_storage_base<void, Trivial_e>;
+using Base_void_trivial = expected_storage_base<void, Err_trivial>;
 
 } // namespace
 
 TEST(expected_storage_base, type_traits) {
   ASSERT_FALSE(std::is_trivially_destructible_v<Val>);
   ASSERT_FALSE(std::is_trivially_destructible_v<Err>);
-  ASSERT_TRUE(std::is_trivially_destructible_v<Trivial_t>);
-  ASSERT_TRUE(std::is_trivially_destructible_v<Trivial_e>);
+  ASSERT_TRUE(std::is_trivially_destructible_v<Val_trivial>);
+  ASSERT_TRUE(std::is_trivially_destructible_v<Err_trivial>);
 
   ASSERT_FALSE(std::is_trivially_destructible_v<Base_not_trivial>);
   ASSERT_FALSE(std::is_trivially_destructible_v<Base_t_not_trivial>);

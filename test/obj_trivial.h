@@ -26,4 +26,10 @@ template <class Tag> struct Obj_trivial {
   int x = 20100;
 };
 
+struct Val_trivial_tag {};
+using Val_trivial = Obj_trivial<Val_trivial_tag>;
+
+struct Err_trivial_tag {};
+using Err_trivial = Obj_trivial<Err_trivial_tag>;
+
 #endif
