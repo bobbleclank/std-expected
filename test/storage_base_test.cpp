@@ -43,7 +43,7 @@ template <class Tag> struct Trivial {
   inline static State s = State::none;
   static void reset() { s = State::none; }
 
-  Trivial() { s = State::default_constructed; }
+  Trivial() = default;
 
   Trivial(Arg&& arg_, int) {
     s = State::constructed;
@@ -130,20 +130,20 @@ TEST(expected_storage_base, default_constructor) {
     Base_e_not_trivial b;
     ASSERT_EQ(b.val_.x, 20100);
     ASSERT_TRUE(b.has_val_);
-    ASSERT_EQ(Trivial_t::s, State::default_constructed);
+    ASSERT_EQ(Trivial_t::s, State::none);
     ASSERT_EQ(Not_trivial_e::s, State::none);
   }
-  ASSERT_EQ(Trivial_t::s, State::default_constructed);
+  ASSERT_EQ(Trivial_t::s, State::none);
   ASSERT_EQ(Not_trivial_e::s, State::none);
   Trivial_t::reset();
   {
     Base_trivial b;
     ASSERT_EQ(b.val_.x, 20100);
     ASSERT_TRUE(b.has_val_);
-    ASSERT_EQ(Trivial_t::s, State::default_constructed);
+    ASSERT_EQ(Trivial_t::s, State::none);
     ASSERT_EQ(Trivial_e::s, State::none);
   }
-  ASSERT_EQ(Trivial_t::s, State::default_constructed);
+  ASSERT_EQ(Trivial_t::s, State::none);
   ASSERT_EQ(Trivial_e::s, State::none);
   Trivial_t::reset();
   // T is void
