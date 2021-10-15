@@ -40,9 +40,6 @@ template <class Tag> struct Not_trivial {
 };
 
 template <class Tag> struct Trivial {
-  inline static State s = State::none;
-  static void reset() { s = State::none; }
-
   Trivial() = default;
 
   Trivial(Arg&& arg_, int) {
@@ -102,8 +99,6 @@ TEST(expected_storage_base, type_traits) {
 TEST(expected_storage_base, default_constructor) {
   Not_trivial_t::reset();
   Not_trivial_e::reset();
-  Trivial_t::reset();
-  Trivial_e::reset();
   {
     Base_not_trivial b;
     ASSERT_EQ(b.val_.x, 20100);
@@ -119,31 +114,21 @@ TEST(expected_storage_base, default_constructor) {
     ASSERT_EQ(b.val_.x, 20100);
     ASSERT_TRUE(b.has_val_);
     ASSERT_EQ(Not_trivial_t::s, State::default_constructed);
-    ASSERT_EQ(Trivial_e::s, State::none);
   }
   ASSERT_EQ(Not_trivial_t::s, State::destructed);
-  ASSERT_EQ(Trivial_e::s, State::none);
   Not_trivial_t::reset();
   {
     Base_e_not_trivial b;
     ASSERT_EQ(b.val_.x, 20100);
     ASSERT_TRUE(b.has_val_);
-    ASSERT_EQ(Trivial_t::s, State::none);
     ASSERT_EQ(Not_trivial_e::s, State::none);
   }
-  ASSERT_EQ(Trivial_t::s, State::none);
   ASSERT_EQ(Not_trivial_e::s, State::none);
-  Trivial_t::reset();
   {
     Base_trivial b;
     ASSERT_EQ(b.val_.x, 20100);
     ASSERT_TRUE(b.has_val_);
-    ASSERT_EQ(Trivial_t::s, State::none);
-    ASSERT_EQ(Trivial_e::s, State::none);
   }
-  ASSERT_EQ(Trivial_t::s, State::none);
-  ASSERT_EQ(Trivial_e::s, State::none);
-  Trivial_t::reset();
   // T is void
   {
     Base_void_not_trivial b;
@@ -156,16 +141,12 @@ TEST(expected_storage_base, default_constructor) {
     Base_void_trivial b;
     (void)b.dummy_;
     ASSERT_TRUE(b.has_val_);
-    ASSERT_EQ(Trivial_e::s, State::none);
   }
-  ASSERT_EQ(Trivial_e::s, State::none);
 }
 
 TEST(expected_storage_base, uninit_t_constructor) {
   Not_trivial_t::reset();
   Not_trivial_e::reset();
-  Trivial_t::reset();
-  Trivial_e::reset();
   {
     Base_not_trivial b(uninit);
     ASSERT_EQ(b.uninit_, '\0');
@@ -181,29 +162,21 @@ TEST(expected_storage_base, uninit_t_constructor) {
     ASSERT_EQ(b.uninit_, '\0');
     ASSERT_FALSE(b.has_val_);
     ASSERT_EQ(Not_trivial_t::s, State::none);
-    ASSERT_EQ(Trivial_e::s, State::none);
   }
   ASSERT_EQ(Not_trivial_t::s, State::none);
-  ASSERT_EQ(Trivial_e::s, State::none);
   {
     Base_e_not_trivial b(uninit);
     ASSERT_EQ(b.uninit_, '\0');
     ASSERT_FALSE(b.has_val_);
-    ASSERT_EQ(Trivial_t::s, State::none);
     ASSERT_EQ(Not_trivial_e::s, State::none);
   }
-  ASSERT_EQ(Trivial_t::s, State::none);
   ASSERT_EQ(Not_trivial_e::s, State::destructed);
   Not_trivial_e::reset();
   {
     Base_trivial b(uninit);
     ASSERT_EQ(b.uninit_, '\0');
     ASSERT_FALSE(b.has_val_);
-    ASSERT_EQ(Trivial_t::s, State::none);
-    ASSERT_EQ(Trivial_e::s, State::none);
   }
-  ASSERT_EQ(Trivial_t::s, State::none);
-  ASSERT_EQ(Trivial_e::s, State::none);
   // T is void
   {
     Base_void_not_trivial b(uninit);
@@ -217,16 +190,12 @@ TEST(expected_storage_base, uninit_t_constructor) {
     Base_void_trivial b(uninit);
     ASSERT_EQ(b.uninit_, '\0');
     ASSERT_FALSE(b.has_val_);
-    ASSERT_EQ(Trivial_e::s, State::none);
   }
-  ASSERT_EQ(Trivial_e::s, State::none);
 }
 
 TEST(expected_storage_base, in_place_t_constructor) {
   Not_trivial_t::reset();
   Not_trivial_e::reset();
-  Trivial_t::reset();
-  Trivial_e::reset();
   {
     Arg arg(1);
     Base_not_trivial b(std::in_place, std::move(arg), 1);
@@ -246,10 +215,8 @@ TEST(expected_storage_base, in_place_t_constructor) {
     ASSERT_TRUE(b.has_val_);
     ASSERT_EQ(arg.x, -1);
     ASSERT_EQ(Not_trivial_t::s, State::constructed);
-    ASSERT_EQ(Trivial_e::s, State::none);
   }
   ASSERT_EQ(Not_trivial_t::s, State::destructed);
-  ASSERT_EQ(Trivial_e::s, State::none);
   Not_trivial_t::reset();
   {
     Arg arg(3);
@@ -257,24 +224,16 @@ TEST(expected_storage_base, in_place_t_constructor) {
     ASSERT_EQ(b.val_.x, 3);
     ASSERT_TRUE(b.has_val_);
     ASSERT_EQ(arg.x, -1);
-    ASSERT_EQ(Trivial_t::s, State::none);
     ASSERT_EQ(Not_trivial_e::s, State::none);
   }
-  ASSERT_EQ(Trivial_t::s, State::none);
   ASSERT_EQ(Not_trivial_e::s, State::none);
-  Trivial_t::reset();
   {
     Arg arg(4);
     Base_trivial b(std::in_place, std::move(arg), 4);
     ASSERT_EQ(b.val_.x, 4);
     ASSERT_TRUE(b.has_val_);
     ASSERT_EQ(arg.x, -1);
-    ASSERT_EQ(Trivial_t::s, State::none);
-    ASSERT_EQ(Trivial_e::s, State::none);
   }
-  ASSERT_EQ(Trivial_t::s, State::none);
-  ASSERT_EQ(Trivial_e::s, State::none);
-  Trivial_t::reset();
   // T is void
   {
     Base_void_not_trivial b(std::in_place);
@@ -287,16 +246,12 @@ TEST(expected_storage_base, in_place_t_constructor) {
     Base_void_trivial b(std::in_place);
     (void)b.dummy_;
     ASSERT_TRUE(b.has_val_);
-    ASSERT_EQ(Trivial_e::s, State::none);
   }
-  ASSERT_EQ(Trivial_e::s, State::none);
 }
 
 TEST(expected_storage_base, unexpect_t_constructor) {
   Not_trivial_t::reset();
   Not_trivial_e::reset();
-  Trivial_t::reset();
-  Trivial_e::reset();
   {
     Arg arg(1);
     Base_not_trivial b(exp::unexpect, std::move(arg), 1);
@@ -316,21 +271,16 @@ TEST(expected_storage_base, unexpect_t_constructor) {
     ASSERT_FALSE(b.has_val_);
     ASSERT_EQ(arg.x, -1);
     ASSERT_EQ(Not_trivial_t::s, State::none);
-    ASSERT_EQ(Trivial_e::s, State::none);
   }
   ASSERT_EQ(Not_trivial_t::s, State::none);
-  ASSERT_EQ(Trivial_e::s, State::none);
-  Trivial_e::reset();
   {
     Arg arg(3);
     Base_e_not_trivial b(exp::unexpect, std::move(arg), 3);
     ASSERT_EQ(b.unexpect_.value().x, 3);
     ASSERT_FALSE(b.has_val_);
     ASSERT_EQ(arg.x, -1);
-    ASSERT_EQ(Trivial_t::s, State::none);
     ASSERT_EQ(Not_trivial_e::s, State::constructed);
   }
-  ASSERT_EQ(Trivial_t::s, State::none);
   ASSERT_EQ(Not_trivial_e::s, State::destructed);
   Not_trivial_e::reset();
   {
@@ -339,12 +289,7 @@ TEST(expected_storage_base, unexpect_t_constructor) {
     ASSERT_EQ(b.unexpect_.value().x, 4);
     ASSERT_FALSE(b.has_val_);
     ASSERT_EQ(arg.x, -1);
-    ASSERT_EQ(Trivial_t::s, State::none);
-    ASSERT_EQ(Trivial_e::s, State::none);
   }
-  ASSERT_EQ(Trivial_t::s, State::none);
-  ASSERT_EQ(Trivial_e::s, State::none);
-  Trivial_e::reset();
   // T is void
   {
     Arg arg(5);
@@ -362,17 +307,12 @@ TEST(expected_storage_base, unexpect_t_constructor) {
     ASSERT_EQ(b.unexpect_.value().x, 6);
     ASSERT_FALSE(b.has_val_);
     ASSERT_EQ(arg.x, -1);
-    ASSERT_EQ(Trivial_e::s, State::none);
   }
-  ASSERT_EQ(Trivial_e::s, State::none);
-  Trivial_e::reset();
 }
 
 TEST(expected_storage_base, in_place_t_initializer_list_constructor) {
   Not_trivial_t::reset();
   Not_trivial_e::reset();
-  Trivial_t::reset();
-  Trivial_e::reset();
   {
     Arg arg(1);
     Base_not_trivial b(std::in_place, {1}, std::move(arg), 1);
@@ -392,10 +332,8 @@ TEST(expected_storage_base, in_place_t_initializer_list_constructor) {
     ASSERT_TRUE(b.has_val_);
     ASSERT_EQ(arg.x, -1);
     ASSERT_EQ(Not_trivial_t::s, State::constructed);
-    ASSERT_EQ(Trivial_e::s, State::none);
   }
   ASSERT_EQ(Not_trivial_t::s, State::destructed);
-  ASSERT_EQ(Trivial_e::s, State::none);
   Not_trivial_t::reset();
   {
     Arg arg(3);
@@ -403,31 +341,21 @@ TEST(expected_storage_base, in_place_t_initializer_list_constructor) {
     ASSERT_EQ(b.val_.x, 3 + 3);
     ASSERT_TRUE(b.has_val_);
     ASSERT_EQ(arg.x, -1);
-    ASSERT_EQ(Trivial_t::s, State::none);
     ASSERT_EQ(Not_trivial_e::s, State::none);
   }
-  ASSERT_EQ(Trivial_t::s, State::none);
   ASSERT_EQ(Not_trivial_e::s, State::none);
-  Trivial_t::reset();
   {
     Arg arg(4);
     Base_trivial b(std::in_place, {4}, std::move(arg), 4);
     ASSERT_EQ(b.val_.x, 4 + 4);
     ASSERT_TRUE(b.has_val_);
     ASSERT_EQ(arg.x, -1);
-    ASSERT_EQ(Trivial_t::s, State::none);
-    ASSERT_EQ(Trivial_e::s, State::none);
   }
-  ASSERT_EQ(Trivial_t::s, State::none);
-  ASSERT_EQ(Trivial_e::s, State::none);
-  Trivial_t::reset();
 }
 
 TEST(expected_storage_base, unexpect_t_initializer_list_constructor) {
   Not_trivial_t::reset();
   Not_trivial_e::reset();
-  Trivial_t::reset();
-  Trivial_e::reset();
   {
     Arg arg(1);
     Base_not_trivial b(exp::unexpect, {1}, std::move(arg), 1);
@@ -447,21 +375,16 @@ TEST(expected_storage_base, unexpect_t_initializer_list_constructor) {
     ASSERT_FALSE(b.has_val_);
     ASSERT_EQ(arg.x, -1);
     ASSERT_EQ(Not_trivial_t::s, State::none);
-    ASSERT_EQ(Trivial_e::s, State::none);
   }
   ASSERT_EQ(Not_trivial_t::s, State::none);
-  ASSERT_EQ(Trivial_e::s, State::none);
-  Trivial_e::reset();
   {
     Arg arg(3);
     Base_e_not_trivial b(exp::unexpect, {3}, std::move(arg), 3);
     ASSERT_EQ(b.unexpect_.value().x, 3 + 3);
     ASSERT_FALSE(b.has_val_);
     ASSERT_EQ(arg.x, -1);
-    ASSERT_EQ(Trivial_t::s, State::none);
     ASSERT_EQ(Not_trivial_e::s, State::constructed);
   }
-  ASSERT_EQ(Trivial_t::s, State::none);
   ASSERT_EQ(Not_trivial_e::s, State::destructed);
   Not_trivial_e::reset();
   {
@@ -470,12 +393,7 @@ TEST(expected_storage_base, unexpect_t_initializer_list_constructor) {
     ASSERT_EQ(b.unexpect_.value().x, 4 + 4);
     ASSERT_FALSE(b.has_val_);
     ASSERT_EQ(arg.x, -1);
-    ASSERT_EQ(Trivial_t::s, State::none);
-    ASSERT_EQ(Trivial_e::s, State::none);
   }
-  ASSERT_EQ(Trivial_t::s, State::none);
-  ASSERT_EQ(Trivial_e::s, State::none);
-  Trivial_e::reset();
   // T is void
   {
     Arg arg(5);
@@ -493,8 +411,5 @@ TEST(expected_storage_base, unexpect_t_initializer_list_constructor) {
     ASSERT_EQ(b.unexpect_.value().x, 6 + 6);
     ASSERT_FALSE(b.has_val_);
     ASSERT_EQ(arg.x, -1);
-    ASSERT_EQ(Trivial_e::s, State::none);
   }
-  ASSERT_EQ(Trivial_e::s, State::none);
-  Trivial_e::reset();
 }
