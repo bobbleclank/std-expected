@@ -23,7 +23,7 @@ struct Arg {
 
   ~Arg() = default;
 
-  int x = 0;
+  int x = 20100;
 };
 
 #endif

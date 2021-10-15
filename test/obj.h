@@ -58,7 +58,7 @@ template <class Tag> struct Obj {
 
   ~Obj() { s = State::destructed; }
 
-  int x = 0;
+  int x = 20100;
 };
 
 template <class Tag> bool operator==(Obj<Tag> lhs, Obj<Tag> rhs) {

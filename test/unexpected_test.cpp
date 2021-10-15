@@ -26,7 +26,7 @@ struct Err2 {
     e = err.e;
   }
 
-  int e = 0;
+  int e = 20100;
 };
 
 bool operator==(Err2 lhs, Err rhs) { return lhs.e == rhs.e; }

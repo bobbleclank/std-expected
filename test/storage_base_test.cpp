@@ -36,7 +36,7 @@ template <class Tag> struct Not_trivial {
 
   ~Not_trivial() { s = State::destructed; }
 
-  int x = 0;
+  int x = 20100;
 };
 
 template <class Tag> struct Trivial {
@@ -61,7 +61,7 @@ template <class Tag> struct Trivial {
 
   ~Trivial() = default;
 
-  int x = 0;
+  int x = 20100;
 };
 
 struct Not_trivial_t_tag {};
@@ -108,7 +108,7 @@ TEST(expected_storage_base, default_constructor) {
   Trivial_e::reset();
   {
     Base_not_trivial b;
-    ASSERT_EQ(b.val_.x, 0);
+    ASSERT_EQ(b.val_.x, 20100);
     ASSERT_TRUE(b.has_val_);
     ASSERT_EQ(Not_trivial_t::s, State::default_constructed);
     ASSERT_EQ(Not_trivial_e::s, State::none);
@@ -118,7 +118,7 @@ TEST(expected_storage_base, default_constructor) {
   Not_trivial_t::reset();
   {
     Base_t_not_trivial b;
-    ASSERT_EQ(b.val_.x, 0);
+    ASSERT_EQ(b.val_.x, 20100);
     ASSERT_TRUE(b.has_val_);
     ASSERT_EQ(Not_trivial_t::s, State::default_constructed);
     ASSERT_EQ(Trivial_e::s, State::none);
@@ -128,7 +128,7 @@ TEST(expected_storage_base, default_constructor) {
   Not_trivial_t::reset();
   {
     Base_e_not_trivial b;
-    ASSERT_EQ(b.val_.x, 0);
+    ASSERT_EQ(b.val_.x, 20100);
     ASSERT_TRUE(b.has_val_);
     ASSERT_EQ(Trivial_t::s, State::default_constructed);
     ASSERT_EQ(Not_trivial_e::s, State::none);
@@ -138,7 +138,7 @@ TEST(expected_storage_base, default_constructor) {
   Trivial_t::reset();
   {
     Base_trivial b;
-    ASSERT_EQ(b.val_.x, 0);
+    ASSERT_EQ(b.val_.x, 20100);
     ASSERT_TRUE(b.has_val_);
     ASSERT_EQ(Trivial_t::s, State::default_constructed);
     ASSERT_EQ(Trivial_e::s, State::none);

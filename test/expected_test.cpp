@@ -26,7 +26,7 @@ struct Con {
     return val;
   }
 
-  int x = 0;
+  int x = 20100;
 };
 
 struct Val2_tag {};
@@ -396,7 +396,7 @@ TEST(expected, default_constructor) {
     expected<Val, Err> e;
     ASSERT_EQ(Val::s, State::default_constructed);
     ASSERT_EQ(Err::s, State::none);
-    ASSERT_EQ(e->x, 0);
+    ASSERT_EQ(e->x, 20100);
   }
   ASSERT_EQ(Val::s, State::destructed);
   ASSERT_EQ(Err::s, State::none);

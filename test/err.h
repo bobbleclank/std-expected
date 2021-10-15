@@ -40,7 +40,7 @@ struct Err {
 
   ~Err() = default;
 
-  int e = 0;
+  int e = 20100;
 };
 
 inline bool operator==(Err lhs, Err rhs) { return lhs.e == rhs.e; }
