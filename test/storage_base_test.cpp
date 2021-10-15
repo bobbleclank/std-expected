@@ -1,6 +1,8 @@
 #include "exp/expected.h"
 
 #include "arg.h"
+#include "obj.h"
+#include "state.h"
 
 #include <initializer_list>
 #include <type_traits>
@@ -11,33 +13,6 @@
 using namespace exp::internal;
 
 namespace {
-
-enum class State { none, default_constructed, constructed, destructed };
-
-template <class Tag> struct Not_trivial {
-  inline static State s = State::none;
-  static void reset() { s = State::none; }
-
-  Not_trivial() { s = State::default_constructed; }
-
-  Not_trivial(Arg&& arg_, int) {
-    s = State::constructed;
-    Arg arg = std::move(arg_);
-    x = arg.x;
-  }
-
-  Not_trivial(std::initializer_list<int> il, Arg&& arg_, int) {
-    s = State::constructed;
-    Arg arg = std::move(arg_);
-    x = arg.x;
-    if (!std::empty(il))
-      x += *il.begin();
-  }
-
-  ~Not_trivial() { s = State::destructed; }
-
-  int x = 20100;
-};
 
 template <class Tag> struct Trivial {
   Trivial() = default;
@@ -60,10 +35,10 @@ template <class Tag> struct Trivial {
 };
 
 struct Not_trivial_t_tag {};
-using Not_trivial_t = Not_trivial<Not_trivial_t_tag>;
+using Not_trivial_t = Obj<Not_trivial_t_tag>;
 
 struct Not_trivial_e_tag {};
-using Not_trivial_e = Not_trivial<Not_trivial_e_tag>;
+using Not_trivial_e = Obj<Not_trivial_e_tag>;
 
 struct Trivial_t_tag {};
 using Trivial_t = Trivial<Trivial_t_tag>;
