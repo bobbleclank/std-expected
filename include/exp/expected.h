@@ -4,7 +4,6 @@
 #include <exception>
 #include <initializer_list>
 #include <memory>
-#include <optional>
 #include <type_traits>
 #include <utility>
 
@@ -714,7 +713,10 @@ struct expected_move_assign_base<T, E, false>
 
 } // namespace internal
 
-template <class T, class E> class expected {
+template <class T, class E>
+class expected : private internal::expected_move_assign_base<T, E> {
+  using base_type = internal::expected_move_assign_base<T, E>;
+
 public:
   static_assert(!std::is_same_v<T, std::remove_cv_t<unexpected<E>>>);
   static_assert(!std::is_same_v<T, std::remove_cv_t<std::in_place_t>>);
@@ -730,7 +732,7 @@ public:
 
   template <class U> using rebind = expected<U, error_type>;
 
-  constexpr expected() : val_(std::in_place), has_val_(true) {}
+  constexpr expected() = default;
 
   constexpr expected(const expected&) = default;
   constexpr expected(expected&&) = default;
@@ -748,29 +750,26 @@ public:
   template <class... Args,
             std::enable_if_t<std::is_constructible_v<T, Args&&...>>* = nullptr>
   constexpr explicit expected(std::in_place_t, Args&&... args)
-      : val_(std::in_place, std::forward<Args>(args)...), has_val_(true) {}
+      : base_type(std::in_place, std::forward<Args>(args)...) {}
 
   template <class U, class... Args,
             std::enable_if_t<std::is_constructible_v<
                 T, std::initializer_list<U>, Args&&...>>* = nullptr>
   constexpr explicit expected(std::in_place_t, std::initializer_list<U> il,
                               Args&&... args)
-      : val_(std::in_place, il, std::forward<Args>(args)...), has_val_(true) {}
+      : base_type(std::in_place, il, std::forward<Args>(args)...) {}
 
   template <class... Args,
             std::enable_if_t<std::is_constructible_v<E, Args&&...>>* = nullptr>
   constexpr explicit expected(unexpect_t, Args&&... args)
-      : unexpect_(std::in_place, std::in_place, std::forward<Args>(args)...),
-        has_val_(false) {}
+      : base_type(unexpect, std::forward<Args>(args)...) {}
 
   template <class U, class... Args,
             std::enable_if_t<std::is_constructible_v<
                 E, std::initializer_list<U>, Args&&...>>* = nullptr>
   constexpr explicit expected(unexpect_t, std::initializer_list<U> il,
                               Args&&... args)
-      : unexpect_(std::in_place, std::in_place, il,
-                  std::forward<Args>(args)...),
-        has_val_(false) {}
+      : base_type(unexpect, il, std::forward<Args>(args)...) {}
 
   ~expected() = default;
 
@@ -784,119 +783,111 @@ public:
   template <class... Args,
             std::enable_if_t<std::is_constructible_v<T, Args&&...>>* = nullptr>
   T& emplace(Args&&... args) {
-    if (has_val_) {
-      val_ = T(std::forward<Args>(args)...);
+    if (this->has_val_) {
+      this->val_ = T(std::forward<Args>(args)...);
     } else if constexpr (std::is_nothrow_constructible_v<T, Args&&...>) {
-      unexpect_.reset();
-      val_.emplace(std::forward<Args>(args)...);
-      has_val_ = true;
+      this->destroy(unexpect);
+      this->construct(std::in_place, std::forward<Args>(args)...);
     } else if constexpr (std::is_nothrow_move_constructible_v<T>) {
       T tmp(std::forward<Args>(args)...);
-      unexpect_.reset();
-      val_ = std::move(tmp);
-      has_val_ = true;
+      this->destroy(unexpect);
+      this->construct(std::in_place, std::move(tmp));
     } else {
-      unexpected<E> tmp = std::move(*unexpect_);
-      unexpect_.reset();
+      unexpected<E> tmp = std::move(this->unexpect_);
+      this->destroy(unexpect);
       try {
-        val_.emplace(std::forward<Args>(args)...);
-        has_val_ = true;
+        this->construct(std::in_place, std::forward<Args>(args)...);
       } catch (...) {
-        unexpect_ = std::move(tmp);
+        this->construct(unexpect, std::move(tmp));
         throw;
       }
     }
-    return *val_;
+    return this->val_;
   }
 
   template <class U, class... Args,
             std::enable_if_t<std::is_constructible_v<
                 T, std::initializer_list<U>, Args&&...>>* = nullptr>
   T& emplace(std::initializer_list<U> il, Args&&... args) {
-    if (has_val_) {
-      val_ = T(il, std::forward<Args>(args)...);
+    if (this->has_val_) {
+      this->val_ = T(il, std::forward<Args>(args)...);
     } else if constexpr (std::is_nothrow_constructible_v<
                              T, std::initializer_list<U>, Args&&...>) {
-      unexpect_.reset();
-      val_.emplace(il, std::forward<Args>(args)...);
-      has_val_ = true;
+      this->destroy(unexpect);
+      this->construct(std::in_place, il, std::forward<Args>(args)...);
     } else if constexpr (std::is_nothrow_move_constructible_v<T>) {
       T tmp(il, std::forward<Args>(args)...);
-      unexpect_.reset();
-      val_ = std::move(tmp);
-      has_val_ = true;
+      this->destroy(unexpect);
+      this->construct(std::in_place, std::move(tmp));
     } else {
-      unexpected<E> tmp = std::move(*unexpect_);
-      unexpect_.reset();
+      unexpected<E> tmp = std::move(this->unexpect_);
+      this->destroy(unexpect);
       try {
-        val_.emplace(il, std::forward<Args>(args)...);
-        has_val_ = true;
+        this->construct(std::in_place, il, std::forward<Args>(args)...);
       } catch (...) {
-        unexpect_ = std::move(tmp);
+        this->construct(unexpect, std::move(tmp));
         throw;
       }
     }
-    return *val_;
+    return this->val_;
   }
 
-  constexpr const T* operator->() const { return std::addressof(*val_); }
-  constexpr T* operator->() { return std::addressof(*val_); }
+  constexpr const T* operator->() const { return std::addressof(this->val_); }
+  constexpr T* operator->() { return std::addressof(this->val_); }
 
-  constexpr const T& operator*() const& { return *val_; }
-  constexpr T& operator*() & { return *val_; }
-  constexpr const T&& operator*() const&& { return std::move(*val_); }
-  constexpr T&& operator*() && { return std::move(*val_); }
+  constexpr const T& operator*() const& { return this->val_; }
+  constexpr T& operator*() & { return this->val_; }
+  constexpr const T&& operator*() const&& { return std::move(this->val_); }
+  constexpr T&& operator*() && { return std::move(this->val_); }
 
-  constexpr explicit operator bool() const noexcept { return has_val_; }
-  constexpr bool has_value() const noexcept { return has_val_; }
+  constexpr explicit operator bool() const noexcept { return this->has_val_; }
+  constexpr bool has_value() const noexcept { return this->has_val_; }
 
   constexpr const T& value() const& {
-    if (!has_val_)
-      throw bad_expected_access(unexpect_->value());
-    return *val_;
+    if (!this->has_val_)
+      throw bad_expected_access(this->unexpect_.value());
+    return this->val_;
   }
 
   constexpr T& value() & {
-    if (!has_val_)
-      throw bad_expected_access(unexpect_->value());
-    return *val_;
+    if (!this->has_val_)
+      throw bad_expected_access(this->unexpect_.value());
+    return this->val_;
   }
 
   constexpr const T&& value() const&& {
-    if (!has_val_)
-      throw bad_expected_access(std::move(unexpect_->value()));
-    return std::move(*val_);
+    if (!this->has_val_)
+      throw bad_expected_access(std::move(this->unexpect_.value()));
+    return std::move(this->val_);
   }
 
   constexpr T&& value() && {
-    if (!has_val_)
-      throw bad_expected_access(std::move(unexpect_->value()));
-    return std::move(*val_);
+    if (!this->has_val_)
+      throw bad_expected_access(std::move(this->unexpect_.value()));
+    return std::move(this->val_);
   }
 
-  constexpr const E& error() const& { return unexpect_->value(); }
-  constexpr E& error() & { return unexpect_->value(); }
-  constexpr const E&& error() const&& { return std::move(unexpect_->value()); }
-  constexpr E&& error() && { return std::move(unexpect_->value()); }
+  constexpr const E& error() const& { return this->unexpect_.value(); }
+  constexpr E& error() & { return this->unexpect_.value(); }
+  constexpr const E&& error() const&& {
+    return std::move(this->unexpect_.value());
+  }
+  constexpr E&& error() && { return std::move(this->unexpect_.value()); }
 
   template <class U> constexpr T value_or(U&& v) const& {
     static_assert(std::is_copy_constructible_v<T> &&
                   std::is_convertible_v<U&&, T>);
-    return has_val_ ? *val_ : static_cast<T>(std::forward<U>(v));
+    return this->has_val_ ? this->val_ : static_cast<T>(std::forward<U>(v));
   }
 
   template <class U> constexpr T value_or(U&& v) && {
     static_assert(std::is_move_constructible_v<T> &&
                   std::is_convertible_v<U&&, T>);
-    return has_val_ ? std::move(*val_) : static_cast<T>(std::forward<U>(v));
+    return this->has_val_ ? std::move(this->val_)
+                          : static_cast<T>(std::forward<U>(v));
   }
 
   // void swap(expected& other) noexcept(see below);
-
-private:
-  std::optional<T> val_;
-  std::optional<unexpected<E>> unexpect_;
-  bool has_val_;
 };
 
 template <class T1, class E1, class T2, class E2>
