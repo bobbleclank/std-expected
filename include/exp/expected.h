@@ -796,7 +796,7 @@ public:
       val_ = std::move(tmp);
       has_val_ = true;
     } else {
-      unexpected<E> tmp(std::move(unexpect_->value()));
+      unexpected<E> tmp = std::move(*unexpect_);
       unexpect_.reset();
       try {
         val_.emplace(std::forward<Args>(args)...);
@@ -826,7 +826,7 @@ public:
       val_ = std::move(tmp);
       has_val_ = true;
     } else {
-      unexpected<E> tmp(std::move(unexpect_->value()));
+      unexpected<E> tmp = std::move(*unexpect_);
       unexpect_.reset();
       try {
         val_.emplace(il, std::forward<Args>(args)...);
