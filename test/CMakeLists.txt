@@ -3,6 +3,7 @@ add_executable(test_std_expected
   copy_assign_base_test.cpp
   copy_base_test.cpp
   expected_test.cpp
+  move_assign_base_test.cpp
   move_base_test.cpp
   operations_base_test.cpp
   storage_base_test.cpp
