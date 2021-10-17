@@ -140,6 +140,14 @@ inline constexpr bool is_nothrow_move_constructible_or_void_v =
     is_nothrow_move_constructible_or_void<T>::value;
 
 template <class T>
+using is_trivially_copy_assignable_or_void =
+    std::disjunction<std::is_void<T>, std::is_trivially_copy_assignable<T>>;
+
+template <class T>
+inline constexpr bool is_trivially_copy_assignable_or_void_v =
+    is_trivially_copy_assignable_or_void<T>::value;
+
+template <class T>
 using is_trivially_destructible_or_void =
     std::disjunction<std::is_void<T>, std::is_trivially_destructible<T>>;
 
@@ -600,6 +608,45 @@ struct expected_move_base<T, E, false> : expected_copy_base<T, E> {
 
   expected_move_base& operator=(const expected_move_base&) = default;
   expected_move_base& operator=(expected_move_base&&) = default;
+};
+
+// Copy assignment operator. Trivially copy assignable if both T and E are.
+// clang-format off
+template <class T, class E,
+          bool = is_trivially_copy_assignable_or_void_v<T> &&
+                 is_trivially_copy_constructible_or_void_v<T> &&
+                 is_trivially_destructible_or_void_v<T> &&
+                 std::is_trivially_copy_assignable_v<E> &&
+                 std::is_trivially_copy_constructible_v<E> &&
+                 std::is_trivially_destructible_v<E>>
+struct expected_copy_assign_base;
+// clang-format on
+
+// Both T and E are trivially copy assignable.
+template <class T, class E>
+struct expected_copy_assign_base<T, E, true> : expected_move_base<T, E> {
+  using base_type = expected_move_base<T, E>;
+
+  using base_type::base_type;
+};
+
+// Either T, E or both are not trivially copy assignable.
+template <class T, class E>
+struct expected_copy_assign_base<T, E, false> : expected_move_base<T, E> {
+  using base_type = expected_move_base<T, E>;
+
+  using base_type::base_type;
+
+  expected_copy_assign_base() = default;
+  expected_copy_assign_base(const expected_copy_assign_base&) = default;
+  expected_copy_assign_base(expected_copy_assign_base&&) = default;
+
+  expected_copy_assign_base& operator=(const expected_copy_assign_base& other) {
+    this->assign(other);
+    return *this;
+  }
+
+  expected_copy_assign_base& operator=(expected_copy_assign_base&&) = default;
 };
 
 } // namespace internal

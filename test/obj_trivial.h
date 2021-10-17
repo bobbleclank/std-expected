@@ -25,6 +25,8 @@ template <class Tag> struct Obj_trivial {
 
   Obj_trivial(Obj_trivial&&) = default;
 
+  Obj_trivial& operator=(const Obj_trivial&) = default;
+
   ~Obj_trivial() = default;
 
   int x = 20100;
