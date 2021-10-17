@@ -534,7 +534,7 @@ TEST(expected, variadic_template_constructor) {
   Err::reset();
 }
 
-TEST(expected, copy_assignment) {
+TEST(expected, copy_assignment_operator) {
   Val::reset();
   Err::reset();
   {
@@ -613,7 +613,7 @@ TEST(expected, copy_assignment) {
   Err::reset();
 }
 
-TEST(expected, move_assignment) {
+TEST(expected, move_assignment_operator) {
   Val::reset();
   Err::reset();
   {
