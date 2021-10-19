@@ -784,19 +784,20 @@ public:
             std::enable_if_t<std::is_constructible_v<T, Args&&...>>* = nullptr>
   T& emplace(Args&&... args) {
     if (this->has_val_) {
-      this->val_ = T(std::forward<Args>(args)...);
+      this->val_ = T(std::forward<Args>(args)...); // This can throw.
     } else if constexpr (std::is_nothrow_constructible_v<T, Args&&...>) {
       this->destroy(unexpect);
       this->construct(std::in_place, std::forward<Args>(args)...);
     } else if constexpr (std::is_nothrow_move_constructible_v<T>) {
-      T tmp(std::forward<Args>(args)...);
+      T tmp(std::forward<Args>(args)...); // This can throw.
       this->destroy(unexpect);
       this->construct(std::in_place, std::move(tmp));
     } else {
       unexpected<E> tmp = std::move(this->unexpect_);
       this->destroy(unexpect);
       try {
-        this->construct(std::in_place, std::forward<Args>(args)...);
+        this->construct(std::in_place,
+                        std::forward<Args>(args)...); // This can throw.
       } catch (...) {
         this->construct(unexpect, std::move(tmp));
         throw;
@@ -810,20 +811,21 @@ public:
                 T, std::initializer_list<U>, Args&&...>>* = nullptr>
   T& emplace(std::initializer_list<U> il, Args&&... args) {
     if (this->has_val_) {
-      this->val_ = T(il, std::forward<Args>(args)...);
+      this->val_ = T(il, std::forward<Args>(args)...); // This can throw.
     } else if constexpr (std::is_nothrow_constructible_v<
                              T, std::initializer_list<U>, Args&&...>) {
       this->destroy(unexpect);
       this->construct(std::in_place, il, std::forward<Args>(args)...);
     } else if constexpr (std::is_nothrow_move_constructible_v<T>) {
-      T tmp(il, std::forward<Args>(args)...);
+      T tmp(il, std::forward<Args>(args)...); // This can throw.
       this->destroy(unexpect);
       this->construct(std::in_place, std::move(tmp));
     } else {
       unexpected<E> tmp = std::move(this->unexpect_);
       this->destroy(unexpect);
       try {
-        this->construct(std::in_place, il, std::forward<Args>(args)...);
+        this->construct(std::in_place, il,
+                        std::forward<Args>(args)...); // This can throw.
       } catch (...) {
         this->construct(unexpect, std::move(tmp));
         throw;
