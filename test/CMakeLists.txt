@@ -1,4 +1,4 @@
-add_executable(test_std_expected
+add_executable(test_${PROJECT_NAME}
   bad_expected_access_test.cpp
   copy_assign_base_test.cpp
   copy_base_test.cpp
@@ -8,4 +8,4 @@ add_executable(test_std_expected
   operations_base_test.cpp
   storage_base_test.cpp
   unexpected_test.cpp)
-target_link_libraries(test_std_expected PUBLIC expected gtest_main gtest)
+target_link_libraries(test_${PROJECT_NAME} PUBLIC expected gtest_main gtest)
