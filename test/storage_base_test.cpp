@@ -1,4 +1,4 @@
-#include "exp/expected.h"
+#include "bc/exp/expected.h"
 
 #include "arg.h"
 #include "obj.h"
@@ -10,8 +10,8 @@
 
 #include <gtest/gtest.h>
 
-using namespace exp;
-using namespace exp::internal;
+using namespace bc::exp;
+using namespace bc::exp::internal;
 
 namespace {
 

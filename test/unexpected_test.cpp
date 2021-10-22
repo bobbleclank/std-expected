@@ -1,4 +1,4 @@
-#include "exp/expected.h"
+#include "bc/exp/expected.h"
 
 #include "arg.h"
 #include "err.h"
@@ -7,7 +7,7 @@
 
 #include <gtest/gtest.h>
 
-using namespace exp;
+using namespace bc::exp;
 
 namespace {
 
