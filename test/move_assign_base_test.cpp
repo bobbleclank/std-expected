@@ -10,6 +10,7 @@
 
 #include <gtest/gtest.h>
 
+using namespace exp;
 using namespace exp::internal;
 
 namespace {
@@ -86,10 +87,10 @@ TEST(expected_move_assign_base, move_assignment_operator) {
   Val::reset();
   // !this->has_value() && !other.has_value()
   {
-    Base other(exp::unexpect, 2);
+    Base other(unexpect, 2);
     Err::reset();
     {
-      Base b(exp::unexpect, 20);
+      Base b(unexpect, 20);
       b = std::move(other);
       ASSERT_EQ(Val::s, State::none);
       ASSERT_EQ(Err::s, State::move_assigned);
@@ -123,10 +124,10 @@ TEST(expected_move_assign_base, move_assignment_operator_void) {
   }
   // !this->has_value() && !other.has_value()
   {
-    Base_void other(exp::unexpect, 1);
+    Base_void other(unexpect, 1);
     Err::reset();
     {
-      Base_void b(exp::unexpect, 10);
+      Base_void b(unexpect, 10);
       b = std::move(other);
       ASSERT_EQ(Err::s, State::move_assigned);
       ASSERT_FALSE(b.has_val_);

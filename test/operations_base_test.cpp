@@ -9,6 +9,7 @@
 
 #include <gtest/gtest.h>
 
+using namespace exp;
 using namespace exp::internal;
 
 namespace {
@@ -65,13 +66,13 @@ TEST(expected_operations_base, unexpect_t_construct_destroy) {
   {
     Arg arg(1);
     Base b(uninit);
-    b.construct(exp::unexpect, std::in_place, std::move(arg), 1);
+    b.construct(unexpect, std::in_place, std::move(arg), 1);
     ASSERT_EQ(Val::s, State::none);
     ASSERT_EQ(Err::s, State::constructed);
     ASSERT_FALSE(b.has_val_);
     ASSERT_EQ(b.unexpect_.value().x, 1);
     ASSERT_EQ(arg.x, -1);
-    b.destroy(exp::unexpect);
+    b.destroy(unexpect);
     ASSERT_EQ(Val::s, State::none);
     ASSERT_EQ(Err::s, State::destructed);
     Err::reset();
@@ -83,12 +84,12 @@ TEST(expected_operations_base, unexpect_t_construct_destroy) {
   {
     Arg arg(2);
     Base_void b(uninit);
-    b.construct(exp::unexpect, std::in_place, std::move(arg), 2);
+    b.construct(unexpect, std::in_place, std::move(arg), 2);
     ASSERT_EQ(Err::s, State::constructed);
     ASSERT_FALSE(b.has_val_);
     ASSERT_EQ(b.unexpect_.value().x, 2);
     ASSERT_EQ(arg.x, -1);
-    b.destroy(exp::unexpect);
+    b.destroy(unexpect);
     ASSERT_EQ(Err::s, State::destructed);
     Err::reset();
   }
@@ -138,7 +139,7 @@ TEST(expected_operations_base, construct_from) {
   Val::reset();
   // !other.has_value()
   {
-    Base other(exp::unexpect, 3);
+    Base other(unexpect, 3);
     Err::reset();
     {
       Base b(uninit);
@@ -156,7 +157,7 @@ TEST(expected_operations_base, construct_from) {
   }
   Err::reset();
   {
-    Base other(exp::unexpect, 4);
+    Base other(unexpect, 4);
     Err::reset();
     {
       Base b(uninit);
@@ -206,7 +207,7 @@ TEST(expected_operations_base, construct_from_void) {
   }
   // !other.has_value()
   {
-    Base_void other(exp::unexpect, 1);
+    Base_void other(unexpect, 1);
     Err::reset();
     {
       Base_void b(uninit);
@@ -222,7 +223,7 @@ TEST(expected_operations_base, construct_from_void) {
   }
   Err::reset();
   {
-    Base_void other(exp::unexpect, 2);
+    Base_void other(unexpect, 2);
     Err::reset();
     {
       Base_void b(uninit);
@@ -294,7 +295,7 @@ TEST(expected_operations_base, copy_assign) {
   // this->has_value() && !other.has_value() via
   // std::is_nothrow_copy_constructible_v<E>
   {
-    Base other(exp::unexpect, 3);
+    Base other(unexpect, 3);
     Err::reset();
     {
       Base b(std::in_place, 30);
@@ -315,7 +316,7 @@ TEST(expected_operations_base, copy_assign) {
   // this->has_value() && !other.has_value() via
   // std::is_nothrow_move_constructible_v<E>
   {
-    B_e_throw other(exp::unexpect, 4);
+    B_e_throw other(unexpect, 4);
     Err_throw::reset();
     {
       B_e_throw b(std::in_place, 40);
@@ -336,7 +337,7 @@ TEST(expected_operations_base, copy_assign) {
   }
   Err_throw::reset();
   {
-    B_e_throw other(exp::unexpect, 5);
+    B_e_throw other(unexpect, 5);
     Err_throw::reset();
     {
       B_e_throw b(std::in_place, 50);
@@ -365,7 +366,7 @@ TEST(expected_operations_base, copy_assign) {
   // this->has_value() && !other.has_value() via
   // std::is_nothrow_move_constructible_v<T>
   {
-    B_e_throw_2 other(exp::unexpect, 6);
+    B_e_throw_2 other(unexpect, 6);
     Err_throw_2::reset();
     {
       B_e_throw_2 b(std::in_place, 60);
@@ -384,7 +385,7 @@ TEST(expected_operations_base, copy_assign) {
   }
   Err_throw_2::reset();
   {
-    B_e_throw_2 other(exp::unexpect, 7);
+    B_e_throw_2 other(unexpect, 7);
     Err_throw_2::reset();
     {
       B_e_throw_2 b(std::in_place, 70);
@@ -414,10 +415,10 @@ TEST(expected_operations_base, copy_assign) {
   Err_throw_2::reset();
   // !this->has_value() && !other.has_value()
   {
-    Base other(exp::unexpect, 1);
+    Base other(unexpect, 1);
     Err::reset();
     {
-      Base b(exp::unexpect, 10);
+      Base b(unexpect, 10);
       b.assign(other);
       ASSERT_EQ(Val::s, State::none);
       ASSERT_EQ(Err::s, State::copy_assigned);
@@ -432,10 +433,10 @@ TEST(expected_operations_base, copy_assign) {
   }
   Err::reset();
   {
-    B_e_throw other(exp::unexpect, 2);
+    B_e_throw other(unexpect, 2);
     Err_throw::reset();
     {
-      B_e_throw b(exp::unexpect, 20);
+      B_e_throw b(unexpect, 20);
       bool did_throw = false;
       try {
         Err_throw::t = May_throw::do_throw;
@@ -463,7 +464,7 @@ TEST(expected_operations_base, copy_assign) {
     Base other(std::in_place, 3);
     Val::reset();
     {
-      Base b(exp::unexpect, 30);
+      Base b(unexpect, 30);
       b.assign(other);
       ASSERT_EQ(Val::s, State::copy_constructed);
       ASSERT_EQ(Err::s, State::destructed);
@@ -484,7 +485,7 @@ TEST(expected_operations_base, copy_assign) {
     B_t_throw other(std::in_place, 4);
     Val_throw::reset();
     {
-      B_t_throw b(exp::unexpect, 40);
+      B_t_throw b(unexpect, 40);
       b.assign(other);
       // copy_constructed (tmp), move_constructed (this), destructed (tmp)
       ASSERT_EQ(Val_throw::s, State::destructed);
@@ -505,7 +506,7 @@ TEST(expected_operations_base, copy_assign) {
     B_t_throw other(std::in_place, 5);
     Val_throw::reset();
     {
-      B_t_throw b(exp::unexpect, 50);
+      B_t_throw b(unexpect, 50);
       bool did_throw = false;
       try {
         Val_throw::t = May_throw::do_throw;
@@ -534,7 +535,7 @@ TEST(expected_operations_base, copy_assign) {
     B_t_throw_2 other(std::in_place, 6);
     Val_throw_2::reset();
     {
-      B_t_throw_2 b(exp::unexpect, 60);
+      B_t_throw_2 b(unexpect, 60);
       b.assign(other);
       ASSERT_EQ(Val_throw_2::s, State::copy_constructed);
       ASSERT_EQ(Err::s, State::destructed);
@@ -553,7 +554,7 @@ TEST(expected_operations_base, copy_assign) {
     B_t_throw_2 other(std::in_place, 7);
     Val_throw_2::reset();
     {
-      B_t_throw_2 b(exp::unexpect, 70);
+      B_t_throw_2 b(unexpect, 70);
       bool did_throw = false;
       try {
         Val_throw_2::t = May_throw::do_throw;
@@ -635,7 +636,7 @@ TEST(expected_operations_base, move_assign) {
   // this->has_value() && !other.has_value() via
   // std::is_nothrow_move_constructible_v<E>
   {
-    Base other(exp::unexpect, 3);
+    Base other(unexpect, 3);
     Err::reset();
     {
       Base b(std::in_place, 30);
@@ -656,7 +657,7 @@ TEST(expected_operations_base, move_assign) {
   // this->has_value() && !other.has_value() via
   // std::is_nothrow_move_constructible_v<T>
   {
-    B_e_throw_2 other(exp::unexpect, 6);
+    B_e_throw_2 other(unexpect, 6);
     Err_throw_2::reset();
     {
       B_e_throw_2 b(std::in_place, 60);
@@ -675,7 +676,7 @@ TEST(expected_operations_base, move_assign) {
   }
   Err_throw_2::reset();
   {
-    B_e_throw_2 other(exp::unexpect, 7);
+    B_e_throw_2 other(unexpect, 7);
     Err_throw_2::reset();
     {
       B_e_throw_2 b(std::in_place, 70);
@@ -705,10 +706,10 @@ TEST(expected_operations_base, move_assign) {
   Err_throw_2::reset();
   // !this->has_value() && !other.has_value()
   {
-    Base other(exp::unexpect, 1);
+    Base other(unexpect, 1);
     Err::reset();
     {
-      Base b(exp::unexpect, 10);
+      Base b(unexpect, 10);
       b.assign(std::move(other));
       ASSERT_EQ(Val::s, State::none);
       ASSERT_EQ(Err::s, State::move_assigned);
@@ -723,10 +724,10 @@ TEST(expected_operations_base, move_assign) {
   }
   Err::reset();
   {
-    B_e_throw_2 other(exp::unexpect, 2);
+    B_e_throw_2 other(unexpect, 2);
     Err_throw_2::reset();
     {
-      B_e_throw_2 b(exp::unexpect, 20);
+      B_e_throw_2 b(unexpect, 20);
       bool did_throw = false;
       try {
         Err_throw_2::t = May_throw::do_throw;
@@ -754,7 +755,7 @@ TEST(expected_operations_base, move_assign) {
     Base other(std::in_place, 3);
     Val::reset();
     {
-      Base b(exp::unexpect, 30);
+      Base b(unexpect, 30);
       b.assign(std::move(other));
       ASSERT_EQ(Val::s, State::move_constructed);
       ASSERT_EQ(Err::s, State::destructed);
@@ -775,7 +776,7 @@ TEST(expected_operations_base, move_assign) {
     B_t_throw_2 other(std::in_place, 6);
     Val_throw_2::reset();
     {
-      B_t_throw_2 b(exp::unexpect, 60);
+      B_t_throw_2 b(unexpect, 60);
       b.assign(std::move(other));
       ASSERT_EQ(Val_throw_2::s, State::move_constructed);
       ASSERT_EQ(Err::s, State::destructed);
@@ -794,7 +795,7 @@ TEST(expected_operations_base, move_assign) {
     B_t_throw_2 other(std::in_place, 7);
     Val_throw_2::reset();
     {
-      B_t_throw_2 b(exp::unexpect, 70);
+      B_t_throw_2 b(unexpect, 70);
       bool did_throw = false;
       try {
         Val_throw_2::t = May_throw::do_throw;
@@ -840,7 +841,7 @@ TEST(expected_operations_base, copy_assign_void) {
   }
   // this->has_value() && !other.has_value()
   {
-    Base_void other(exp::unexpect, 1);
+    Base_void other(unexpect, 1);
     Err::reset();
     {
       Base_void b(std::in_place);
@@ -856,7 +857,7 @@ TEST(expected_operations_base, copy_assign_void) {
   }
   Err::reset();
   {
-    B_void_e_throw other(exp::unexpect, 2);
+    B_void_e_throw other(unexpect, 2);
     Err_throw::reset();
     {
       B_void_e_throw b(std::in_place);
@@ -881,10 +882,10 @@ TEST(expected_operations_base, copy_assign_void) {
   Err_throw::reset();
   // !this->has_value() && !other.has_value()
   {
-    Base_void other(exp::unexpect, 3);
+    Base_void other(unexpect, 3);
     Err::reset();
     {
-      Base_void b(exp::unexpect, 30);
+      Base_void b(unexpect, 30);
       b.assign(other);
       ASSERT_EQ(Err::s, State::copy_assigned);
       ASSERT_FALSE(b.has_val_);
@@ -897,10 +898,10 @@ TEST(expected_operations_base, copy_assign_void) {
   }
   Err::reset();
   {
-    B_void_e_throw other(exp::unexpect, 4);
+    B_void_e_throw other(unexpect, 4);
     Err_throw::reset();
     {
-      B_void_e_throw b(exp::unexpect, 40);
+      B_void_e_throw b(unexpect, 40);
       bool did_throw = false;
       try {
         Err_throw::t = May_throw::do_throw;
@@ -924,7 +925,7 @@ TEST(expected_operations_base, copy_assign_void) {
   {
     Base_void other(std::in_place);
     {
-      Base_void b(exp::unexpect, 50);
+      Base_void b(unexpect, 50);
       b.assign(other);
       ASSERT_EQ(Err::s, State::destructed);
       ASSERT_TRUE(b.has_val_);
@@ -957,7 +958,7 @@ TEST(expected_operations_base, move_assign_void) {
   }
   // this->has_value() && !other.has_value()
   {
-    Base_void other(exp::unexpect, 1);
+    Base_void other(unexpect, 1);
     Err::reset();
     {
       Base_void b(std::in_place);
@@ -973,7 +974,7 @@ TEST(expected_operations_base, move_assign_void) {
   }
   Err::reset();
   {
-    B_void_e_throw_2 other(exp::unexpect, 2);
+    B_void_e_throw_2 other(unexpect, 2);
     Err_throw_2::reset();
     {
       B_void_e_throw_2 b(std::in_place);
@@ -998,10 +999,10 @@ TEST(expected_operations_base, move_assign_void) {
   Err_throw_2::reset();
   // !this->has_value() && !other.has_value()
   {
-    Base_void other(exp::unexpect, 3);
+    Base_void other(unexpect, 3);
     Err::reset();
     {
-      Base_void b(exp::unexpect, 30);
+      Base_void b(unexpect, 30);
       b.assign(std::move(other));
       ASSERT_EQ(Err::s, State::move_assigned);
       ASSERT_FALSE(b.has_val_);
@@ -1014,10 +1015,10 @@ TEST(expected_operations_base, move_assign_void) {
   }
   Err::reset();
   {
-    B_void_e_throw_2 other(exp::unexpect, 4);
+    B_void_e_throw_2 other(unexpect, 4);
     Err_throw_2::reset();
     {
-      B_void_e_throw_2 b(exp::unexpect, 40);
+      B_void_e_throw_2 b(unexpect, 40);
       bool did_throw = false;
       try {
         Err_throw_2::t = May_throw::do_throw;
@@ -1041,7 +1042,7 @@ TEST(expected_operations_base, move_assign_void) {
   {
     Base_void other(std::in_place);
     {
-      Base_void b(exp::unexpect, 50);
+      Base_void b(unexpect, 50);
       b.assign(std::move(other));
       ASSERT_EQ(Err::s, State::destructed);
       ASSERT_TRUE(b.has_val_);

@@ -10,6 +10,7 @@
 
 #include <gtest/gtest.h>
 
+using namespace exp;
 using namespace exp::internal;
 
 namespace {
@@ -197,7 +198,7 @@ TEST(expected_storage_base, unexpect_t_constructor) {
   Err::reset();
   {
     Arg arg(1);
-    Base b(exp::unexpect, std::move(arg), 1);
+    Base b(unexpect, std::move(arg), 1);
     ASSERT_EQ(b.unexpect_.value().x, 1);
     ASSERT_FALSE(b.has_val_);
     ASSERT_EQ(arg.x, -1);
@@ -209,7 +210,7 @@ TEST(expected_storage_base, unexpect_t_constructor) {
   Err::reset();
   {
     Arg arg(2);
-    B_e_trivial b(exp::unexpect, std::move(arg), 2);
+    B_e_trivial b(unexpect, std::move(arg), 2);
     ASSERT_EQ(b.unexpect_.value().x, 2);
     ASSERT_FALSE(b.has_val_);
     ASSERT_EQ(arg.x, -1);
@@ -218,7 +219,7 @@ TEST(expected_storage_base, unexpect_t_constructor) {
   ASSERT_EQ(Val::s, State::none);
   {
     Arg arg(3);
-    B_t_trivial b(exp::unexpect, std::move(arg), 3);
+    B_t_trivial b(unexpect, std::move(arg), 3);
     ASSERT_EQ(b.unexpect_.value().x, 3);
     ASSERT_FALSE(b.has_val_);
     ASSERT_EQ(arg.x, -1);
@@ -228,7 +229,7 @@ TEST(expected_storage_base, unexpect_t_constructor) {
   Err::reset();
   {
     Arg arg(4);
-    B_trivial b(exp::unexpect, std::move(arg), 4);
+    B_trivial b(unexpect, std::move(arg), 4);
     ASSERT_EQ(b.unexpect_.value().x, 4);
     ASSERT_FALSE(b.has_val_);
     ASSERT_EQ(arg.x, -1);
@@ -236,7 +237,7 @@ TEST(expected_storage_base, unexpect_t_constructor) {
   // T is void
   {
     Arg arg(5);
-    Base_void b(exp::unexpect, std::move(arg), 5);
+    Base_void b(unexpect, std::move(arg), 5);
     ASSERT_EQ(b.unexpect_.value().x, 5);
     ASSERT_FALSE(b.has_val_);
     ASSERT_EQ(arg.x, -1);
@@ -246,7 +247,7 @@ TEST(expected_storage_base, unexpect_t_constructor) {
   Err::reset();
   {
     Arg arg(6);
-    B_void_trivial b(exp::unexpect, std::move(arg), 6);
+    B_void_trivial b(unexpect, std::move(arg), 6);
     ASSERT_EQ(b.unexpect_.value().x, 6);
     ASSERT_FALSE(b.has_val_);
     ASSERT_EQ(arg.x, -1);
@@ -301,7 +302,7 @@ TEST(expected_storage_base, unexpect_t_initializer_list_constructor) {
   Err::reset();
   {
     Arg arg(1);
-    Base b(exp::unexpect, {1}, std::move(arg), 1);
+    Base b(unexpect, {1}, std::move(arg), 1);
     ASSERT_EQ(b.unexpect_.value().x, 1 + 1);
     ASSERT_FALSE(b.has_val_);
     ASSERT_EQ(arg.x, -1);
@@ -313,7 +314,7 @@ TEST(expected_storage_base, unexpect_t_initializer_list_constructor) {
   Err::reset();
   {
     Arg arg(2);
-    B_e_trivial b(exp::unexpect, {2}, std::move(arg), 2);
+    B_e_trivial b(unexpect, {2}, std::move(arg), 2);
     ASSERT_EQ(b.unexpect_.value().x, 2 + 2);
     ASSERT_FALSE(b.has_val_);
     ASSERT_EQ(arg.x, -1);
@@ -322,7 +323,7 @@ TEST(expected_storage_base, unexpect_t_initializer_list_constructor) {
   ASSERT_EQ(Val::s, State::none);
   {
     Arg arg(3);
-    B_t_trivial b(exp::unexpect, {3}, std::move(arg), 3);
+    B_t_trivial b(unexpect, {3}, std::move(arg), 3);
     ASSERT_EQ(b.unexpect_.value().x, 3 + 3);
     ASSERT_FALSE(b.has_val_);
     ASSERT_EQ(arg.x, -1);
@@ -332,7 +333,7 @@ TEST(expected_storage_base, unexpect_t_initializer_list_constructor) {
   Err::reset();
   {
     Arg arg(4);
-    B_trivial b(exp::unexpect, {4}, std::move(arg), 4);
+    B_trivial b(unexpect, {4}, std::move(arg), 4);
     ASSERT_EQ(b.unexpect_.value().x, 4 + 4);
     ASSERT_FALSE(b.has_val_);
     ASSERT_EQ(arg.x, -1);
@@ -340,7 +341,7 @@ TEST(expected_storage_base, unexpect_t_initializer_list_constructor) {
   // T is void
   {
     Arg arg(5);
-    Base_void b(exp::unexpect, {5}, std::move(arg), 5);
+    Base_void b(unexpect, {5}, std::move(arg), 5);
     ASSERT_EQ(b.unexpect_.value().x, 5 + 5);
     ASSERT_FALSE(b.has_val_);
     ASSERT_EQ(arg.x, -1);
@@ -350,7 +351,7 @@ TEST(expected_storage_base, unexpect_t_initializer_list_constructor) {
   Err::reset();
   {
     Arg arg(6);
-    B_void_trivial b(exp::unexpect, {6}, std::move(arg), 6);
+    B_void_trivial b(unexpect, {6}, std::move(arg), 6);
     ASSERT_EQ(b.unexpect_.value().x, 6 + 6);
     ASSERT_FALSE(b.has_val_);
     ASSERT_EQ(arg.x, -1);

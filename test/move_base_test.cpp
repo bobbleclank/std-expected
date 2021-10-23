@@ -10,6 +10,7 @@
 
 #include <gtest/gtest.h>
 
+using namespace exp;
 using namespace exp::internal;
 
 namespace {
@@ -85,7 +86,7 @@ TEST(expected_move_base, move_constructor) {
   Val::reset();
   // !other.has_value()
   {
-    Base other(exp::unexpect, 2);
+    Base other(unexpect, 2);
     Err::reset();
     {
       Base b(std::move(other));
@@ -120,7 +121,7 @@ TEST(expected_move_base, move_constructor_void) {
   }
   // !other.has_value()
   {
-    Base_void other(exp::unexpect, 1);
+    Base_void other(unexpect, 1);
     Err::reset();
     {
       Base_void b(std::move(other));
