@@ -22,6 +22,8 @@ template <class T> using remove_cvref_t = typename remove_cvref<T>::type;
 
 } // namespace cpp
 
+template <class T, class E> class expected;
+
 struct unexpect_t {
   explicit unexpect_t() = default;
 };
@@ -183,6 +185,13 @@ using is_trivially_destructible_or_void =
 template <class T>
 inline constexpr bool is_trivially_destructible_or_void_v =
     is_trivially_destructible_or_void<T>::value;
+
+template <class T, class E, class U>
+using enable_expected_value_constructor =
+    std::enable_if_t<std::is_constructible_v<T, U&&> &&
+                     !std::is_same_v<cpp::remove_cvref_t<U>, std::in_place_t> &&
+                     !std::is_same_v<expected<T, E>, cpp::remove_cvref_t<U>> &&
+                     !std::is_same_v<unexpected<E>, cpp::remove_cvref_t<U>>>;
 
 struct uninit_t {};
 
@@ -757,7 +766,17 @@ public:
   // template <class U, class G>
   // constexpr explicit(see below) expected(expected<U, G>&& other);
 
-  // template <class U = T> constexpr explicit(see below) expected(U&& v);
+  template <class U = T,
+            std::enable_if_t<std::is_convertible_v<U&&, T>>* = nullptr,
+            internal::enable_expected_value_constructor<T, E, U>* = nullptr>
+  constexpr expected(U&& v) : base_type(std::in_place, std::forward<U>(v)) {}
+
+  template <class U = T,
+            std::enable_if_t<!std::is_convertible_v<U&&, T>>* = nullptr,
+            internal::enable_expected_value_constructor<T, E, U>* = nullptr>
+  constexpr explicit expected(U&& v)
+      : base_type(std::in_place, std::forward<U>(v)) {}
+
   // template <class G = E> constexpr expected(const unexpected<G>&);
   // template <class G = E> constexpr expected(unexpected<G>&&);
 

@@ -2,6 +2,7 @@
 
 #include "arg.h"
 #include "obj.h"
+#include "obj_explicit.h"
 #include "obj_throw.h"
 #include "state.h"
 
@@ -479,6 +480,76 @@ TEST(expected, move_constructor) {
     Err::reset();
   }
   Err::reset();
+}
+
+TEST(expected, value_constructor) {
+  Val_explicit::reset();
+  Val_implicit::reset();
+  Err::reset();
+  // explicit with U = T
+  {
+    Val_explicit val(1);
+    Val_explicit::reset();
+    {
+      expected<Val_explicit, Err> e(std::move(val));
+      ASSERT_EQ(Val_explicit::s, State::move_constructed);
+      ASSERT_EQ(Err::s, State::none);
+      ASSERT_TRUE(e.has_value());
+      ASSERT_EQ(e->x, 1);
+      ASSERT_EQ(val.x, -1);
+    }
+    ASSERT_EQ(Val_explicit::s, State::destructed);
+    ASSERT_EQ(Err::s, State::none);
+    Val_explicit::reset();
+  }
+  Val_explicit::reset();
+  // explicit with U != T
+  {
+    Arg val(2);
+    {
+      expected<Val_explicit, Err> e(std::move(val));
+      ASSERT_EQ(Val_explicit::s, State::constructed);
+      ASSERT_EQ(Err::s, State::none);
+      ASSERT_TRUE(e.has_value());
+      ASSERT_EQ(e->x, 2);
+      ASSERT_EQ(val.x, -1);
+    }
+    ASSERT_EQ(Val_explicit::s, State::destructed);
+    ASSERT_EQ(Err::s, State::none);
+    Val_explicit::reset();
+  }
+  // implicit with U = T
+  {
+    Val_implicit val = 3;
+    Val_implicit::reset();
+    {
+      expected<Val_implicit, Err> e = std::move(val);
+      ASSERT_EQ(Val_implicit::s, State::move_constructed);
+      ASSERT_EQ(Err::s, State::none);
+      ASSERT_TRUE(e.has_value());
+      ASSERT_EQ(e->x, 3);
+      ASSERT_EQ(val.x, -1);
+    }
+    ASSERT_EQ(Val_implicit::s, State::destructed);
+    ASSERT_EQ(Err::s, State::none);
+    Val_implicit::reset();
+  }
+  Val_implicit::reset();
+  // implicit with U != T
+  {
+    Arg val(4);
+    {
+      expected<Val_implicit, Err> e = std::move(val);
+      ASSERT_EQ(Val_implicit::s, State::constructed);
+      ASSERT_EQ(Err::s, State::none);
+      ASSERT_TRUE(e.has_value());
+      ASSERT_EQ(e->x, 4);
+      ASSERT_EQ(val.x, -1);
+    }
+    ASSERT_EQ(Val_implicit::s, State::destructed);
+    ASSERT_EQ(Err::s, State::none);
+    Val_implicit::reset();
+  }
 }
 
 TEST(expected, variadic_template_constructor) {
