@@ -12,23 +12,8 @@ using namespace bc::exp;
 
 namespace {
 
-struct Err2 {
-  Err2() = default;
-
-  explicit Err2(int x_) : x(x_) {}
-
-  explicit Err2(const Err& err_) {
-    Err err = err_;
-    x = err.x;
-  }
-
-  explicit Err2(Err&& err_) {
-    Err err = std::move(err_);
-    x = err.x;
-  }
-
-  int x = 20100;
-};
+struct Err2_tag {};
+using Err2 = Obj<Err2_tag>;
 
 bool operator==(Err2 lhs, Err rhs) { return lhs.x == rhs.x; }
 bool operator!=(Err2 lhs, Err rhs) { return !(lhs == rhs); }
