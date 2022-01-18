@@ -69,11 +69,12 @@ public:
   // template <class Err>
   // constexpr explicit(see below) unexpected(unexpected<Err>&& other);
 
-  template <class Err = E,
-            std::enable_if_t<
-                std::is_constructible_v<E, Err&&> &&
-                !std::is_same_v<std::decay_t<Err>, std::in_place_t> &&
-                !std::is_same_v<std::decay_t<Err>, unexpected<E>>>* = nullptr>
+  template <
+      class Err = E,
+      std::enable_if_t<
+          std::is_constructible_v<E, Err&&> &&
+          !std::is_same_v<cpp::remove_cvref_t<Err>, std::in_place_t> &&
+          !std::is_same_v<cpp::remove_cvref_t<Err>, unexpected<E>>>* = nullptr>
   constexpr explicit unexpected(Err&& val) : val_(std::forward<Err>(val)) {}
 
   template <class... Args,
