@@ -46,6 +46,9 @@ template <class Tag> struct Obj_explicit {
 struct Val_explicit_tag {};
 using Val_explicit = Obj_explicit<Val_explicit_tag>;
 
+struct Err_explicit_tag {};
+using Err_explicit = Obj_explicit<Err_explicit_tag>;
+
 template <class Tag> struct Obj_implicit {
   inline static State s = State::none;
   static void reset() { s = State::none; }
