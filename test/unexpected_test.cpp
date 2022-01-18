@@ -98,24 +98,12 @@ TEST(unexpected, constructors) {
   }
   // (Err&&) with Err = E
   {
-    Err val(2);
-    unexpected<Err> e(val);
-    ASSERT_EQ(e.value().x, 2);
-    ASSERT_EQ(val.x, 2);
-  }
-  {
     Err val(3);
     unexpected<Err> e(std::move(val));
     ASSERT_EQ(e.value().x, 3);
     ASSERT_EQ(val.x, -1);
   }
   // (Err&&) with Err != E
-  {
-    Err val(5);
-    unexpected<Err2> e(val);
-    ASSERT_EQ(e.value().x, 5);
-    ASSERT_EQ(val.x, 5);
-  }
   {
     Err val(6);
     unexpected<Err2> e(std::move(val));
