@@ -540,6 +540,146 @@ TEST(expected, value_constructor) {
   }
 }
 
+TEST(expected, copy_unexpected_constructor) {
+  Val::reset();
+  Err::reset();
+  Err_implicit::reset();
+  // explicit with G = E
+  {
+    unexpected<Err> val(1);
+    Err::reset();
+    {
+      expected<Val, Err> e(val);
+      ASSERT_EQ(Val::s, State::none);
+      ASSERT_EQ(Err::s, State::copy_constructed);
+      ASSERT_FALSE(e.has_value());
+      ASSERT_EQ(e.error().x, 1);
+      ASSERT_EQ(val.value().x, 1);
+    }
+    ASSERT_EQ(Val::s, State::none);
+    ASSERT_EQ(Err::s, State::destructed);
+    Err::reset();
+  }
+  Err::reset();
+  // explicit with G != E
+  {
+    unexpected<Arg> val(2);
+    {
+      expected<Val, Err> e(val);
+      ASSERT_EQ(Val::s, State::none);
+      ASSERT_EQ(Err::s, State::constructed);
+      ASSERT_FALSE(e.has_value());
+      ASSERT_EQ(e.error().x, 2);
+      ASSERT_EQ(val.value().x, 2);
+    }
+    ASSERT_EQ(Val::s, State::none);
+    ASSERT_EQ(Err::s, State::destructed);
+    Err::reset();
+  }
+  // implicit with G = E
+  {
+    unexpected<Err_implicit> val(3);
+    Err_implicit::reset();
+    {
+      expected<Val, Err_implicit> e = val;
+      ASSERT_EQ(Val::s, State::none);
+      ASSERT_EQ(Err_implicit::s, State::copy_constructed);
+      ASSERT_FALSE(e.has_value());
+      ASSERT_EQ(e.error().x, 3);
+      ASSERT_EQ(val.value().x, 3);
+    }
+    ASSERT_EQ(Val::s, State::none);
+    ASSERT_EQ(Err_implicit::s, State::destructed);
+    Err_implicit::reset();
+  }
+  Err_implicit::reset();
+  // implicit with G != E
+  {
+    unexpected<Arg> val(4);
+    {
+      expected<Val, Err_implicit> e = val;
+      ASSERT_EQ(Val::s, State::none);
+      ASSERT_EQ(Err_implicit::s, State::constructed);
+      ASSERT_FALSE(e.has_value());
+      ASSERT_EQ(e.error().x, 4);
+      ASSERT_EQ(val.value().x, 4);
+    }
+    ASSERT_EQ(Val::s, State::none);
+    ASSERT_EQ(Err_implicit::s, State::destructed);
+    Err_implicit::reset();
+  }
+}
+
+TEST(expected, move_unexpected_constructor) {
+  Val::reset();
+  Err::reset();
+  Err_implicit::reset();
+  // explicit with G = E
+  {
+    unexpected<Err> val(1);
+    Err::reset();
+    {
+      expected<Val, Err> e(std::move(val));
+      ASSERT_EQ(Val::s, State::none);
+      ASSERT_EQ(Err::s, State::move_constructed);
+      ASSERT_FALSE(e.has_value());
+      ASSERT_EQ(e.error().x, 1);
+      ASSERT_EQ(val.value().x, -1);
+    }
+    ASSERT_EQ(Val::s, State::none);
+    ASSERT_EQ(Err::s, State::destructed);
+    Err::reset();
+  }
+  Err::reset();
+  // explicit with G != E
+  {
+    unexpected<Arg> val(2);
+    {
+      expected<Val, Err> e(std::move(val));
+      ASSERT_EQ(Val::s, State::none);
+      ASSERT_EQ(Err::s, State::constructed);
+      ASSERT_FALSE(e.has_value());
+      ASSERT_EQ(e.error().x, 2);
+      ASSERT_EQ(val.value().x, -1);
+    }
+    ASSERT_EQ(Val::s, State::none);
+    ASSERT_EQ(Err::s, State::destructed);
+    Err::reset();
+  }
+  // implicit with G = E
+  {
+    unexpected<Err_implicit> val(3);
+    Err_implicit::reset();
+    {
+      expected<Val, Err_implicit> e = std::move(val);
+      ASSERT_EQ(Val::s, State::none);
+      ASSERT_EQ(Err_implicit::s, State::move_constructed);
+      ASSERT_FALSE(e.has_value());
+      ASSERT_EQ(e.error().x, 3);
+      ASSERT_EQ(val.value().x, -1);
+    }
+    ASSERT_EQ(Val::s, State::none);
+    ASSERT_EQ(Err_implicit::s, State::destructed);
+    Err_implicit::reset();
+  }
+  Err_implicit::reset();
+  // implicit with G != E
+  {
+    unexpected<Arg> val(4);
+    {
+      expected<Val, Err_implicit> e = std::move(val);
+      ASSERT_EQ(Val::s, State::none);
+      ASSERT_EQ(Err_implicit::s, State::constructed);
+      ASSERT_FALSE(e.has_value());
+      ASSERT_EQ(e.error().x, 4);
+      ASSERT_EQ(val.value().x, -1);
+    }
+    ASSERT_EQ(Val::s, State::none);
+    ASSERT_EQ(Err_implicit::s, State::destructed);
+    Err_implicit::reset();
+  }
+}
+
 TEST(expected, variadic_template_constructor) {
   Val::reset();
   Err::reset();

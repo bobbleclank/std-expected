@@ -46,4 +46,7 @@ template <class Tag> struct Obj_implicit {
 struct Val_implicit_tag {};
 using Val_implicit = Obj_implicit<Val_implicit_tag>;
 
+struct Err_implicit_tag {};
+using Err_implicit = Obj_implicit<Err_implicit_tag>;
+
 #endif

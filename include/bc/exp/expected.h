@@ -777,8 +777,30 @@ public:
   constexpr explicit expected(U&& v)
       : base_type(std::in_place, std::forward<U>(v)) {}
 
-  // template <class G = E> constexpr expected(const unexpected<G>&);
-  // template <class G = E> constexpr expected(unexpected<G>&&);
+  template <class G = E,
+            std::enable_if_t<std::is_convertible_v<const G&, E>>* = nullptr,
+            std::enable_if_t<std::is_constructible_v<E, const G&>>* = nullptr>
+  constexpr expected(const unexpected<G>& e) : base_type(unexpect, e.value()) {}
+
+  template <class G = E,
+            std::enable_if_t<!std::is_convertible_v<const G&, E>>* = nullptr,
+            std::enable_if_t<std::is_constructible_v<E, const G&>>* = nullptr>
+  constexpr explicit expected(const unexpected<G>& e)
+      : base_type(unexpect, e.value()) {}
+
+  template <class G = E,
+            std::enable_if_t<std::is_convertible_v<G&&, E>>* = nullptr,
+            std::enable_if_t<std::is_constructible_v<E, G&&>>* = nullptr>
+  constexpr expected(unexpected<G>&& e) noexcept(
+      std::is_nothrow_constructible_v<E, G&&>)
+      : base_type(unexpect, std::move(e.value())) {}
+
+  template <class G = E,
+            std::enable_if_t<!std::is_convertible_v<G&&, E>>* = nullptr,
+            std::enable_if_t<std::is_constructible_v<E, G&&>>* = nullptr>
+  constexpr explicit expected(unexpected<G>&& e) noexcept(
+      std::is_nothrow_constructible_v<E, G&&>)
+      : base_type(unexpect, std::move(e.value())) {}
 
   template <class... Args,
             std::enable_if_t<std::is_constructible_v<T, Args&&...>>* = nullptr>
