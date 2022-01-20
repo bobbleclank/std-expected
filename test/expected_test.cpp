@@ -470,6 +470,144 @@ TEST(expected, move_constructor) {
   Err::reset();
 }
 
+TEST(expected, copy_expected_constructor) {
+  Val::reset();
+  Err::reset();
+  Val_implicit::reset();
+  Err_implicit::reset();
+  // explicit
+  {
+    expected<Arg, Arg> other(std::in_place, 1);
+    {
+      expected<Val, Err> e(other);
+      ASSERT_EQ(Val::s, State::constructed);
+      ASSERT_EQ(Err::s, State::none);
+      ASSERT_TRUE(e.has_value());
+      ASSERT_TRUE(other.has_value());
+      ASSERT_EQ(e->x, 1);
+      ASSERT_EQ(other->x, 1);
+    }
+    ASSERT_EQ(Val::s, State::destructed);
+    ASSERT_EQ(Err::s, State::none);
+    Val::reset();
+  }
+  {
+    expected<Arg, Arg> other(unexpect, 2);
+    {
+      expected<Val, Err> e(other);
+      ASSERT_EQ(Val::s, State::none);
+      ASSERT_EQ(Err::s, State::constructed);
+      ASSERT_FALSE(e.has_value());
+      ASSERT_FALSE(other.has_value());
+      ASSERT_EQ(e.error().x, 2);
+      ASSERT_EQ(other.error().x, 2);
+    }
+    ASSERT_EQ(Val::s, State::none);
+    ASSERT_EQ(Err::s, State::destructed);
+    Err::reset();
+  }
+  // implicit
+  {
+    expected<Arg, Arg> other(std::in_place, 3);
+    {
+      expected<Val_implicit, Err_implicit> e = other;
+      ASSERT_EQ(Val_implicit::s, State::constructed);
+      ASSERT_EQ(Err_implicit::s, State::none);
+      ASSERT_TRUE(e.has_value());
+      ASSERT_TRUE(other.has_value());
+      ASSERT_EQ(e->x, 3);
+      ASSERT_EQ(other->x, 3);
+    }
+    ASSERT_EQ(Val_implicit::s, State::destructed);
+    ASSERT_EQ(Err_implicit::s, State::none);
+    Val_implicit::reset();
+  }
+  {
+    expected<Arg, Arg> other(unexpect, 4);
+    {
+      expected<Val_implicit, Err_implicit> e = other;
+      ASSERT_EQ(Val_implicit::s, State::none);
+      ASSERT_EQ(Err_implicit::s, State::constructed);
+      ASSERT_FALSE(e.has_value());
+      ASSERT_FALSE(other.has_value());
+      ASSERT_EQ(e.error().x, 4);
+      ASSERT_EQ(other.error().x, 4);
+    }
+    ASSERT_EQ(Val_implicit::s, State::none);
+    ASSERT_EQ(Err_implicit::s, State::destructed);
+    Err_implicit::reset();
+  }
+}
+
+TEST(expected, move_expected_constructor) {
+  Val::reset();
+  Err::reset();
+  Val_implicit::reset();
+  Err_implicit::reset();
+  // explicit
+  {
+    expected<Arg, Arg> other(std::in_place, 1);
+    {
+      expected<Val, Err> e(std::move(other));
+      ASSERT_EQ(Val::s, State::constructed);
+      ASSERT_EQ(Err::s, State::none);
+      ASSERT_TRUE(e.has_value());
+      ASSERT_TRUE(other.has_value());
+      ASSERT_EQ(e->x, 1);
+      ASSERT_EQ(other->x, -1);
+    }
+    ASSERT_EQ(Val::s, State::destructed);
+    ASSERT_EQ(Err::s, State::none);
+    Val::reset();
+  }
+  {
+    expected<Arg, Arg> other(unexpect, 2);
+    {
+      expected<Val, Err> e(std::move(other));
+      ASSERT_EQ(Val::s, State::none);
+      ASSERT_EQ(Err::s, State::constructed);
+      ASSERT_FALSE(e.has_value());
+      ASSERT_FALSE(other.has_value());
+      ASSERT_EQ(e.error().x, 2);
+      ASSERT_EQ(other.error().x, -1);
+    }
+    ASSERT_EQ(Val::s, State::none);
+    ASSERT_EQ(Err::s, State::destructed);
+    Err::reset();
+  }
+  // implicit
+  {
+    expected<Arg, Arg> other(std::in_place, 3);
+    {
+      expected<Val_implicit, Err_implicit> e = std::move(other);
+      ASSERT_EQ(Val_implicit::s, State::constructed);
+      ASSERT_EQ(Err_implicit::s, State::none);
+      ASSERT_TRUE(e.has_value());
+      ASSERT_TRUE(other.has_value());
+      ASSERT_EQ(e->x, 3);
+      ASSERT_EQ(other->x, -1);
+    }
+    ASSERT_EQ(Val_implicit::s, State::destructed);
+    ASSERT_EQ(Err_implicit::s, State::none);
+    Val_implicit::reset();
+  }
+  {
+    expected<Arg, Arg> other(unexpect, 4);
+    {
+      expected<Val_implicit, Err_implicit> e = std::move(other);
+      ASSERT_EQ(Val_implicit::s, State::none);
+      ASSERT_EQ(Err_implicit::s, State::constructed);
+      ASSERT_FALSE(e.has_value());
+      ASSERT_FALSE(other.has_value());
+      ASSERT_EQ(e.error().x, 4);
+      ASSERT_EQ(other.error().x, -1);
+    }
+    ASSERT_EQ(Val_implicit::s, State::none);
+    ASSERT_EQ(Err_implicit::s, State::destructed);
+    Err_implicit::reset();
+  }
+}
+
 TEST(expected, value_constructor) {
   Val::reset();
   Err::reset();
