@@ -2,6 +2,7 @@
 
 #include "arg.h"
 #include "obj.h"
+#include "obj_implicit.h"
 
 #include <utility>
 
@@ -83,6 +84,34 @@ TEST(unexpected, constructors) {
     unexpected<Err> other(4);
     unexpected<Err> e(std::move(other));
     ASSERT_EQ(e.value().x, 4);
+    ASSERT_EQ(other.value().x, -1);
+  }
+  // explicit (const unexpected<Err>&)
+  {
+    unexpected<Arg> other(5);
+    unexpected<Err> e(other);
+    ASSERT_EQ(e.value().x, 5);
+    ASSERT_EQ(other.value().x, 5);
+  }
+  // implicit (const unexpected<Err>&)
+  {
+    unexpected<Arg> other(9);
+    unexpected<Err_implicit> e = other;
+    ASSERT_EQ(e.value().x, 9);
+    ASSERT_EQ(other.value().x, 9);
+  }
+  // explicit (unexpected<Err>&&)
+  {
+    unexpected<Arg> other(10);
+    unexpected<Err> e(std::move(other));
+    ASSERT_EQ(e.value().x, 10);
+    ASSERT_EQ(other.value().x, -1);
+  }
+  // implicit (unexpected<Err>&&)
+  {
+    unexpected<Arg> other(11);
+    unexpected<Err_implicit> e = std::move(other);
+    ASSERT_EQ(e.value().x, 11);
     ASSERT_EQ(other.value().x, -1);
   }
   // (Err&&) with Err = E

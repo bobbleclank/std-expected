@@ -23,6 +23,7 @@ template <class T> using remove_cvref_t = typename remove_cvref<T>::type;
 } // namespace cpp
 
 template <class T, class E> class expected;
+template <class E> class unexpected;
 
 struct unexpect_t {
   explicit unexpect_t() = default;
@@ -55,6 +56,23 @@ private:
   E val_;
 };
 
+namespace internal {
+
+template <class E, class Err, class Err_qualified>
+using enable_unexpected_unexpected_constructor =
+    std::enable_if_t<std::is_constructible_v<E, Err_qualified> &&
+
+                     !std::is_constructible_v<E, unexpected<Err>&> &&
+                     !std::is_constructible_v<E, unexpected<Err>&&> &&
+                     !std::is_constructible_v<E, const unexpected<Err>&> &&
+                     !std::is_constructible_v<E, const unexpected<Err>&&> &&
+                     !std::is_convertible_v<unexpected<Err>&, E> &&
+                     !std::is_convertible_v<unexpected<Err>&&, E> &&
+                     !std::is_convertible_v<const unexpected<Err>&, E> &&
+                     !std::is_convertible_v<const unexpected<Err>&&, E>>;
+
+} // namespace internal
+
 template <class E> class unexpected {
 public:
   static_assert(!std::is_same_v<E, void>);
@@ -65,11 +83,32 @@ public:
   constexpr unexpected(const unexpected&) = default;
   constexpr unexpected(unexpected&&) = default;
 
-  // template <class Err>
-  // constexpr explicit(see below) unexpected(const unexpected<Err>& other);
+  template <class Err,
+            std::enable_if_t<std::is_convertible_v<const Err&, E>>* = nullptr,
+            internal::enable_unexpected_unexpected_constructor<
+                E, Err, const Err&>* = nullptr>
+  constexpr unexpected(const unexpected<Err>& other) : val_(other.value()) {}
 
-  // template <class Err>
-  // constexpr explicit(see below) unexpected(unexpected<Err>&& other);
+  template <class Err,
+            std::enable_if_t<!std::is_convertible_v<const Err&, E>>* = nullptr,
+            internal::enable_unexpected_unexpected_constructor<
+                E, Err, const Err&>* = nullptr>
+  constexpr explicit unexpected(const unexpected<Err>& other)
+      : val_(other.value()) {}
+
+  template <class Err,
+            std::enable_if_t<std::is_convertible_v<Err&&, E>>* = nullptr,
+            internal::enable_unexpected_unexpected_constructor<E, Err, Err&&>* =
+                nullptr>
+  constexpr unexpected(unexpected<Err>&& other)
+      : val_(std::move(other.value())) {}
+
+  template <class Err,
+            std::enable_if_t<!std::is_convertible_v<Err&&, E>>* = nullptr,
+            internal::enable_unexpected_unexpected_constructor<E, Err, Err&&>* =
+                nullptr>
+  constexpr explicit unexpected(unexpected<Err>&& other)
+      : val_(std::move(other.value())) {}
 
   template <
       class Err = E,
