@@ -68,6 +68,20 @@ template <class Tag> struct Obj {
     return *this;
   }
 
+  Obj& operator=(const Arg& arg_) noexcept {
+    s = State::assigned;
+    Arg arg = arg_;
+    x = arg.x;
+    return *this;
+  }
+
+  Obj& operator=(Arg&& arg_) noexcept {
+    s = State::assigned;
+    Arg arg = std::move(arg_);
+    x = arg.x;
+    return *this;
+  }
+
   ~Obj() { s = State::destructed; }
 
   int x = 20100;

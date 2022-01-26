@@ -135,11 +135,19 @@ public:
   constexpr unexpected& operator=(const unexpected&) = default;
   constexpr unexpected& operator=(unexpected&&) = default;
 
-  // template <class Err = E>
-  // constexpr unexpected& operator=(const unexpected<Err>& other);
+  template <class Err,
+            std::enable_if_t<std::is_assignable_v<E&, const Err&>>* = nullptr>
+  constexpr unexpected& operator=(const unexpected<Err>& other) {
+    val_ = other.value();
+    return *this;
+  }
 
-  // template <class Err = E>
-  // constexpr unexpected& operator=(unexpected<Err>&& other);
+  template <class Err,
+            std::enable_if_t<std::is_assignable_v<E&, Err&&>>* = nullptr>
+  constexpr unexpected& operator=(unexpected<Err>&& other) {
+    val_ = std::move(other.value());
+    return *this;
+  }
 
   constexpr const E& value() const& noexcept { return val_; }
   constexpr E& value() & noexcept { return val_; }

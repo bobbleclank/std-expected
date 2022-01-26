@@ -161,6 +161,22 @@ TEST(unexpected, assignment_operators) {
     ASSERT_EQ(e.value().x, 2);
     ASSERT_EQ(other.value().x, -2);
   }
+  // (const unexpected<Err>&)
+  {
+    unexpected<Arg> other(3);
+    unexpected<Err> e(30);
+    e = other;
+    ASSERT_EQ(e.value().x, 3);
+    ASSERT_EQ(other.value().x, 3);
+  }
+  // (unexpected<Err>&&)
+  {
+    unexpected<Arg> other(4);
+    unexpected<Err> e(40);
+    e = std::move(other);
+    ASSERT_EQ(e.value().x, 4);
+    ASSERT_EQ(other.value().x, -1);
+  }
 }
 
 TEST(unexpected, equality_operators) {

@@ -9,6 +9,7 @@ enum class State {
   move_constructed,
   copy_assigned,
   move_assigned,
+  assigned,
   destructed
 };
 
