@@ -71,6 +71,20 @@ TEST(unexpected, constructors) {
     ASSERT_EQ(e.value().x, 1);
     ASSERT_EQ(val.x, 1);
   }
+  // (const unexpected&)
+  {
+    unexpected<Err> other(2);
+    unexpected<Err> e(other);
+    ASSERT_EQ(e.value().x, 2);
+    ASSERT_EQ(other.value().x, 2);
+  }
+  // (unexpected&&)
+  {
+    unexpected<Err> other(4);
+    unexpected<Err> e(std::move(other));
+    ASSERT_EQ(e.value().x, 4);
+    ASSERT_EQ(other.value().x, -1);
+  }
   // (Err&&) with Err = E
   {
     Err val(3);
@@ -98,6 +112,25 @@ TEST(unexpected, constructors) {
     unexpected<Err> e(std::in_place, {8}, std::move(arg), 8);
     ASSERT_EQ(e.value().x, 8 + 8);
     ASSERT_EQ(arg.x, -1);
+  }
+}
+
+TEST(unexpected, assignment_operators) {
+  // (const unexpected&)
+  {
+    unexpected<Err> other(1);
+    unexpected<Err> e(10);
+    e = other;
+    ASSERT_EQ(e.value().x, 1);
+    ASSERT_EQ(other.value().x, 1);
+  }
+  // (unexpected&&)
+  {
+    unexpected<Err> other(2);
+    unexpected<Err> e(20);
+    e = std::move(other);
+    ASSERT_EQ(e.value().x, 2);
+    ASSERT_EQ(other.value().x, -2);
   }
 }
 
