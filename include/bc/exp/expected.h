@@ -265,6 +265,14 @@ using enable_expected_value_constructor =
                      !std::is_same_v<expected<T, E>, cpp::remove_cvref_t<U>> &&
                      !std::is_same_v<unexpected<E>, cpp::remove_cvref_t<U>>>;
 
+template <class T, class E, class U>
+using enable_expected_value_assignment = std::enable_if_t<
+    !std::is_same_v<expected<T, E>, cpp::remove_cvref_t<U>> &&
+    !std::conjunction_v<std::is_scalar<T>,
+                        std::is_same<T, cpp::remove_cvref_t<U>>> &&
+    std::is_constructible_v<T, U&&> && std::is_assignable_v<T&, U&&> &&
+    std::is_nothrow_move_constructible_v<E>>;
+
 struct uninit_t {};
 
 inline constexpr uninit_t uninit{};
@@ -952,7 +960,29 @@ public:
   expected& operator=(const expected&) = default;
   expected& operator=(expected&&) = default;
 
-  // template <class U = T> expected& operator=(U&& v);
+  template <class U = T,
+            internal::enable_expected_value_assignment<T, E, U>* = nullptr>
+  expected& operator=(U&& v) {
+    if (this->has_val_) {
+      this->val_ = std::forward<U>(v); // This can throw.
+    } else {
+      if constexpr (std::is_nothrow_constructible_v<T, U&&>) {
+        this->destroy(unexpect);
+        this->construct(std::in_place, std::forward<U>(v));
+      } else { // std::is_nothrow_move_constructible_v<E>
+        unexpected<E> tmp = std::move(this->unexpect_);
+        this->destroy(unexpect);
+        try {
+          this->construct(std::in_place, std::forward<U>(v)); // This can throw.
+        } catch (...) {
+          this->construct(unexpect, std::move(tmp));
+          throw;
+        }
+      }
+    }
+    return *this;
+  }
+
   // template <class G = E> expected& operator=(const unexpected<G>&);
   // template <class G = E> expected& operator=(unexpected<G>&&);
 

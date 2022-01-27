@@ -85,6 +85,22 @@ template <class Tag> struct Obj_throw_2 {
     x = x_;
   }
 
+  explicit Obj_throw_2(const Arg& arg_) {
+    s = State::constructed;
+    Arg arg = arg_;
+    x = arg.x;
+    if (t == May_throw::do_throw)
+      throw t;
+  }
+
+  explicit Obj_throw_2(Arg&& arg_) {
+    s = State::constructed;
+    Arg arg = std::move(arg_);
+    x = arg.x;
+    if (t == May_throw::do_throw)
+      throw t;
+  }
+
   Obj_throw_2(Arg&& arg_, int) {
     s = State::constructed;
     Arg arg = std::move(arg_);
@@ -130,6 +146,24 @@ template <class Tag> struct Obj_throw_2 {
     s = State::move_assigned;
     x = other.x;
     other.x = -2;
+    if (t == May_throw::do_throw)
+      throw t;
+    return *this;
+  }
+
+  Obj_throw_2& operator=(const Arg& arg_) {
+    s = State::assigned;
+    Arg arg = arg_;
+    x = arg.x;
+    if (t == May_throw::do_throw)
+      throw t;
+    return *this;
+  }
+
+  Obj_throw_2& operator=(Arg&& arg_) {
+    s = State::assigned;
+    Arg arg = std::move(arg_);
+    x = arg.x;
     if (t == May_throw::do_throw)
       throw t;
     return *this;
