@@ -2,7 +2,6 @@
 
 #include "arg.h"
 #include "obj.h"
-#include "obj_explicit.h"
 
 #include <utility>
 
@@ -84,15 +83,15 @@ TEST(unexpected, constructors) {
   }
   // (Err&&) with Err = E
   {
-    Err_explicit val(3);
-    unexpected<Err_explicit> e(std::move(val));
+    Err val(3);
+    unexpected<Err> e(std::move(val));
     ASSERT_EQ(e.value().x, 3);
     ASSERT_EQ(val.x, -1);
   }
   // (Err&&) with Err != E
   {
     Arg val(6);
-    unexpected<Err_explicit> e(std::move(val));
+    unexpected<Err> e(std::move(val));
     ASSERT_EQ(e.value().x, 6);
     ASSERT_EQ(val.x, -1);
   }

@@ -6,49 +6,6 @@
 
 #include <utility>
 
-template <class Tag> struct Obj_explicit {
-  inline static State s = State::none;
-  static void reset() { s = State::none; }
-
-  explicit Obj_explicit(int x_) {
-    s = State::constructed;
-    x = x_;
-  }
-
-  explicit Obj_explicit(const Arg& arg_) {
-    s = State::constructed;
-    Arg arg = arg_;
-    x = arg.x;
-  }
-
-  explicit Obj_explicit(Arg&& arg_) {
-    s = State::constructed;
-    Arg arg = std::move(arg_);
-    x = arg.x;
-  }
-
-  explicit Obj_explicit(const Obj_explicit& other) {
-    s = State::copy_constructed;
-    x = other.x;
-  }
-
-  explicit Obj_explicit(Obj_explicit&& other) {
-    s = State::move_constructed;
-    x = other.x;
-    other.x = -1;
-  }
-
-  ~Obj_explicit() { s = State::destructed; }
-
-  int x = 20100;
-};
-
-struct Val_explicit_tag {};
-using Val_explicit = Obj_explicit<Val_explicit_tag>;
-
-struct Err_explicit_tag {};
-using Err_explicit = Obj_explicit<Err_explicit_tag>;
-
 template <class Tag> struct Obj_implicit {
   inline static State s = State::none;
   static void reset() { s = State::none; }

@@ -18,6 +18,18 @@ template <class Tag> struct Obj {
     x = x_;
   }
 
+  explicit Obj(const Arg& arg_) noexcept {
+    s = State::constructed;
+    Arg arg = arg_;
+    x = arg.x;
+  }
+
+  explicit Obj(Arg&& arg_) noexcept {
+    s = State::constructed;
+    Arg arg = std::move(arg_);
+    x = arg.x;
+  }
+
   Obj(Arg&& arg_, int) noexcept {
     s = State::constructed;
     Arg arg = std::move(arg_);
