@@ -484,8 +484,8 @@ TEST(expected, move_constructor) {
 
 TEST(expected, value_constructor) {
   Val::reset();
-  Val_implicit::reset();
   Err::reset();
+  Val_implicit::reset();
   // explicit with U = T
   {
     Val val(1);
