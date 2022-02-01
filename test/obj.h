@@ -11,9 +11,9 @@ template <class Tag> struct Obj {
   inline static State s = State::none;
   static void reset() { s = State::none; }
 
-  Obj() { s = State::default_constructed; }
+  Obj() noexcept { s = State::default_constructed; }
 
-  explicit Obj(int x_) {
+  explicit Obj(int x_) noexcept {
     s = State::constructed;
     x = x_;
   }
