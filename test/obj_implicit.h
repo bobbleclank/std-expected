@@ -1,5 +1,5 @@
-#ifndef TEST_OBJ_EXPLICIT_H
-#define TEST_OBJ_EXPLICIT_H
+#ifndef TEST_OBJ_IMPLICIT_H
+#define TEST_OBJ_IMPLICIT_H
 
 #include "arg.h"
 #include "state.h"
