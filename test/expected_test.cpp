@@ -30,18 +30,6 @@ struct Con {
   int x = 20100;
 };
 
-struct Val2_tag {};
-using Val2 = Obj<Val2_tag>;
-
-bool operator==(Val2 lhs, Val rhs) { return lhs.x == rhs.x; }
-bool operator!=(Val2 lhs, Val rhs) { return !(lhs == rhs); }
-
-struct Err2_tag {};
-using Err2 = Obj<Err2_tag>;
-
-bool operator==(Err2 lhs, Err rhs) { return lhs.x == rhs.x; }
-bool operator!=(Err2 lhs, Err rhs) { return !(lhs == rhs); }
-
 } // namespace
 
 TEST(expected, member_access_operator) {

@@ -9,16 +9,6 @@
 
 using namespace bc::exp;
 
-namespace {
-
-struct Err2_tag {};
-using Err2 = Obj<Err2_tag>;
-
-bool operator==(Err2 lhs, Err rhs) { return lhs.x == rhs.x; }
-bool operator!=(Err2 lhs, Err rhs) { return !(lhs == rhs); }
-
-} // namespace
-
 TEST(unexpected, value) {
   // const& overload
   {

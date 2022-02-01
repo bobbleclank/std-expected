@@ -73,11 +73,13 @@ template <class Tag> struct Obj {
   int x = 20100;
 };
 
-template <class Tag> bool operator==(Obj<Tag> lhs, Obj<Tag> rhs) {
+template <class Tag1, class Tag2>
+bool operator==(Obj<Tag1> lhs, Obj<Tag2> rhs) {
   return lhs.x == rhs.x;
 }
 
-template <class Tag> bool operator!=(Obj<Tag> lhs, Obj<Tag> rhs) {
+template <class Tag1, class Tag2>
+bool operator!=(Obj<Tag1> lhs, Obj<Tag2> rhs) {
   return !(lhs == rhs);
 }
 
@@ -86,5 +88,11 @@ using Val = Obj<Val_tag>;
 
 struct Err_tag {};
 using Err = Obj<Err_tag>;
+
+struct Val2_tag {};
+using Val2 = Obj<Val2_tag>;
+
+struct Err2_tag {};
+using Err2 = Obj<Err2_tag>;
 
 #endif
