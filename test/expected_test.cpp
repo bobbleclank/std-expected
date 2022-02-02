@@ -1125,7 +1125,7 @@ TEST(expected, emplace) {
   ASSERT_EQ(Val_throw::s, State::none);
   ASSERT_EQ(Err::s, State::destructed);
   Err::reset();
-  // !has_value() via std::is_constructible_v<T, Args...>
+  // !has_value() via std::is_nothrow_move_constructible_v<E>
   {
     Arg arg(10);
     expected<Val_throw_2, Err> e(unexpect, 100);
@@ -1262,7 +1262,7 @@ TEST(expected, emplace_initializer_list_overload) {
   ASSERT_EQ(Val_throw::s, State::none);
   ASSERT_EQ(Err::s, State::destructed);
   Err::reset();
-  // !has_value() via std::is_constructible_v<T, Args...>
+  // !has_value() via std::is_nothrow_move_constructible_v<E>
   {
     Arg arg(10);
     expected<Val_throw_2, Err> e(unexpect, 100);

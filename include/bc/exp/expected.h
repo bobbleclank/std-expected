@@ -968,7 +968,7 @@ public:
       T tmp(std::forward<Args>(args)...); // This can throw.
       this->destroy(unexpect);
       this->construct(std::in_place, std::move(tmp));
-    } else {
+    } else { // std::is_nothrow_move_constructible_v<E>
       unexpected<E> tmp = std::move(this->unexpect_);
       this->destroy(unexpect);
       try {
@@ -996,7 +996,7 @@ public:
       T tmp(il, std::forward<Args>(args)...); // This can throw.
       this->destroy(unexpect);
       this->construct(std::in_place, std::move(tmp));
-    } else {
+    } else { // std::is_nothrow_move_constructible_v<E>
       unexpected<E> tmp = std::move(this->unexpect_);
       this->destroy(unexpect);
       try {
