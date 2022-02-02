@@ -584,8 +584,6 @@ TEST(expected_operations_base, copy_assign) {
 TEST(expected_operations_base, move_assign) {
   Val::reset();
   Err::reset();
-  Val_throw::reset();
-  Err_throw::reset();
   Val_throw_2::reset();
   Err_throw_2::reset();
   // this->has_value() && other.has_value()
