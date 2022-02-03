@@ -983,8 +983,31 @@ public:
     return *this;
   }
 
-  // template <class G = E> expected& operator=(const unexpected<G>&);
-  // template <class G = E> expected& operator=(unexpected<G>&&);
+  template <class G = E,
+            std::enable_if_t<std::is_nothrow_constructible_v<E, const G&> &&
+                             std::is_assignable_v<E&, const G&>>* = nullptr>
+  expected& operator=(const unexpected<G>& e) {
+    if (this->has_val_) {
+      this->destroy(std::in_place);
+      this->construct(unexpect, e.value());
+    } else {
+      this->unexpect_ = e; // This can throw.
+    }
+    return *this;
+  }
+
+  template <class G = E,
+            std::enable_if_t<std::is_nothrow_constructible_v<E, G&&> &&
+                             std::is_assignable_v<E&, G&&>>* = nullptr>
+  expected& operator=(unexpected<G>&& e) {
+    if (this->has_val_) {
+      this->destroy(std::in_place);
+      this->construct(unexpect, std::move(e.value()));
+    } else {
+      this->unexpect_ = std::move(e); // This can throw.
+    }
+    return *this;
+  }
 
   template <class... Args,
             std::enable_if_t<std::is_constructible_v<T, Args&&...>>* = nullptr>

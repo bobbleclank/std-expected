@@ -181,4 +181,80 @@ using Val_throw_2 = Obj_throw_2<Val_throw_2_tag>;
 struct Err_throw_2_tag {};
 using Err_throw_2 = Obj_throw_2<Err_throw_2_tag>;
 
+template <class Tag> struct Obj_throw_3 {
+  inline static State s = State::none;
+  static void reset() { s = State::none; }
+
+  explicit Obj_throw_3(int x_) {
+    s = State::constructed;
+    x = x_;
+  }
+
+  explicit Obj_throw_3(const Arg& arg_) noexcept {
+    s = State::constructed;
+    Arg arg = arg_;
+    x = arg.x;
+  }
+
+  explicit Obj_throw_3(Arg&& arg_) noexcept {
+    s = State::constructed;
+    Arg arg = std::move(arg_);
+    x = arg.x;
+  }
+
+  Obj_throw_3(const Obj_throw_3& other) noexcept {
+    s = State::copy_constructed;
+    x = other.x;
+  }
+
+  Obj_throw_3(Obj_throw_3&& other) noexcept {
+    s = State::move_constructed;
+    x = other.x;
+    other.x = -1;
+  }
+
+  Obj_throw_3& operator=(const Obj_throw_3& other) {
+    s = State::copy_assigned;
+    x = other.x;
+    if (t == May_throw::do_throw)
+      throw t;
+    return *this;
+  }
+
+  Obj_throw_3& operator=(Obj_throw_3&& other) {
+    s = State::move_assigned;
+    x = other.x;
+    other.x = -2;
+    if (t == May_throw::do_throw)
+      throw t;
+    return *this;
+  }
+
+  Obj_throw_3& operator=(const Arg& arg_) {
+    s = State::assigned;
+    Arg arg = arg_;
+    x = arg.x;
+    if (t == May_throw::do_throw)
+      throw t;
+    return *this;
+  }
+
+  Obj_throw_3& operator=(Arg&& arg_) {
+    s = State::assigned;
+    Arg arg = std::move(arg_);
+    x = arg.x;
+    if (t == May_throw::do_throw)
+      throw t;
+    return *this;
+  }
+
+  ~Obj_throw_3() { s = State::destructed; }
+
+  int x = 20100;
+  inline static May_throw t = May_throw::do_not_throw;
+};
+
+struct Err_throw_3_tag {};
+using Err_throw_3 = Obj_throw_3<Err_throw_3_tag>;
+
 #endif
