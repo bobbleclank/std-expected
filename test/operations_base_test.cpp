@@ -25,6 +25,32 @@ using B_t_throw_2 = expected_operations_base<Val_throw_2, Err>;
 using B_e_throw_2 = expected_operations_base<Val, Err_throw_2>;
 using B_void_e_throw_2 = expected_operations_base<void, Err_throw_2>;
 
+template <class T, class E>
+struct expected_operations : expected_operations_base<T, E> {
+  using expected_operations_base<T, E>::expected_operations_base;
+
+  const T& operator*() const& { return this->val_; }
+  T&& operator*() && { return std::move(this->val_); }
+
+  bool has_value() const { return this->has_val_; }
+
+  const E& error() const& { return this->unexpect_.value(); }
+  E&& error() && { return std::move(this->unexpect_.value()); }
+};
+
+template <class E>
+struct expected_operations<void, E> : expected_operations_base<void, E> {
+  using expected_operations_base<void, E>::expected_operations_base;
+
+  bool has_value() const { return this->has_val_; }
+
+  const E& error() const& { return this->unexpect_.value(); }
+  E&& error() && { return std::move(this->unexpect_.value()); }
+};
+
+using B_arg = expected_operations<Arg, Arg>;
+using B_void_arg = expected_operations<void, Arg>;
+
 } // namespace
 
 TEST(expected_operations_base, in_place_t_construct_destroy) {
@@ -238,6 +264,137 @@ TEST(expected_operations_base, construct_from_void) {
     Err::reset();
   }
   Err::reset();
+}
+
+TEST(expected_operations_base, construct_from_ex) {
+  Val::reset();
+  Err::reset();
+  // other.has_value()
+  {
+    B_arg other(std::in_place, 1);
+    {
+      Base b(uninit);
+      b.construct_from_ex(other);
+      ASSERT_EQ(Val::s, State::constructed);
+      ASSERT_EQ(Err::s, State::none);
+      ASSERT_TRUE(b.has_val_);
+      ASSERT_TRUE(other.has_val_);
+      ASSERT_EQ(b.val_.x, 1);
+      ASSERT_EQ(other.val_.x, 1);
+    }
+    ASSERT_EQ(Val::s, State::destructed);
+    ASSERT_EQ(Err::s, State::none);
+    Val::reset();
+  }
+  {
+    B_arg other(std::in_place, 2);
+    {
+      Base b(uninit);
+      b.construct_from_ex(std::move(other));
+      ASSERT_EQ(Val::s, State::constructed);
+      ASSERT_EQ(Err::s, State::none);
+      ASSERT_TRUE(b.has_val_);
+      ASSERT_TRUE(other.has_val_);
+      ASSERT_EQ(b.val_.x, 2);
+      ASSERT_EQ(other.val_.x, -1);
+    }
+    ASSERT_EQ(Val::s, State::destructed);
+    ASSERT_EQ(Err::s, State::none);
+    Val::reset();
+  }
+  // !other.has_value()
+  {
+    B_arg other(unexpect, 3);
+    {
+      Base b(uninit);
+      b.construct_from_ex(other);
+      ASSERT_EQ(Val::s, State::none);
+      ASSERT_EQ(Err::s, State::constructed);
+      ASSERT_FALSE(b.has_val_);
+      ASSERT_FALSE(other.has_val_);
+      ASSERT_EQ(b.unexpect_.value().x, 3);
+      ASSERT_EQ(other.unexpect_.value().x, 3);
+    }
+    ASSERT_EQ(Val::s, State::none);
+    ASSERT_EQ(Err::s, State::destructed);
+    Err::reset();
+  }
+  {
+    B_arg other(unexpect, 4);
+    {
+      Base b(uninit);
+      b.construct_from_ex(std::move(other));
+      ASSERT_EQ(Val::s, State::none);
+      ASSERT_EQ(Err::s, State::constructed);
+      ASSERT_FALSE(b.has_val_);
+      ASSERT_FALSE(other.has_val_);
+      ASSERT_EQ(b.unexpect_.value().x, 4);
+      ASSERT_EQ(other.unexpect_.value().x, -1);
+    }
+    ASSERT_EQ(Val::s, State::none);
+    ASSERT_EQ(Err::s, State::destructed);
+    Err::reset();
+  }
+}
+
+TEST(expected_operations_base, construct_from_ex_void) {
+  Err::reset();
+  // other.has_value()
+  {
+    B_void_arg other(std::in_place);
+    {
+      Base_void b(uninit);
+      b.construct_from_ex(other);
+      ASSERT_EQ(Err::s, State::none);
+      ASSERT_TRUE(b.has_val_);
+      ASSERT_TRUE(other.has_val_);
+      (void)b.dummy_;
+      (void)other.dummy_;
+    }
+    ASSERT_EQ(Err::s, State::none);
+  }
+  {
+    B_void_arg other(std::in_place);
+    {
+      Base_void b(uninit);
+      b.construct_from_ex(std::move(other));
+      ASSERT_EQ(Err::s, State::none);
+      ASSERT_TRUE(b.has_val_);
+      ASSERT_TRUE(other.has_val_);
+      (void)b.dummy_;
+      (void)other.dummy_;
+    }
+    ASSERT_EQ(Err::s, State::none);
+  }
+  // !other.has_value()
+  {
+    B_void_arg other(unexpect, 1);
+    {
+      Base_void b(uninit);
+      b.construct_from_ex(other);
+      ASSERT_EQ(Err::s, State::constructed);
+      ASSERT_FALSE(b.has_val_);
+      ASSERT_FALSE(other.has_val_);
+      ASSERT_EQ(b.unexpect_.value().x, 1);
+      ASSERT_EQ(other.unexpect_.value().x, 1);
+    }
+    ASSERT_EQ(Err::s, State::destructed);
+    Err::reset();
+  }
+  {
+    B_void_arg other(unexpect, 2);
+    {
+      Base_void b(uninit);
+      b.construct_from_ex(std::move(other));
+      ASSERT_EQ(Err::s, State::constructed);
+      ASSERT_FALSE(b.has_val_);
+      ASSERT_FALSE(other.has_val_);
+      ASSERT_EQ(b.unexpect_.value().x, 2);
+      ASSERT_EQ(other.unexpect_.value().x, -1);
+    }
+    ASSERT_EQ(Err::s, State::destructed);
+    Err::reset();
+  }
 }
 
 TEST(expected_operations_base, copy_assign) {
