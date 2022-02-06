@@ -38,6 +38,10 @@ template <class Tag> struct Obj_implicit {
     other.x = -1;
   }
 
+  Obj_implicit& operator=(const Obj_implicit&) = delete;
+
+  Obj_implicit& operator=(Obj_implicit&& other) = delete;
+
   ~Obj_implicit() { s = State::destructed; }
 
   int x = 20100;
