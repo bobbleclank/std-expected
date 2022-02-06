@@ -1,6 +1,7 @@
 #include "bc/exp/expected.h"
 
 #include "arg.h"
+#include "con.h"
 #include "obj.h"
 #include "obj_implicit.h"
 #include "obj_throw.h"
@@ -11,26 +12,6 @@
 #include <gtest/gtest.h>
 
 using namespace bc::exp;
-
-namespace {
-
-struct Con {
-  Con() = default;
-
-  explicit Con(int x_) : x(x_) {}
-
-  operator Val() const& { return Val(x); }
-
-  operator Val() && {
-    Val val(x);
-    x = -3;
-    return val;
-  }
-
-  int x = 20100;
-};
-
-} // namespace
 
 TEST(expected, member_access_operator) {
   // const overload
