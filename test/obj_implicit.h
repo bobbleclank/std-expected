@@ -44,7 +44,7 @@ template <class Tag> struct Obj_implicit {
 
   ~Obj_implicit() { s = State::destructed; }
 
-  int x = 20100;
+  int x;
 };
 
 struct Val_implicit_tag {};

@@ -14,7 +14,7 @@ struct Con {
     return val;
   }
 
-  int x = 20100;
+  int x;
 };
 
 #endif

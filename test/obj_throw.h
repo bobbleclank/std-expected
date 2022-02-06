@@ -66,7 +66,7 @@ template <class Tag> struct Obj_throw {
 
   ~Obj_throw() { s = State::destructed; }
 
-  int x = 20100;
+  int x;
   inline static May_throw t = May_throw::do_not_throw;
 };
 
@@ -171,7 +171,7 @@ template <class Tag> struct Obj_throw_2 {
 
   ~Obj_throw_2() { s = State::destructed; }
 
-  int x = 20100;
+  int x;
   inline static May_throw t = May_throw::do_not_throw;
 };
 
@@ -250,7 +250,7 @@ template <class Tag> struct Obj_throw_3 {
 
   ~Obj_throw_3() { s = State::destructed; }
 
-  int x = 20100;
+  int x;
   inline static May_throw t = May_throw::do_not_throw;
 };
 
