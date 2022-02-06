@@ -2,8 +2,6 @@
 #define TEST_ARG_H
 
 struct Arg {
-  Arg() = default;
-
   explicit Arg(int x_) : x(x_) {}
 
   Arg(const Arg&) = default;
