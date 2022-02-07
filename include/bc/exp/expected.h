@@ -178,6 +178,14 @@ constexpr bool operator!=(const unexpected<E1>& x, const unexpected<E2>& y) {
 namespace internal {
 
 template <class T>
+using is_default_constructible_or_void =
+    std::disjunction<std::is_void<T>, std::is_default_constructible<T>>;
+
+template <class T>
+inline constexpr bool is_default_constructible_or_void_v =
+    is_default_constructible_or_void<T>::value;
+
+template <class T>
 using is_trivially_copy_constructible_or_void =
     std::disjunction<std::is_void<T>, std::is_trivially_copy_constructible<T>>;
 
@@ -832,11 +840,36 @@ struct expected_move_assign_base<T, E, false>
   }
 };
 
+struct construct_t {
+  explicit construct_t() = default;
+};
+
+inline constexpr construct_t construct{};
+
+// Default constructible if T is.
+template <bool> struct default_constructible_if {
+  default_constructible_if() = default;
+
+  constexpr explicit default_constructible_if(construct_t) {}
+};
+
+template <> struct default_constructible_if<false> {
+  default_constructible_if() = delete;
+
+  constexpr explicit default_constructible_if(construct_t) {}
+};
+
+template <class T, class E>
+using expected_default_constructible_if =
+    default_constructible_if<is_default_constructible_or_void_v<T>>;
+
 } // namespace internal
 
 template <class T, class E>
-class expected : private internal::expected_move_assign_base<T, E> {
+class expected : private internal::expected_move_assign_base<T, E>,
+                 private internal::expected_default_constructible_if<T, E> {
   using base_type = internal::expected_move_assign_base<T, E>;
+  using ctor_base = internal::expected_default_constructible_if<T, E>;
 
 public:
   static_assert(!std::is_same_v<T, std::remove_cv_t<unexpected<E>>>);
@@ -864,7 +897,7 @@ public:
             internal::enable_expected_expected_constructor<T, E, U, G, const U&,
                                                            const G&>* = nullptr>
   constexpr expected(const expected<U, G>& other)
-      : base_type(internal::uninit) {
+      : base_type(internal::uninit), ctor_base(internal::construct) {
     this->construct_from_ex(other);
   }
 
@@ -874,7 +907,7 @@ public:
             internal::enable_expected_expected_constructor<T, E, U, G, const U&,
                                                            const G&>* = nullptr>
   constexpr explicit expected(const expected<U, G>& other)
-      : base_type(internal::uninit) {
+      : base_type(internal::uninit), ctor_base(internal::construct) {
     this->construct_from_ex(other);
   }
 
@@ -883,7 +916,8 @@ public:
                              std::is_convertible_v<G&&, E>>* = nullptr,
             internal::enable_expected_expected_constructor<T, E, U, G, U&&,
                                                            G&&>* = nullptr>
-  constexpr expected(expected<U, G>&& other) : base_type(internal::uninit) {
+  constexpr expected(expected<U, G>&& other)
+      : base_type(internal::uninit), ctor_base(internal::construct) {
     this->construct_from_ex(std::move(other));
   }
 
@@ -893,69 +927,79 @@ public:
             internal::enable_expected_expected_constructor<T, E, U, G, U&&,
                                                            G&&>* = nullptr>
   constexpr explicit expected(expected<U, G>&& other)
-      : base_type(internal::uninit) {
+      : base_type(internal::uninit), ctor_base(internal::construct) {
     this->construct_from_ex(std::move(other));
   }
 
   template <class U = T,
             std::enable_if_t<std::is_convertible_v<U&&, T>>* = nullptr,
             internal::enable_expected_value_constructor<T, E, U>* = nullptr>
-  constexpr expected(U&& v) : base_type(std::in_place, std::forward<U>(v)) {}
+  constexpr expected(U&& v)
+      : base_type(std::in_place, std::forward<U>(v)),
+        ctor_base(internal::construct) {}
 
   template <class U = T,
             std::enable_if_t<!std::is_convertible_v<U&&, T>>* = nullptr,
             internal::enable_expected_value_constructor<T, E, U>* = nullptr>
   constexpr explicit expected(U&& v)
-      : base_type(std::in_place, std::forward<U>(v)) {}
+      : base_type(std::in_place, std::forward<U>(v)),
+        ctor_base(internal::construct) {}
 
   template <class G = E,
             std::enable_if_t<std::is_convertible_v<const G&, E>>* = nullptr,
             std::enable_if_t<std::is_constructible_v<E, const G&>>* = nullptr>
-  constexpr expected(const unexpected<G>& e) : base_type(unexpect, e.value()) {}
+  constexpr expected(const unexpected<G>& e)
+      : base_type(unexpect, e.value()), ctor_base(internal::construct) {}
 
   template <class G = E,
             std::enable_if_t<!std::is_convertible_v<const G&, E>>* = nullptr,
             std::enable_if_t<std::is_constructible_v<E, const G&>>* = nullptr>
   constexpr explicit expected(const unexpected<G>& e)
-      : base_type(unexpect, e.value()) {}
+      : base_type(unexpect, e.value()), ctor_base(internal::construct) {}
 
   template <class G = E,
             std::enable_if_t<std::is_convertible_v<G&&, E>>* = nullptr,
             std::enable_if_t<std::is_constructible_v<E, G&&>>* = nullptr>
   constexpr expected(unexpected<G>&& e) noexcept(
       std::is_nothrow_constructible_v<E, G&&>)
-      : base_type(unexpect, std::move(e.value())) {}
+      : base_type(unexpect, std::move(e.value())),
+        ctor_base(internal::construct) {}
 
   template <class G = E,
             std::enable_if_t<!std::is_convertible_v<G&&, E>>* = nullptr,
             std::enable_if_t<std::is_constructible_v<E, G&&>>* = nullptr>
   constexpr explicit expected(unexpected<G>&& e) noexcept(
       std::is_nothrow_constructible_v<E, G&&>)
-      : base_type(unexpect, std::move(e.value())) {}
+      : base_type(unexpect, std::move(e.value())),
+        ctor_base(internal::construct) {}
 
   template <class... Args,
             std::enable_if_t<std::is_constructible_v<T, Args&&...>>* = nullptr>
   constexpr explicit expected(std::in_place_t, Args&&... args)
-      : base_type(std::in_place, std::forward<Args>(args)...) {}
+      : base_type(std::in_place, std::forward<Args>(args)...),
+        ctor_base(internal::construct) {}
 
   template <class U, class... Args,
             std::enable_if_t<std::is_constructible_v<
                 T, std::initializer_list<U>, Args&&...>>* = nullptr>
   constexpr explicit expected(std::in_place_t, std::initializer_list<U> il,
                               Args&&... args)
-      : base_type(std::in_place, il, std::forward<Args>(args)...) {}
+      : base_type(std::in_place, il, std::forward<Args>(args)...),
+        ctor_base(internal::construct) {}
 
   template <class... Args,
             std::enable_if_t<std::is_constructible_v<E, Args&&...>>* = nullptr>
   constexpr explicit expected(unexpect_t, Args&&... args)
-      : base_type(unexpect, std::forward<Args>(args)...) {}
+      : base_type(unexpect, std::forward<Args>(args)...),
+        ctor_base(internal::construct) {}
 
   template <class U, class... Args,
             std::enable_if_t<std::is_constructible_v<
                 E, std::initializer_list<U>, Args&&...>>* = nullptr>
   constexpr explicit expected(unexpect_t, std::initializer_list<U> il,
                               Args&&... args)
-      : base_type(unexpect, il, std::forward<Args>(args)...) {}
+      : base_type(unexpect, il, std::forward<Args>(args)...),
+        ctor_base(internal::construct) {}
 
   ~expected() = default;
 
