@@ -40,7 +40,7 @@ TEST(unexpected, value) {
   }
   {
     const unexpected<Err> e(4);
-    Err err;
+    Err err(40);
     err = std::move(e).value();
     ASSERT_EQ(err.x, 4);
     ASSERT_EQ(e.value().x, 4);
@@ -57,7 +57,7 @@ TEST(unexpected, value) {
   }
   {
     unexpected<Err> e(6);
-    Err err;
+    Err err(60);
     err = std::move(e).value();
     ASSERT_EQ(err.x, 6);
     ASSERT_EQ(e.value().x, -2);

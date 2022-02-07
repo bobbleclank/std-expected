@@ -43,7 +43,7 @@ TEST(bad_expected_access, error) {
   }
   {
     const bad_expected_access<Err> e(Err(4));
-    Err err;
+    Err err(40);
     err = std::move(e).error();
     ASSERT_EQ(err.x, 4);
     ASSERT_EQ(e.error().x, 4);
@@ -60,7 +60,7 @@ TEST(bad_expected_access, error) {
   }
   {
     bad_expected_access<Err> e(Err(6));
-    Err err;
+    Err err(60);
     err = std::move(e).error();
     ASSERT_EQ(err.x, 6);
     ASSERT_EQ(e.error().x, -2);

@@ -63,7 +63,7 @@ TEST(expected, indirection_operator) {
   }
   {
     const expected<Val, Err> e(std::in_place, 4);
-    Val val;
+    Val val(40);
     val = *std::move(e);
     ASSERT_EQ(val.x, 4);
     ASSERT_EQ((*e).x, 4);
@@ -80,7 +80,7 @@ TEST(expected, indirection_operator) {
   }
   {
     expected<Val, Err> e(std::in_place, 6);
-    Val val;
+    Val val(60);
     val = *std::move(e);
     ASSERT_EQ(val.x, 6);
     ASSERT_EQ((*e).x, -2);
@@ -117,7 +117,7 @@ TEST(expected, error) {
   }
   {
     const expected<Val, Err> e(unexpect, 4);
-    Err err;
+    Err err(40);
     err = std::move(e).error();
     ASSERT_EQ(err.x, 4);
     ASSERT_EQ(e.error().x, 4);
@@ -134,7 +134,7 @@ TEST(expected, error) {
   }
   {
     expected<Val, Err> e(unexpect, 6);
-    Err err;
+    Err err(60);
     err = std::move(e).error();
     ASSERT_EQ(err.x, 6);
     ASSERT_EQ(e.error().x, -2);
@@ -195,7 +195,7 @@ TEST(expected, value) {
   }
   {
     const expected<Val, Err> e(std::in_place, 6);
-    Val val;
+    Val val(60);
     val = std::move(e).value();
     ASSERT_EQ(val.x, 6);
     ASSERT_EQ(e.value().x, 6);
@@ -227,7 +227,7 @@ TEST(expected, value) {
   }
   {
     expected<Val, Err> e(std::in_place, 9);
-    Val val;
+    Val val(90);
     val = std::move(e).value();
     ASSERT_EQ(val.x, 9);
     ASSERT_EQ(e.value().x, -2);
