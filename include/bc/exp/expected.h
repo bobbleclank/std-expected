@@ -202,6 +202,14 @@ inline constexpr bool is_trivially_copy_constructible_or_void_v =
     is_trivially_copy_constructible_or_void<T>::value;
 
 template <class T>
+using is_move_constructible_or_void =
+    std::disjunction<std::is_void<T>, std::is_move_constructible<T>>;
+
+template <class T>
+inline constexpr bool is_move_constructible_or_void_v =
+    is_move_constructible_or_void<T>::value;
+
+template <class T>
 using is_trivially_move_constructible_or_void =
     std::disjunction<std::is_void<T>, std::is_trivially_move_constructible<T>>;
 
@@ -887,12 +895,29 @@ using expected_copy_constructible_if =
     copy_constructible_if<is_copy_constructible_or_void_v<T> &&
                           std::is_copy_constructible_v<E>>;
 
+// Move constructible if both T and E are.
+template <bool> struct move_constructible_if {};
+
+template <> struct move_constructible_if<false> {
+  move_constructible_if() = default;
+  move_constructible_if(const move_constructible_if&) = default;
+  move_constructible_if(move_constructible_if&&) = delete;
+  move_constructible_if& operator=(const move_constructible_if&) = default;
+  move_constructible_if& operator=(move_constructible_if&&) = default;
+};
+
+template <class T, class E>
+using expected_move_constructible_if =
+    move_constructible_if<is_move_constructible_or_void_v<T> &&
+                          std::is_move_constructible_v<E>>;
+
 } // namespace internal
 
 template <class T, class E>
 class expected : private internal::expected_move_assign_base<T, E>,
                  private internal::expected_default_constructible_if<T, E>,
-                 private internal::expected_copy_constructible_if<T, E> {
+                 private internal::expected_copy_constructible_if<T, E>,
+                 private internal::expected_move_constructible_if<T, E> {
   using base_type = internal::expected_move_assign_base<T, E>;
   using ctor_base = internal::expected_default_constructible_if<T, E>;
 
