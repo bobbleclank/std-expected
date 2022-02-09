@@ -242,6 +242,14 @@ inline constexpr bool is_trivially_copy_assignable_or_void_v =
     is_trivially_copy_assignable_or_void<T>::value;
 
 template <class T>
+using is_move_assignable_or_void =
+    std::disjunction<std::is_void<T>, std::is_move_assignable<T>>;
+
+template <class T>
+inline constexpr bool is_move_assignable_or_void_v =
+    is_move_assignable_or_void<T>::value;
+
+template <class T>
 using is_trivially_move_assignable_or_void =
     std::disjunction<std::is_void<T>, std::is_trivially_move_assignable<T>>;
 
@@ -937,6 +945,24 @@ using expected_copy_assignable_if = copy_assignable_if<
     (is_nothrow_move_constructible_or_void_v<T> ||
      std::is_nothrow_move_constructible_v<E>)>;
 
+// Move assignable if both T and E are.
+template <bool> struct move_assignable_if {};
+
+template <> struct move_assignable_if<false> {
+  move_assignable_if() = default;
+  move_assignable_if(const move_assignable_if&) = default;
+  move_assignable_if(move_assignable_if&&) = default;
+  move_assignable_if& operator=(const move_assignable_if&) = default;
+  move_assignable_if& operator=(move_assignable_if&&) = delete;
+};
+
+template <class T, class E>
+using expected_move_assignable_if = move_assignable_if<
+    is_move_constructible_or_void_v<T> && std::is_move_constructible_v<E> &&
+    is_move_assignable_or_void_v<T> && std::is_move_assignable_v<E> &&
+    (is_nothrow_move_constructible_or_void_v<T> ||
+     std::is_nothrow_move_constructible_v<E>)>;
+
 } // namespace internal
 
 template <class T, class E>
@@ -944,7 +970,8 @@ class expected : private internal::expected_move_assign_base<T, E>,
                  private internal::expected_default_constructible_if<T, E>,
                  private internal::expected_copy_constructible_if<T, E>,
                  private internal::expected_move_constructible_if<T, E>,
-                 private internal::expected_copy_assignable_if<T, E> {
+                 private internal::expected_copy_assignable_if<T, E>,
+                 private internal::expected_move_assignable_if<T, E> {
   using base_type = internal::expected_move_assign_base<T, E>;
   using ctor_base = internal::expected_default_constructible_if<T, E>;
 
