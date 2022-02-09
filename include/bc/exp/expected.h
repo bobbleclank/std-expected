@@ -226,6 +226,14 @@ inline constexpr bool is_nothrow_move_constructible_or_void_v =
     is_nothrow_move_constructible_or_void<T>::value;
 
 template <class T>
+using is_copy_assignable_or_void =
+    std::disjunction<std::is_void<T>, std::is_copy_assignable<T>>;
+
+template <class T>
+inline constexpr bool is_copy_assignable_or_void_v =
+    is_copy_assignable_or_void<T>::value;
+
+template <class T>
 using is_trivially_copy_assignable_or_void =
     std::disjunction<std::is_void<T>, std::is_trivially_copy_assignable<T>>;
 
@@ -911,13 +919,32 @@ using expected_move_constructible_if =
     move_constructible_if<is_move_constructible_or_void_v<T> &&
                           std::is_move_constructible_v<E>>;
 
+// Copy assignable if both T and E are.
+template <bool> struct copy_assignable_if {};
+
+template <> struct copy_assignable_if<false> {
+  copy_assignable_if() = default;
+  copy_assignable_if(const copy_assignable_if&) = default;
+  copy_assignable_if(copy_assignable_if&&) = default;
+  copy_assignable_if& operator=(const copy_assignable_if&) = delete;
+  copy_assignable_if& operator=(copy_assignable_if&&) = default;
+};
+
+template <class T, class E>
+using expected_copy_assignable_if = copy_assignable_if<
+    is_copy_constructible_or_void_v<T> && std::is_copy_constructible_v<E> &&
+    is_copy_assignable_or_void_v<T> && std::is_copy_assignable_v<E> &&
+    (is_nothrow_move_constructible_or_void_v<T> ||
+     std::is_nothrow_move_constructible_v<E>)>;
+
 } // namespace internal
 
 template <class T, class E>
 class expected : private internal::expected_move_assign_base<T, E>,
                  private internal::expected_default_constructible_if<T, E>,
                  private internal::expected_copy_constructible_if<T, E>,
-                 private internal::expected_move_constructible_if<T, E> {
+                 private internal::expected_move_constructible_if<T, E>,
+                 private internal::expected_copy_assignable_if<T, E> {
   using base_type = internal::expected_move_assign_base<T, E>;
   using ctor_base = internal::expected_default_constructible_if<T, E>;
 
