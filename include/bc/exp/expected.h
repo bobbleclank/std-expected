@@ -273,7 +273,9 @@ using enable_expected_value_assignment = std::enable_if_t<
     std::is_constructible_v<T, U&&> && std::is_assignable_v<T&, U&&> &&
     std::is_nothrow_move_constructible_v<E>>;
 
-struct uninit_t {};
+struct uninit_t {
+  explicit uninit_t() = default;
+};
 
 inline constexpr uninit_t uninit{};
 
