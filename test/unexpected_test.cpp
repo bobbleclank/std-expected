@@ -3,7 +3,9 @@
 #include "arg.h"
 #include "obj.h"
 #include "obj_implicit.h"
+#include "obj_throw.h"
 
+#include <type_traits>
 #include <utility>
 
 #include <gtest/gtest.h>
@@ -176,6 +178,39 @@ TEST(unexpected, assignment_operators) {
     e = std::move(other);
     ASSERT_EQ(e.value().x, 4);
     ASSERT_EQ(other.value().x, -1);
+  }
+}
+
+TEST(unexpected, swap_traits) {
+  ASSERT_TRUE(std::is_swappable_v<unexpected<Err>>);
+  ASSERT_TRUE(std::is_nothrow_swappable_v<unexpected<Err>>);
+
+  ASSERT_TRUE(std::is_swappable_v<unexpected<Err_throw_2>>);
+  ASSERT_FALSE(std::is_nothrow_swappable_v<unexpected<Err_throw_2>>);
+}
+
+TEST(unexpected, swap) {
+  {
+    unexpected<Err> other(1);
+    unexpected<Err> e(10);
+    bc::exp::swap(e, other);
+    ASSERT_EQ(e.value().x, 1);
+    ASSERT_EQ(other.value().x, 10);
+  }
+  {
+    unexpected<Err_throw_2> other(2);
+    unexpected<Err_throw_2> e(20);
+    bool did_throw = false;
+    try {
+      Err_throw_2::t = May_throw::do_throw;
+      bc::exp::swap(e, other);
+    } catch (...) {
+      did_throw = true;
+      Err_throw_2::t = May_throw::do_not_throw;
+    }
+    ASSERT_EQ(e.value().x, -1); // No exception safety guarantee.
+    ASSERT_EQ(other.value().x, 2);
+    ASSERT_TRUE(did_throw);
   }
 }
 

@@ -154,7 +154,11 @@ public:
   constexpr const E&& value() const&& noexcept { return std::move(val_); }
   constexpr E&& value() && noexcept { return std::move(val_); }
 
-  // void swap(unexpected& other) noexcept(see below);
+  template <class E1 = E, std::enable_if_t<std::is_swappable_v<E1>>* = nullptr>
+  void swap(unexpected& other) noexcept(std::is_nothrow_swappable_v<E>) {
+    using std::swap;
+    swap(val_, other.val_);
+  }
 
 private:
   E val_;
@@ -172,8 +176,10 @@ constexpr bool operator!=(const unexpected<E1>& x, const unexpected<E2>& y) {
   return x.value() != y.value();
 }
 
-// template <class E>
-// void swap(unexpected<E>& x, unexpected<E>& y) noexcept(noexcept(x.swap(y)));
+template <class E, std::enable_if_t<std::is_swappable_v<E>>* = nullptr>
+void swap(unexpected<E>& x, unexpected<E>& y) noexcept(noexcept(x.swap(y))) {
+  x.swap(y);
+}
 
 namespace internal {
 
