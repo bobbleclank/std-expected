@@ -1335,7 +1335,21 @@ public:
                           : static_cast<T>(std::forward<U>(v));
   }
 
-  // void swap(expected& other) noexcept(see below);
+  template <
+      class T1 = T, class E1 = E,
+      std::enable_if_t<internal::is_move_constructible_or_void_v<T1> &&
+                       std::is_move_constructible_v<E1> &&
+                       std::is_swappable_v<T1> && std::is_swappable_v<E1> &&
+                       (internal::is_nothrow_move_constructible_or_void_v<T1> ||
+                        std::is_nothrow_move_constructible_v<E1>)>* = nullptr>
+  void swap(expected& other) noexcept(
+      // clang-format off
+      internal::is_nothrow_move_constructible_or_void_v<T> &&
+      std::is_nothrow_move_constructible_v<E> &&
+      std::is_nothrow_swappable_v<T> && std::is_nothrow_swappable_v<E>) {
+    // clang-format on
+    this->swap_impl(other);
+  }
 };
 
 template <class T1, class E1, class T2, class E2>
@@ -1394,8 +1408,16 @@ constexpr bool operator!=(const unexpected<E2>& e, const expected<T1, E1>& x) {
   return x.has_value() ? true : x.error() != e.value();
 }
 
-// template <class T, class E>
-// void swap(expected<T, E>& x, expected<T, E>& y) noexcept(noexcept(x.swap(y)))
+template <
+    class T, class E,
+    std::enable_if_t<internal::is_move_constructible_or_void_v<T> &&
+                     std::is_move_constructible_v<E> &&
+                     std::is_swappable_v<T> && std::is_swappable_v<E> &&
+                     (internal::is_nothrow_move_constructible_or_void_v<T> ||
+                      std::is_nothrow_move_constructible_v<E>)>* = nullptr>
+void swap(expected<T, E>& x, expected<T, E>& y) noexcept(noexcept(x.swap(y))) {
+  x.swap(y);
+}
 
 } // namespace bc::exp
 

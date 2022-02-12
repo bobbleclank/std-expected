@@ -7,6 +7,7 @@
 #include "obj_throw.h"
 #include "state.h"
 
+#include <type_traits>
 #include <utility>
 
 #include <gtest/gtest.h>
@@ -1742,6 +1743,146 @@ TEST(expected, emplace_initializer_list_overload) {
     Err::s = State::constructed;
   }
   ASSERT_EQ(Val_throw_2::s, State::none);
+  ASSERT_EQ(Err::s, State::destructed);
+  Err::reset();
+}
+
+TEST(expected, swap_traits) {
+  ASSERT_TRUE((std::is_swappable_v<expected<Val, Err>>));
+  ASSERT_TRUE((std::is_nothrow_swappable_v<expected<Val, Err>>));
+
+  ASSERT_TRUE((std::is_swappable_v<expected<Val_throw_2, Err>>));
+  ASSERT_FALSE((std::is_nothrow_swappable_v<expected<Val_throw_2, Err>>));
+
+  ASSERT_TRUE((std::is_swappable_v<expected<Val, Err_throw_2>>));
+  ASSERT_FALSE((std::is_nothrow_swappable_v<expected<Val, Err_throw_2>>));
+
+  ASSERT_FALSE((std::is_swappable_v<expected<Val_throw_2, Err_throw_2>>));
+}
+
+TEST(expected, swap) {
+  // this->has_value() && other.has_value()
+  {
+    expected<Val, Err> other(std::in_place, 1);
+    {
+      expected<Val, Err> e(std::in_place, 10);
+      bc::exp::swap(e, other);
+      ASSERT_TRUE(e.has_value());
+      ASSERT_TRUE(other.has_value());
+      ASSERT_EQ(e->x, 1);
+      ASSERT_EQ(other->x, 10);
+      Val::reset();
+      Err::reset();
+    }
+    ASSERT_EQ(Val::s, State::destructed);
+    ASSERT_EQ(Err::s, State::none);
+    Val::reset();
+  }
+  ASSERT_EQ(Val::s, State::destructed);
+  ASSERT_EQ(Err::s, State::none);
+  Val::reset();
+  // this->has_value() && !other.has_value() via
+  // std::is_nothrow_move_constructible_v<E>
+  {
+    expected<Val_throw_2, Err> other(unexpect, 2);
+    {
+      expected<Val_throw_2, Err> e(std::in_place, 20);
+      bc::exp::swap(e, other);
+      ASSERT_FALSE(e.has_value());
+      ASSERT_TRUE(other.has_value());
+      ASSERT_EQ(e.error().x, 2);
+      ASSERT_EQ(other->x, 20);
+      Val_throw_2::reset();
+      Err::reset();
+    }
+    ASSERT_EQ(Val_throw_2::s, State::none);
+    ASSERT_EQ(Err::s, State::destructed);
+    Err::reset();
+  }
+  ASSERT_EQ(Val_throw_2::s, State::destructed);
+  ASSERT_EQ(Err::s, State::none);
+  Val_throw_2::reset();
+  // this->has_value() && !other.has_value() via
+  // std::is_nothrow_move_constructible_v<T>
+  {
+    expected<Val, Err_throw_2> other(unexpect, 3);
+    {
+      expected<Val, Err_throw_2> e(std::in_place, 30);
+      bc::exp::swap(e, other);
+      ASSERT_FALSE(e.has_value());
+      ASSERT_TRUE(other.has_value());
+      ASSERT_EQ(e.error().x, 3);
+      ASSERT_EQ(other->x, 30);
+      Val::reset();
+      Err_throw_2::reset();
+    }
+    ASSERT_EQ(Val::s, State::none);
+    ASSERT_EQ(Err_throw_2::s, State::destructed);
+    Err_throw_2::reset();
+  }
+  ASSERT_EQ(Val::s, State::destructed);
+  ASSERT_EQ(Err_throw_2::s, State::none);
+  Val::reset();
+  // !this->has_value() && other.has_value()
+  // std::is_nothrow_move_constructible_v<E>
+  {
+    expected<Val_throw_2, Err> other(std::in_place, 4);
+    {
+      expected<Val_throw_2, Err> e(unexpect, 40);
+      bc::exp::swap(e, other);
+      ASSERT_TRUE(e.has_value());
+      ASSERT_FALSE(other.has_value());
+      ASSERT_EQ(e->x, 4);
+      ASSERT_EQ(other.error().x, 40);
+      Val_throw_2::reset();
+      Err::reset();
+    }
+    ASSERT_EQ(Val_throw_2::s, State::destructed);
+    ASSERT_EQ(Err::s, State::none);
+    Val_throw_2::reset();
+  }
+  ASSERT_EQ(Val_throw_2::s, State::none);
+  ASSERT_EQ(Err::s, State::destructed);
+  Err::reset();
+  // !this->has_value() && other.has_value()
+  // std::is_nothrow_move_constructible_v<T>
+  {
+    expected<Val, Err_throw_2> other(std::in_place, 5);
+    {
+      expected<Val, Err_throw_2> e(unexpect, 50);
+      bc::exp::swap(e, other);
+      ASSERT_TRUE(e.has_value());
+      ASSERT_FALSE(other.has_value());
+      ASSERT_EQ(e->x, 5);
+      ASSERT_EQ(other.error().x, 50);
+      Val::reset();
+      Err_throw_2::reset();
+    }
+    ASSERT_EQ(Val::s, State::destructed);
+    ASSERT_EQ(Err_throw_2::s, State::none);
+    Val::reset();
+  }
+  ASSERT_EQ(Val::s, State::none);
+  ASSERT_EQ(Err_throw_2::s, State::destructed);
+  Err_throw_2::reset();
+  // !this->has_value() && !other.has_value()
+  {
+    expected<Val, Err> other(unexpect, 6);
+    {
+      expected<Val, Err> e(unexpect, 60);
+      bc::exp::swap(e, other);
+      ASSERT_FALSE(e.has_value());
+      ASSERT_FALSE(other.has_value());
+      ASSERT_EQ(e.error().x, 6);
+      ASSERT_EQ(other.error().x, 60);
+      Val::reset();
+      Err::reset();
+    }
+    ASSERT_EQ(Val::s, State::none);
+    ASSERT_EQ(Err::s, State::destructed);
+    Err::reset();
+  }
+  ASSERT_EQ(Val::s, State::none);
   ASSERT_EQ(Err::s, State::destructed);
   Err::reset();
 }
