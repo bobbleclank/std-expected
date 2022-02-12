@@ -640,6 +640,47 @@ struct expected_operations_base : expected_storage_base<T, E> {
       }
     }
   }
+
+  void swap_impl(expected_operations_base& other) {
+    if (this->has_val_) {
+      if (other.has_val_) {
+        using std::swap;
+        swap(this->val_, other.val_);
+      } else {
+        if constexpr (std::is_nothrow_move_constructible_v<E>) {
+          unexpected<E> tmp = std::move(other.unexpect_);
+          other.destroy(unexpect);
+          try {
+            other.construct(std::in_place,
+                            std::move(*this).val_); // This can throw.
+            destroy(std::in_place);
+            construct(unexpect, std::move(tmp));
+          } catch (...) {
+            other.construct(unexpect, std::move(tmp));
+            throw;
+          }
+        } else { // std::is_nothrow_move_constructible_v<T>
+          T tmp = std::move(this->val_);
+          destroy(std::in_place);
+          try {
+            construct(unexpect, std::move(other).unexpect_); // This can throw.
+            other.destroy(unexpect);
+            other.construct(std::in_place, std::move(tmp));
+          } catch (...) {
+            construct(std::in_place, std::move(tmp));
+            throw;
+          }
+        }
+      }
+    } else {
+      if (other.has_val_) {
+        other.swap_impl(*this);
+      } else {
+        using std::swap;
+        swap(this->unexpect_, other.unexpect_);
+      }
+    }
+  }
 };
 
 template <class E>
@@ -714,6 +755,26 @@ struct expected_operations_base<void, E> : expected_storage_base<void, E> {
         construct(std::in_place);
       } else {
         this->unexpect_ = std::move(other).unexpect_; // This can throw.
+      }
+    }
+  }
+
+  void swap_impl(expected_operations_base& other) {
+    if (this->has_val_) {
+      if (other.has_val_) {
+        // Nothing to do.
+      } else {
+        destroy(std::in_place);
+        construct(unexpect, std::move(other).unexpect_); // This can throw.
+        other.destroy(unexpect);
+        other.construct(std::in_place);
+      }
+    } else {
+      if (other.has_val_) {
+        other.swap_impl(*this);
+      } else {
+        using std::swap;
+        swap(this->unexpect_, other.unexpect_);
       }
     }
   }
