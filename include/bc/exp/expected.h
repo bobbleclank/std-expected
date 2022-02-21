@@ -1226,9 +1226,14 @@ public:
     return *this;
   }
 
-  template <class... Args,
-            std::enable_if_t<std::is_constructible_v<T, Args&&...>>* = nullptr>
-  T& emplace(Args&&... args) {
+  template <
+      class... Args, class T1 = T,
+      std::enable_if_t<!std::is_void_v<T1>>* = nullptr,
+      std::enable_if_t<std::is_constructible_v<T, Args&&...> &&
+                       std::is_move_assignable_v<T> &&
+                       (std::is_nothrow_move_constructible_v<T> ||
+                        std::is_nothrow_move_constructible_v<E>)>* = nullptr>
+  T1& emplace(Args&&... args) {
     if (this->has_val_) {
       this->val_ = T(std::forward<Args>(args)...); // This can throw.
     } else if constexpr (std::is_nothrow_constructible_v<T, Args&&...>) {
@@ -1252,10 +1257,15 @@ public:
     return this->val_;
   }
 
-  template <class U, class... Args,
-            std::enable_if_t<std::is_constructible_v<
-                T, std::initializer_list<U>, Args&&...>>* = nullptr>
-  T& emplace(std::initializer_list<U> il, Args&&... args) {
+  template <
+      class U, class... Args, class T1 = T,
+      std::enable_if_t<!std::is_void_v<T1>>* = nullptr,
+      std::enable_if_t<
+          std::is_constructible_v<T, std::initializer_list<U>, Args&&...> &&
+          std::is_move_assignable_v<T> &&
+          (std::is_nothrow_move_constructible_v<T> ||
+           std::is_nothrow_move_constructible_v<E>)>* = nullptr>
+  T1& emplace(std::initializer_list<U> il, Args&&... args) {
     if (this->has_val_) {
       this->val_ = T(il, std::forward<Args>(args)...); // This can throw.
     } else if constexpr (std::is_nothrow_constructible_v<
