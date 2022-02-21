@@ -1322,15 +1322,15 @@ public:
   }
   constexpr E&& error() && { return std::move(this->unexpect_.value()); }
 
-  template <class U> constexpr T value_or(U&& v) const& {
-    static_assert(std::is_copy_constructible_v<T> &&
-                  std::is_convertible_v<U&&, T>);
+  template <class U, std::enable_if_t<std::is_copy_constructible_v<T> &&
+                                      std::is_convertible_v<U&&, T>>* = nullptr>
+  constexpr T value_or(U&& v) const& {
     return this->has_val_ ? this->val_ : static_cast<T>(std::forward<U>(v));
   }
 
-  template <class U> constexpr T value_or(U&& v) && {
-    static_assert(std::is_move_constructible_v<T> &&
-                  std::is_convertible_v<U&&, T>);
+  template <class U, std::enable_if_t<std::is_move_constructible_v<T> &&
+                                      std::is_convertible_v<U&&, T>>* = nullptr>
+  constexpr T value_or(U&& v) && {
     return this->has_val_ ? std::move(this->val_)
                           : static_cast<T>(std::forward<U>(v));
   }
