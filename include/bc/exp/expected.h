@@ -1298,8 +1298,15 @@ public:
     return this->val_;
   }
 
-  constexpr const T* operator->() const { return std::addressof(this->val_); }
-  constexpr T* operator->() { return std::addressof(this->val_); }
+  template <class T1 = T, std::enable_if_t<!std::is_void_v<T1>>* = nullptr>
+  constexpr const T* operator->() const {
+    return std::addressof(this->val_);
+  }
+
+  template <class T1 = T, std::enable_if_t<!std::is_void_v<T1>>* = nullptr>
+  constexpr T* operator->() {
+    return std::addressof(this->val_);
+  }
 
   constexpr const T& operator*() const& { return this->val_; }
   constexpr T& operator*() & { return this->val_; }
