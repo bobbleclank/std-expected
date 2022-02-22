@@ -1308,10 +1308,25 @@ public:
     return std::addressof(this->val_);
   }
 
-  constexpr const T& operator*() const& { return this->val_; }
-  constexpr T& operator*() & { return this->val_; }
-  constexpr const T&& operator*() const&& { return std::move(this->val_); }
-  constexpr T&& operator*() && { return std::move(this->val_); }
+  template <class T1 = T, std::enable_if_t<!std::is_void_v<T1>>* = nullptr>
+  constexpr const T1& operator*() const& {
+    return this->val_;
+  }
+
+  template <class T1 = T, std::enable_if_t<!std::is_void_v<T1>>* = nullptr>
+  constexpr T1& operator*() & {
+    return this->val_;
+  }
+
+  template <class T1 = T, std::enable_if_t<!std::is_void_v<T1>>* = nullptr>
+  constexpr const T1&& operator*() const&& {
+    return std::move(this->val_);
+  }
+
+  template <class T1 = T, std::enable_if_t<!std::is_void_v<T1>>* = nullptr>
+  constexpr T1&& operator*() && {
+    return std::move(this->val_);
+  }
 
   constexpr explicit operator bool() const noexcept { return this->has_val_; }
   constexpr bool has_value() const noexcept { return this->has_val_; }
