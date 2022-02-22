@@ -1331,6 +1331,12 @@ public:
   constexpr explicit operator bool() const noexcept { return this->has_val_; }
   constexpr bool has_value() const noexcept { return this->has_val_; }
 
+  template <class T1 = T, std::enable_if_t<std::is_void_v<T1>>* = nullptr>
+  constexpr void value() const {
+    if (!this->has_val_)
+      throw bad_expected_access(this->unexpect_.value());
+  }
+
   template <class T1 = T, std::enable_if_t<!std::is_void_v<T1>>* = nullptr>
   constexpr const T1& value() const& {
     if (!this->has_val_)
