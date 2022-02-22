@@ -1226,6 +1226,14 @@ public:
     return *this;
   }
 
+  template <class T1 = T, std::enable_if_t<std::is_void_v<T1>>* = nullptr>
+  void emplace() {
+    if (!this->has_val_) {
+      this->destroy(unexpect);
+      this->construct(std::in_place);
+    }
+  }
+
   template <
       class... Args, class T1 = T,
       std::enable_if_t<!std::is_void_v<T1>>* = nullptr,
