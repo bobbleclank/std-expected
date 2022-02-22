@@ -1331,25 +1331,29 @@ public:
   constexpr explicit operator bool() const noexcept { return this->has_val_; }
   constexpr bool has_value() const noexcept { return this->has_val_; }
 
-  constexpr const T& value() const& {
+  template <class T1 = T, std::enable_if_t<!std::is_void_v<T1>>* = nullptr>
+  constexpr const T1& value() const& {
     if (!this->has_val_)
       throw bad_expected_access(this->unexpect_.value());
     return this->val_;
   }
 
-  constexpr T& value() & {
+  template <class T1 = T, std::enable_if_t<!std::is_void_v<T1>>* = nullptr>
+  constexpr T1& value() & {
     if (!this->has_val_)
       throw bad_expected_access(this->unexpect_.value());
     return this->val_;
   }
 
-  constexpr const T&& value() const&& {
+  template <class T1 = T, std::enable_if_t<!std::is_void_v<T1>>* = nullptr>
+  constexpr const T1&& value() const&& {
     if (!this->has_val_)
       throw bad_expected_access(std::move(this->unexpect_.value()));
     return std::move(this->val_);
   }
 
-  constexpr T&& value() && {
+  template <class T1 = T, std::enable_if_t<!std::is_void_v<T1>>* = nullptr>
+  constexpr T1&& value() && {
     if (!this->has_val_)
       throw bad_expected_access(std::move(this->unexpect_.value()));
     return std::move(this->val_);
