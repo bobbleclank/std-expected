@@ -1170,12 +1170,13 @@ public:
   expected& operator=(expected&&) = default;
 
   template <
-      class U = T,
+      class U = T, class T1 = T,
+      std::enable_if_t<!std::is_void_v<T1>>* = nullptr,
       std::enable_if_t<
           !std::is_same_v<expected<T, E>, cpp::remove_cvref_t<U>> &&
           !std::conjunction_v<std::is_scalar<T>,
                               std::is_same<T, cpp::remove_cvref_t<U>>> &&
-          std::is_constructible_v<T, U&&> && std::is_assignable_v<T&, U&&> &&
+          std::is_constructible_v<T, U&&> && std::is_assignable_v<T1&, U&&> &&
           std::is_nothrow_move_constructible_v<E>>* = nullptr>
   expected& operator=(U&& v) {
     if (this->has_val_) {
