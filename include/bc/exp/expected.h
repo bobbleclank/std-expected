@@ -306,7 +306,7 @@ using enable_expected_expected_constructor = std::enable_if_t<
 
 template <class T, class E, class U>
 using enable_expected_value_constructor =
-    std::enable_if_t<std::is_constructible_v<T, U&&> &&
+    std::enable_if_t<!std::is_void_v<T> && std::is_constructible_v<T, U&&> &&
                      !std::is_same_v<cpp::remove_cvref_t<U>, std::in_place_t> &&
                      !std::is_same_v<expected<T, E>, cpp::remove_cvref_t<U>> &&
                      !std::is_same_v<unexpected<E>, cpp::remove_cvref_t<U>>>;
