@@ -339,22 +339,12 @@ TEST(expected, has_value) {
     ASSERT_TRUE(e.has_value());
   }
   {
-    expected<Val, Err> e(std::in_place, Arg(1), 1);
+    expected<Val, Err> e(std::in_place);
     ASSERT_TRUE(static_cast<bool>(e));
     ASSERT_TRUE(e.has_value());
   }
   {
-    expected<Val, Err> e(std::in_place, {2}, Arg(2), 2);
-    ASSERT_TRUE(static_cast<bool>(e));
-    ASSERT_TRUE(e.has_value());
-  }
-  {
-    expected<Val, Err> e(unexpect, Arg(3), 3);
-    ASSERT_FALSE(static_cast<bool>(e));
-    ASSERT_FALSE(e.has_value());
-  }
-  {
-    expected<Val, Err> e(unexpect, {4}, Arg(4), 4);
+    expected<Val, Err> e(unexpect);
     ASSERT_FALSE(static_cast<bool>(e));
     ASSERT_FALSE(e.has_value());
   }
@@ -805,6 +795,15 @@ TEST(expected, variadic_template_constructor) {
   Err::reset();
   // (std::in_place_t, Args&&...)
   {
+    expected<Val, Err> e(std::in_place);
+    ASSERT_EQ(Val::s, State::default_constructed);
+    ASSERT_EQ(Err::s, State::none);
+    ASSERT_EQ(e->x, 20100);
+  }
+  ASSERT_EQ(Val::s, State::destructed);
+  ASSERT_EQ(Err::s, State::none);
+  Val::reset();
+  {
     Arg arg(2);
     expected<Val, Err> e(std::in_place, std::move(arg), 2);
     ASSERT_EQ(Val::s, State::constructed);
@@ -816,6 +815,15 @@ TEST(expected, variadic_template_constructor) {
   ASSERT_EQ(Err::s, State::none);
   Val::reset();
   // (unexpect_t, Args&&...)
+  {
+    expected<Val, Err> e(unexpect);
+    ASSERT_EQ(Val::s, State::none);
+    ASSERT_EQ(Err::s, State::default_constructed);
+    ASSERT_EQ(e.error().x, 20100);
+  }
+  ASSERT_EQ(Val::s, State::none);
+  ASSERT_EQ(Err::s, State::destructed);
+  Err::reset();
   {
     Arg arg(4);
     expected<Val, Err> e(unexpect, std::move(arg), 4);
