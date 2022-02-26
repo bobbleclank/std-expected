@@ -1136,15 +1136,20 @@ public:
       : base_type(unexpect, std::move(e.value())),
         ctor_base(internal::construct) {}
 
-  template <class... Args,
-            std::enable_if_t<std::is_constructible_v<T, Args&&...>>* = nullptr>
+  template <
+      class... Args,
+      std::enable_if_t<(std::is_void_v<T> && sizeof...(Args) == 0) ||
+                       (!std::is_void_v<T> &&
+                        std::is_constructible_v<T, Args&&...>)>* = nullptr>
   constexpr explicit expected(std::in_place_t, Args&&... args)
       : base_type(std::in_place, std::forward<Args>(args)...),
         ctor_base(internal::construct) {}
 
-  template <class U, class... Args,
-            std::enable_if_t<std::is_constructible_v<
-                T, std::initializer_list<U>&, Args&&...>>* = nullptr>
+  template <
+      class U, class... Args,
+      std::enable_if_t<!std::is_void_v<T> &&
+                       std::is_constructible_v<T, std::initializer_list<U>&,
+                                               Args&&...>>* = nullptr>
   constexpr explicit expected(std::in_place_t, std::initializer_list<U> il,
                               Args&&... args)
       : base_type(std::in_place, il, std::forward<Args>(args)...),
