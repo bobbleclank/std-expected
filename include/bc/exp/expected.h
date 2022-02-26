@@ -125,7 +125,7 @@ public:
 
   template <class U, class... Args,
             std::enable_if_t<std::is_constructible_v<
-                E, std::initializer_list<U>, Args&&...>>* = nullptr>
+                E, std::initializer_list<U>&, Args&&...>>* = nullptr>
   constexpr explicit unexpected(std::in_place_t, std::initializer_list<U> il,
                                 Args&&... args)
       : val_(il, std::forward<Args>(args)...) {}
@@ -339,7 +339,7 @@ template <class T, class E> struct expected_storage_base<T, E, false> {
 
   template <class U, class... Args,
             std::enable_if_t<std::is_constructible_v<
-                T, std::initializer_list<U>, Args&&...>>* = nullptr>
+                T, std::initializer_list<U>&, Args&&...>>* = nullptr>
   constexpr explicit expected_storage_base(std::in_place_t,
                                            std::initializer_list<U> il,
                                            Args&&... args)
@@ -353,7 +353,7 @@ template <class T, class E> struct expected_storage_base<T, E, false> {
 
   template <class U, class... Args,
             std::enable_if_t<std::is_constructible_v<
-                E, std::initializer_list<U>, Args&&...>>* = nullptr>
+                E, std::initializer_list<U>&, Args&&...>>* = nullptr>
   constexpr explicit expected_storage_base(unexpect_t,
                                            std::initializer_list<U> il,
                                            Args&&... args)
@@ -392,7 +392,7 @@ template <class T, class E> struct expected_storage_base<T, E, true> {
 
   template <class U, class... Args,
             std::enable_if_t<std::is_constructible_v<
-                T, std::initializer_list<U>, Args&&...>>* = nullptr>
+                T, std::initializer_list<U>&, Args&&...>>* = nullptr>
   constexpr explicit expected_storage_base(std::in_place_t,
                                            std::initializer_list<U> il,
                                            Args&&... args)
@@ -406,7 +406,7 @@ template <class T, class E> struct expected_storage_base<T, E, true> {
 
   template <class U, class... Args,
             std::enable_if_t<std::is_constructible_v<
-                E, std::initializer_list<U>, Args&&...>>* = nullptr>
+                E, std::initializer_list<U>&, Args&&...>>* = nullptr>
   constexpr explicit expected_storage_base(unexpect_t,
                                            std::initializer_list<U> il,
                                            Args&&... args)
@@ -441,7 +441,7 @@ template <class E> struct expected_storage_base<void, E, false> {
 
   template <class U, class... Args,
             std::enable_if_t<std::is_constructible_v<
-                E, std::initializer_list<U>, Args&&...>>* = nullptr>
+                E, std::initializer_list<U>&, Args&&...>>* = nullptr>
   constexpr explicit expected_storage_base(unexpect_t,
                                            std::initializer_list<U> il,
                                            Args&&... args)
@@ -481,7 +481,7 @@ template <class E> struct expected_storage_base<void, E, true> {
 
   template <class U, class... Args,
             std::enable_if_t<std::is_constructible_v<
-                E, std::initializer_list<U>, Args&&...>>* = nullptr>
+                E, std::initializer_list<U>&, Args&&...>>* = nullptr>
   constexpr explicit expected_storage_base(unexpect_t,
                                            std::initializer_list<U> il,
                                            Args&&... args)
@@ -1144,7 +1144,7 @@ public:
 
   template <class U, class... Args,
             std::enable_if_t<std::is_constructible_v<
-                T, std::initializer_list<U>, Args&&...>>* = nullptr>
+                T, std::initializer_list<U>&, Args&&...>>* = nullptr>
   constexpr explicit expected(std::in_place_t, std::initializer_list<U> il,
                               Args&&... args)
       : base_type(std::in_place, il, std::forward<Args>(args)...),
@@ -1158,7 +1158,7 @@ public:
 
   template <class U, class... Args,
             std::enable_if_t<std::is_constructible_v<
-                E, std::initializer_list<U>, Args&&...>>* = nullptr>
+                E, std::initializer_list<U>&, Args&&...>>* = nullptr>
   constexpr explicit expected(unexpect_t, std::initializer_list<U> il,
                               Args&&... args)
       : base_type(unexpect, il, std::forward<Args>(args)...),
@@ -1268,7 +1268,7 @@ public:
       class U, class... Args, class T1 = T,
       std::enable_if_t<!std::is_void_v<T1>>* = nullptr,
       std::enable_if_t<
-          std::is_constructible_v<T, std::initializer_list<U>, Args&&...> &&
+          std::is_constructible_v<T, std::initializer_list<U>&, Args&&...> &&
           std::is_move_assignable_v<T> &&
           (std::is_nothrow_move_constructible_v<T> ||
            std::is_nothrow_move_constructible_v<E>)>* = nullptr>
@@ -1276,7 +1276,7 @@ public:
     if (this->has_val_) {
       this->val_ = T(il, std::forward<Args>(args)...); // This can throw.
     } else if constexpr (std::is_nothrow_constructible_v<
-                             T, std::initializer_list<U>, Args&&...>) {
+                             T, std::initializer_list<U>&, Args&&...>) {
       this->destroy(unexpect);
       this->construct(std::in_place, il, std::forward<Args>(args)...);
     } else if constexpr (std::is_nothrow_move_constructible_v<T>) {
