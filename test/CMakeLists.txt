@@ -3,6 +3,7 @@ add_executable(test_${PROJECT_NAME}
   copy_assign_base_test.cpp
   copy_base_test.cpp
   expected_test.cpp
+  expected_void_test.cpp
   move_assign_base_test.cpp
   move_base_test.cpp
   operations_base_test.cpp
