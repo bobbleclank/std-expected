@@ -357,6 +357,7 @@ TEST(expected, default_constructor) {
     expected<Val, Err> e;
     ASSERT_EQ(Val::s, State::default_constructed);
     ASSERT_EQ(Err::s, State::none);
+    ASSERT_TRUE(e.has_value());
     ASSERT_EQ(e->x, 20100);
   }
   ASSERT_EQ(Val::s, State::destructed);
@@ -798,6 +799,7 @@ TEST(expected, in_place_constructor) {
     expected<Val, Err> e(std::in_place);
     ASSERT_EQ(Val::s, State::default_constructed);
     ASSERT_EQ(Err::s, State::none);
+    ASSERT_TRUE(e.has_value());
     ASSERT_EQ(e->x, 20100);
   }
   ASSERT_EQ(Val::s, State::destructed);
@@ -808,6 +810,7 @@ TEST(expected, in_place_constructor) {
     expected<Val, Err> e(std::in_place, std::move(arg), 2);
     ASSERT_EQ(Val::s, State::constructed);
     ASSERT_EQ(Err::s, State::none);
+    ASSERT_TRUE(e.has_value());
     ASSERT_EQ(e->x, 2);
     ASSERT_EQ(arg.x, -1);
   }
@@ -819,6 +822,7 @@ TEST(expected, in_place_constructor) {
     expected<Val, Err> e(unexpect);
     ASSERT_EQ(Val::s, State::none);
     ASSERT_EQ(Err::s, State::default_constructed);
+    ASSERT_FALSE(e.has_value());
     ASSERT_EQ(e.error().x, 20100);
   }
   ASSERT_EQ(Val::s, State::none);
@@ -829,6 +833,7 @@ TEST(expected, in_place_constructor) {
     expected<Val, Err> e(unexpect, std::move(arg), 4);
     ASSERT_EQ(Val::s, State::none);
     ASSERT_EQ(Err::s, State::constructed);
+    ASSERT_FALSE(e.has_value());
     ASSERT_EQ(e.error().x, 4);
     ASSERT_EQ(arg.x, -1);
   }
@@ -841,6 +846,7 @@ TEST(expected, in_place_constructor) {
     expected<Val, Err> e(std::in_place, {2}, std::move(arg), 2);
     ASSERT_EQ(Val::s, State::constructed);
     ASSERT_EQ(Err::s, State::none);
+    ASSERT_TRUE(e.has_value());
     ASSERT_EQ(e->x, 2 + 2);
     ASSERT_EQ(arg.x, -1);
   }
@@ -853,6 +859,7 @@ TEST(expected, in_place_constructor) {
     expected<Val, Err> e(unexpect, {4}, std::move(arg), 4);
     ASSERT_EQ(Val::s, State::none);
     ASSERT_EQ(Err::s, State::constructed);
+    ASSERT_FALSE(e.has_value());
     ASSERT_EQ(e.error().x, 4 + 4);
     ASSERT_EQ(arg.x, -1);
   }
