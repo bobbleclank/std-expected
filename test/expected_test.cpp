@@ -790,7 +790,7 @@ TEST(expected, move_unexpected_constructor) {
   }
 }
 
-TEST(expected, variadic_template_constructor) {
+TEST(expected, in_place_constructor) {
   Val::reset();
   Err::reset();
   // (std::in_place_t, Args&&...)
