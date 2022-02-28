@@ -279,6 +279,21 @@ template <class T>
 inline constexpr bool is_trivially_destructible_or_void_v =
     is_trivially_destructible_or_void<T>::value;
 
+template <class T>
+using is_swappable_or_void =
+    std::disjunction<std::is_void<T>, std::is_swappable<T>>;
+
+template <class T>
+inline constexpr bool is_swappable_or_void_v = is_swappable_or_void<T>::value;
+
+template <class T>
+using is_nothrow_swappable_or_void =
+    std::disjunction<std::is_void<T>, std::is_nothrow_swappable<T>>;
+
+template <class T>
+inline constexpr bool is_nothrow_swappable_or_void_v =
+    is_nothrow_swappable_or_void<T>::value;
+
 template <class T, class E, class U, class G, class U_qualified,
           class G_qualified>
 using enable_expected_expected_constructor = std::enable_if_t<
@@ -1393,14 +1408,16 @@ public:
       class T1 = T, class E1 = E,
       std::enable_if_t<internal::is_move_constructible_or_void_v<T1> &&
                        std::is_move_constructible_v<E1> &&
-                       std::is_swappable_v<T1> && std::is_swappable_v<E1> &&
+                       internal::is_swappable_or_void_v<T1> &&
+                       std::is_swappable_v<E1> &&
                        (internal::is_nothrow_move_constructible_or_void_v<T1> ||
                         std::is_nothrow_move_constructible_v<E1>)>* = nullptr>
   void swap(expected& other) noexcept(
       // clang-format off
       internal::is_nothrow_move_constructible_or_void_v<T> &&
       std::is_nothrow_move_constructible_v<E> &&
-      std::is_nothrow_swappable_v<T> && std::is_nothrow_swappable_v<E>) {
+      internal::is_nothrow_swappable_or_void_v<T> &&
+      std::is_nothrow_swappable_v<E>) {
     // clang-format on
     this->swap_impl(other);
   }
@@ -1462,13 +1479,13 @@ constexpr bool operator!=(const unexpected<E2>& e, const expected<T1, E1>& x) {
   return x.has_value() ? true : x.error() != e.value();
 }
 
-template <
-    class T, class E,
-    std::enable_if_t<internal::is_move_constructible_or_void_v<T> &&
-                     std::is_move_constructible_v<E> &&
-                     std::is_swappable_v<T> && std::is_swappable_v<E> &&
-                     (internal::is_nothrow_move_constructible_or_void_v<T> ||
-                      std::is_nothrow_move_constructible_v<E>)>* = nullptr>
+template <class T, class E,
+          std::enable_if_t<
+              internal::is_move_constructible_or_void_v<T> &&
+              std::is_move_constructible_v<E> &&
+              internal::is_swappable_or_void_v<T> && std::is_swappable_v<E> &&
+              (internal::is_nothrow_move_constructible_or_void_v<T> ||
+               std::is_nothrow_move_constructible_v<E>)>* = nullptr>
 void swap(expected<T, E>& x, expected<T, E>& y) noexcept(noexcept(x.swap(y))) {
   x.swap(y);
 }

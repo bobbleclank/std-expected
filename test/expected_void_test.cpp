@@ -6,6 +6,7 @@
 #include "obj_throw.h"
 #include "state.h"
 
+#include <type_traits>
 #include <utility>
 
 #include <gtest/gtest.h>
@@ -495,4 +496,75 @@ TEST(expected_void, emplace) {
     Err::reset();
   }
   ASSERT_EQ(Err::s, State::none);
+}
+
+TEST(expected_void, swap_traits) {
+  ASSERT_TRUE((std::is_swappable_v<expected<void, Err>>));
+  ASSERT_TRUE((std::is_nothrow_swappable_v<expected<void, Err>>));
+
+  ASSERT_TRUE((std::is_swappable_v<expected<void, Err_throw_2>>));
+  ASSERT_FALSE((std::is_nothrow_swappable_v<expected<void, Err_throw_2>>));
+}
+
+TEST(expected_void, swap) {
+  // this->has_value() && other.has_value()
+  {
+    expected<void, Err> other(std::in_place);
+    {
+      expected<void, Err> e(std::in_place);
+      bc::exp::swap(e, other);
+      ASSERT_TRUE(e.has_value());
+      ASSERT_TRUE(other.has_value());
+      Err::reset();
+    }
+    ASSERT_EQ(Err::s, State::none);
+  }
+  ASSERT_EQ(Err::s, State::none);
+  // this->has_value() && !other.has_value()
+  {
+    expected<void, Err> other(unexpect, 1);
+    {
+      expected<void, Err> e(std::in_place);
+      bc::exp::swap(e, other);
+      ASSERT_FALSE(e.has_value());
+      ASSERT_TRUE(other.has_value());
+      ASSERT_EQ(e.error().x, 1);
+      Err::reset();
+    }
+    ASSERT_EQ(Err::s, State::destructed);
+    Err::reset();
+  }
+  ASSERT_EQ(Err::s, State::none);
+  // !this->has_value() && other.has_value()
+  {
+    expected<void, Err> other(std::in_place);
+    {
+      expected<void, Err> e(unexpect, 10);
+      bc::exp::swap(e, other);
+      ASSERT_TRUE(e.has_value());
+      ASSERT_FALSE(other.has_value());
+      ASSERT_EQ(other.error().x, 10);
+      Err::reset();
+    }
+    ASSERT_EQ(Err::s, State::none);
+  }
+  ASSERT_EQ(Err::s, State::destructed);
+  Err::reset();
+  // !this->has_value() && !other.has_value()
+  {
+    expected<void, Err> other(unexpect, 3);
+    {
+      expected<void, Err> e(unexpect, 30);
+      bc::exp::swap(e, other);
+      ASSERT_FALSE(e.has_value());
+      ASSERT_FALSE(other.has_value());
+      ASSERT_EQ(e.error().x, 3);
+      ASSERT_EQ(other.error().x, 30);
+      Err::reset();
+    }
+    ASSERT_EQ(Err::s, State::destructed);
+    Err::reset();
+  }
+  ASSERT_EQ(Err::s, State::destructed);
+  Err::reset();
 }
