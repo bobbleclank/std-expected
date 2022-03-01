@@ -311,8 +311,9 @@ using is_constructible_from_expected =
 template <class T, class E, class U, class G, class U_qualified,
           class G_qualified>
 using enable_expected_expected_constructor = std::enable_if_t<
-    std::is_constructible_v<T, U_qualified> &&
-    !is_constructible_from_expected<T, U, G>::value &&
+    ((std::is_void_v<T> && std::is_void_v<U>) ||
+     (std::is_constructible_v<T, U_qualified> &&
+      !is_constructible_from_expected<T, U, G>::value)) &&
     std::is_constructible_v<E, G_qualified> &&
     !is_constructible_from_expected<unexpected<E>, U, G>::value>;
 
@@ -1067,8 +1068,11 @@ public:
   constexpr expected(expected&&) = default;
 
   template <class U, class G,
-            std::enable_if_t<std::is_convertible_v<const U&, T> &&
+            // clang-format off
+            std::enable_if_t<(std::is_void_v<T> || std::is_void_v<U> ||
+                              std::is_convertible_v<const U&, T>) &&
                              std::is_convertible_v<const G&, E>>* = nullptr,
+            // clang-format on
             internal::enable_expected_expected_constructor<T, E, U, G, const U&,
                                                            const G&>* = nullptr>
   constexpr expected(const expected<U, G>& other)
@@ -1077,7 +1081,8 @@ public:
   }
 
   template <class U, class G,
-            std::enable_if_t<!std::is_convertible_v<const U&, T> ||
+            std::enable_if_t<(!std::is_void_v<T> && !std::is_void_v<U> &&
+                              !std::is_convertible_v<const U&, T>) ||
                              !std::is_convertible_v<const G&, E>>* = nullptr,
             internal::enable_expected_expected_constructor<T, E, U, G, const U&,
                                                            const G&>* = nullptr>
@@ -1087,8 +1092,11 @@ public:
   }
 
   template <class U, class G,
-            std::enable_if_t<std::is_convertible_v<U&&, T> &&
+            // clang-format off
+            std::enable_if_t<(std::is_void_v<T> || std::is_void_v<U> ||
+                              std::is_convertible_v<U&&, T>) &&
                              std::is_convertible_v<G&&, E>>* = nullptr,
+            // clang-format on
             internal::enable_expected_expected_constructor<T, E, U, G, U&&,
                                                            G&&>* = nullptr>
   constexpr expected(expected<U, G>&& other)
@@ -1097,7 +1105,8 @@ public:
   }
 
   template <class U, class G,
-            std::enable_if_t<!std::is_convertible_v<U&&, T> ||
+            std::enable_if_t<(!std::is_void_v<T> && !std::is_void_v<U> &&
+                              !std::is_convertible_v<U&&, T>) ||
                              !std::is_convertible_v<G&&, E>>* = nullptr,
             internal::enable_expected_expected_constructor<T, E, U, G, U&&,
                                                            G&&>* = nullptr>
