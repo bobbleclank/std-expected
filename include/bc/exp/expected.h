@@ -58,18 +58,21 @@ private:
 
 namespace internal {
 
+template <class E, class Err>
+using is_constructible_from_unexpected =
+    std::disjunction<std::is_constructible<E, unexpected<Err>&>,
+                     std::is_constructible<E, unexpected<Err>&&>,
+                     std::is_constructible<E, const unexpected<Err>&>,
+                     std::is_constructible<E, const unexpected<Err>&&>,
+                     std::is_convertible<unexpected<Err>&, E>,
+                     std::is_convertible<unexpected<Err>&&, E>,
+                     std::is_convertible<const unexpected<Err>&, E>,
+                     std::is_convertible<const unexpected<Err>&&, E>>;
+
 template <class E, class Err, class Err_qualified>
 using enable_unexpected_unexpected_constructor =
     std::enable_if_t<std::is_constructible_v<E, Err_qualified> &&
-
-                     !std::is_constructible_v<E, unexpected<Err>&> &&
-                     !std::is_constructible_v<E, unexpected<Err>&&> &&
-                     !std::is_constructible_v<E, const unexpected<Err>&> &&
-                     !std::is_constructible_v<E, const unexpected<Err>&&> &&
-                     !std::is_convertible_v<unexpected<Err>&, E> &&
-                     !std::is_convertible_v<unexpected<Err>&&, E> &&
-                     !std::is_convertible_v<const unexpected<Err>&, E> &&
-                     !std::is_convertible_v<const unexpected<Err>&&, E>>;
+                     !is_constructible_from_unexpected<E, Err>::value>;
 
 } // namespace internal
 
@@ -294,30 +297,24 @@ template <class T>
 inline constexpr bool is_nothrow_swappable_or_void_v =
     is_nothrow_swappable_or_void<T>::value;
 
+template <class T, class U, class G>
+using is_constructible_from_expected =
+    std::disjunction<std::is_constructible<T, expected<U, G>&>,
+                     std::is_constructible<T, expected<U, G>&&>,
+                     std::is_constructible<T, const expected<U, G>&>,
+                     std::is_constructible<T, const expected<U, G>&&>,
+                     std::is_convertible<expected<U, G>&, T>,
+                     std::is_convertible<expected<U, G>&&, T>,
+                     std::is_convertible<const expected<U, G>&, T>,
+                     std::is_convertible<const expected<U, G>&&, T>>;
+
 template <class T, class E, class U, class G, class U_qualified,
           class G_qualified>
 using enable_expected_expected_constructor = std::enable_if_t<
     std::is_constructible_v<T, U_qualified> &&
-
-    !std::is_constructible_v<T, expected<U, G>&> &&
-    !std::is_constructible_v<T, expected<U, G>&&> &&
-    !std::is_constructible_v<T, const expected<U, G>&> &&
-    !std::is_constructible_v<T, const expected<U, G>&&> &&
-    !std::is_convertible_v<expected<U, G>&, T> &&
-    !std::is_convertible_v<expected<U, G>&&, T> &&
-    !std::is_convertible_v<const expected<U, G>&, T> &&
-    !std::is_convertible_v<const expected<U, G>&&, T> &&
-
+    !is_constructible_from_expected<T, U, G>::value &&
     std::is_constructible_v<E, G_qualified> &&
-
-    !std::is_constructible_v<unexpected<E>, expected<U, G>&> &&
-    !std::is_constructible_v<unexpected<E>, expected<U, G>&&> &&
-    !std::is_constructible_v<unexpected<E>, const expected<U, G>&> &&
-    !std::is_constructible_v<unexpected<E>, const expected<U, G>&&> &&
-    !std::is_convertible_v<expected<U, G>&, unexpected<E>> &&
-    !std::is_convertible_v<expected<U, G>&&, unexpected<E>> &&
-    !std::is_convertible_v<const expected<U, G>&, unexpected<E>> &&
-    !std::is_convertible_v<const expected<U, G>&&, unexpected<E>>>;
+    !is_constructible_from_expected<unexpected<E>, U, G>::value>;
 
 template <class T, class E, class U>
 using enable_expected_value_constructor =
