@@ -8,5 +8,6 @@ add_executable(test_${PROJECT_NAME}
   move_base_test.cpp
   operations_base_test.cpp
   storage_base_test.cpp
+  unexpected_constexpr_test.cpp
   unexpected_test.cpp)
 target_link_libraries(test_${PROJECT_NAME} PUBLIC expected gtest_main gtest)
