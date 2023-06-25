@@ -811,7 +811,7 @@ TEST(expected, in_place_constructor) {
     ASSERT_EQ(Val::s, State::constructed);
     ASSERT_EQ(Err::s, State::none);
     ASSERT_TRUE(e.has_value());
-    ASSERT_EQ(e->x, 2);
+    ASSERT_EQ(e->x, 2 + 2);
     ASSERT_EQ(arg.x, -1);
   }
   ASSERT_EQ(Val::s, State::destructed);
@@ -834,7 +834,7 @@ TEST(expected, in_place_constructor) {
     ASSERT_EQ(Val::s, State::none);
     ASSERT_EQ(Err::s, State::constructed);
     ASSERT_FALSE(e.has_value());
-    ASSERT_EQ(e.error().x, 4);
+    ASSERT_EQ(e.error().x, 4 + 4);
     ASSERT_EQ(arg.x, -1);
   }
   ASSERT_EQ(Val::s, State::none);
@@ -847,7 +847,7 @@ TEST(expected, in_place_constructor) {
     ASSERT_EQ(Val::s, State::constructed);
     ASSERT_EQ(Err::s, State::none);
     ASSERT_TRUE(e.has_value());
-    ASSERT_EQ(e->x, 2 + 2);
+    ASSERT_EQ(e->x, 2 + 2 + 2);
     ASSERT_EQ(arg.x, -1);
   }
   ASSERT_EQ(Val::s, State::destructed);
@@ -860,7 +860,7 @@ TEST(expected, in_place_constructor) {
     ASSERT_EQ(Val::s, State::none);
     ASSERT_EQ(Err::s, State::constructed);
     ASSERT_FALSE(e.has_value());
-    ASSERT_EQ(e.error().x, 4 + 4);
+    ASSERT_EQ(e.error().x, 4 + 4 + 4);
     ASSERT_EQ(arg.x, -1);
   }
   ASSERT_EQ(Val::s, State::none);
@@ -1502,7 +1502,7 @@ TEST(expected, emplace) {
     ASSERT_EQ(Val::s, State::destructed);
     ASSERT_EQ(Err::s, State::none);
     ASSERT_TRUE(e.has_value());
-    ASSERT_EQ(e->x, 2);
+    ASSERT_EQ(e->x, 2 + 2);
     ASSERT_EQ(arg.x, -1);
     Val::s = State::constructed;
   }
@@ -1538,7 +1538,7 @@ TEST(expected, emplace) {
     ASSERT_EQ(Val::s, State::constructed);
     ASSERT_EQ(Err::s, State::destructed);
     ASSERT_TRUE(e.has_value());
-    ASSERT_EQ(e->x, 5);
+    ASSERT_EQ(e->x, 5 + 5);
     ASSERT_EQ(arg.x, -1);
     Err::reset();
   }
@@ -1554,7 +1554,7 @@ TEST(expected, emplace) {
     ASSERT_EQ(Val_throw::s, State::destructed);
     ASSERT_EQ(Err::s, State::destructed);
     ASSERT_TRUE(e.has_value());
-    ASSERT_EQ(e->x, 7);
+    ASSERT_EQ(e->x, 7 + 7);
     ASSERT_EQ(arg.x, -1);
     Val_throw::s = State::constructed;
     Err::reset();
@@ -1592,7 +1592,7 @@ TEST(expected, emplace) {
     ASSERT_EQ(Val_throw_2::s, State::constructed);
     ASSERT_EQ(Err::s, State::destructed);
     ASSERT_TRUE(e.has_value());
-    ASSERT_EQ(e->x, 10);
+    ASSERT_EQ(e->x, 10 + 10);
     ASSERT_EQ(arg.x, -1);
     Err::reset();
   }
@@ -1639,7 +1639,7 @@ TEST(expected, emplace_initializer_list_overload) {
     ASSERT_EQ(Val::s, State::destructed);
     ASSERT_EQ(Err::s, State::none);
     ASSERT_TRUE(e.has_value());
-    ASSERT_EQ(e->x, 2 + 2);
+    ASSERT_EQ(e->x, 2 + 2 + 2);
     ASSERT_EQ(arg.x, -1);
     Val::s = State::constructed;
   }
@@ -1675,7 +1675,7 @@ TEST(expected, emplace_initializer_list_overload) {
     ASSERT_EQ(Val::s, State::constructed);
     ASSERT_EQ(Err::s, State::destructed);
     ASSERT_TRUE(e.has_value());
-    ASSERT_EQ(e->x, 5 + 5);
+    ASSERT_EQ(e->x, 5 + 5 + 5);
     ASSERT_EQ(arg.x, -1);
     Err::reset();
   }
@@ -1691,7 +1691,7 @@ TEST(expected, emplace_initializer_list_overload) {
     ASSERT_EQ(Val_throw::s, State::destructed);
     ASSERT_EQ(Err::s, State::destructed);
     ASSERT_TRUE(e.has_value());
-    ASSERT_EQ(e->x, 7 + 7);
+    ASSERT_EQ(e->x, 7 + 7 + 7);
     ASSERT_EQ(arg.x, -1);
     Val_throw::s = State::constructed;
     Err::reset();
@@ -1729,7 +1729,7 @@ TEST(expected, emplace_initializer_list_overload) {
     ASSERT_EQ(Val_throw_2::s, State::constructed);
     ASSERT_EQ(Err::s, State::destructed);
     ASSERT_TRUE(e.has_value());
-    ASSERT_EQ(e->x, 10 + 10);
+    ASSERT_EQ(e->x, 10 + 10 + 10);
     ASSERT_EQ(arg.x, -1);
     Err::reset();
   }

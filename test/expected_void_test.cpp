@@ -339,7 +339,7 @@ TEST(expected_void, in_place_constructor) {
     expected<void, Err> e(unexpect, std::move(arg), 1);
     ASSERT_EQ(Err::s, State::constructed);
     ASSERT_FALSE(e.has_value());
-    ASSERT_EQ(e.error().x, 1);
+    ASSERT_EQ(e.error().x, 1 + 1);
     ASSERT_EQ(arg.x, -1);
   }
   ASSERT_EQ(Err::s, State::destructed);
@@ -350,7 +350,7 @@ TEST(expected_void, in_place_constructor) {
     expected<void, Err> e(unexpect, {2}, std::move(arg), 2);
     ASSERT_EQ(Err::s, State::constructed);
     ASSERT_FALSE(e.has_value());
-    ASSERT_EQ(e.error().x, 2 + 2);
+    ASSERT_EQ(e.error().x, 2 + 2 + 2);
     ASSERT_EQ(arg.x, -1);
   }
   ASSERT_EQ(Err::s, State::destructed);

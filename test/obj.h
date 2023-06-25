@@ -30,16 +30,16 @@ template <class Tag> struct Obj {
     x = arg.x;
   }
 
-  Obj(Arg&& arg_, int) noexcept {
+  Obj(Arg&& arg_, int i) noexcept {
     s = State::constructed;
     Arg arg = std::move(arg_);
-    x = arg.x;
+    x = arg.x + i;
   }
 
-  Obj(std::initializer_list<int> il, Arg&& arg_, int) noexcept {
+  Obj(std::initializer_list<int> il, Arg&& arg_, int i) noexcept {
     s = State::constructed;
     Arg arg = std::move(arg_);
-    x = arg.x;
+    x = arg.x + i;
     if (!std::empty(il))
       x += *il.begin();
   }

@@ -18,18 +18,18 @@ template <class Tag> struct Obj_throw {
     x = x_;
   }
 
-  Obj_throw(Arg&& arg_, int) {
+  Obj_throw(Arg&& arg_, int i) {
     s = State::constructed;
     Arg arg = std::move(arg_);
-    x = arg.x;
+    x = arg.x + i;
     if (t == May_throw::do_throw)
       throw t;
   }
 
-  Obj_throw(std::initializer_list<int> il, Arg&& arg_, int) {
+  Obj_throw(std::initializer_list<int> il, Arg&& arg_, int i) {
     s = State::constructed;
     Arg arg = std::move(arg_);
-    x = arg.x;
+    x = arg.x + i;
     if (!std::empty(il))
       x += *il.begin();
     if (t == May_throw::do_throw)
@@ -101,18 +101,18 @@ template <class Tag> struct Obj_throw_2 {
       throw t;
   }
 
-  Obj_throw_2(Arg&& arg_, int) {
+  Obj_throw_2(Arg&& arg_, int i) {
     s = State::constructed;
     Arg arg = std::move(arg_);
-    x = arg.x;
+    x = arg.x + i;
     if (t == May_throw::do_throw)
       throw t;
   }
 
-  Obj_throw_2(std::initializer_list<int> il, Arg&& arg_, int) {
+  Obj_throw_2(std::initializer_list<int> il, Arg&& arg_, int i) {
     s = State::constructed;
     Arg arg = std::move(arg_);
-    x = arg.x;
+    x = arg.x + i;
     if (!std::empty(il))
       x += *il.begin();
     if (t == May_throw::do_throw)

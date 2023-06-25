@@ -134,14 +134,14 @@ TEST(unexpected, constructors) {
   {
     Arg arg(7);
     unexpected<Err> e(std::in_place, std::move(arg), 7);
-    ASSERT_EQ(e.value().x, 7);
+    ASSERT_EQ(e.value().x, 7 + 7);
     ASSERT_EQ(arg.x, -1);
   }
   // (std::in_place_t, std::initializer_list<U>, Args&&...)
   {
     Arg arg(8);
     unexpected<Err> e(std::in_place, {8}, std::move(arg), 8);
-    ASSERT_EQ(e.value().x, 8 + 8);
+    ASSERT_EQ(e.value().x, 8 + 8 + 8);
     ASSERT_EQ(arg.x, -1);
   }
 }

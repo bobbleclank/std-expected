@@ -149,12 +149,12 @@ TEST(unexpected_constexpr, constructors) {
   // (std::in_place_t, Args&&...)
   {
     constexpr int x = in_place_constructor(9);
-    ASSERT_EQ(x, 9 + 201);
+    ASSERT_EQ(x, 9 + 9 + 201);
   }
   // (std::in_place_t, std::initializer_list<U>, Args&&...)
   {
     constexpr int x = in_place_initializer_list_constructor(10);
-    ASSERT_EQ(x, 10 + 10 + 201);
+    ASSERT_EQ(x, 10 + 10 + 10 + 201);
   }
 }
 

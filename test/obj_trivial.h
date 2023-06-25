@@ -9,14 +9,14 @@
 template <class Tag> struct Obj_trivial {
   Obj_trivial() = default;
 
-  Obj_trivial(Arg&& arg_, int) {
+  Obj_trivial(Arg&& arg_, int i) {
     Arg arg = std::move(arg_);
-    x = arg.x;
+    x = arg.x + i;
   }
 
-  Obj_trivial(std::initializer_list<int> il, Arg&& arg_, int) {
+  Obj_trivial(std::initializer_list<int> il, Arg&& arg_, int i) {
     Arg arg = std::move(arg_);
-    x = arg.x;
+    x = arg.x + i;
     if (!std::empty(il))
       x += *il.begin();
   }
