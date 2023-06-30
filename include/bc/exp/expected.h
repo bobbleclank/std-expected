@@ -56,7 +56,7 @@ private:
   E val_;
 };
 
-namespace internal {
+namespace detail {
 
 template <class E, class Err>
 using is_constructible_from_unexpected =
@@ -74,7 +74,7 @@ using enable_unexpected_unexpected_constructor =
     std::enable_if_t<std::is_constructible_v<E, Err_qualified> &&
                      !is_constructible_from_unexpected<E, Err>::value>;
 
-} // namespace internal
+} // namespace detail
 
 template <class E> class unexpected {
 public:
@@ -87,27 +87,27 @@ public:
   constexpr unexpected(unexpected&&) = default;
 
   template <class Err,
-            internal::enable_unexpected_unexpected_constructor<
+            detail::enable_unexpected_unexpected_constructor<
                 E, Err, const Err&>* = nullptr,
             std::enable_if_t<std::is_convertible_v<const Err&, E>>* = nullptr>
   constexpr unexpected(const unexpected<Err>& other) : val_(other.value()) {}
 
   template <class Err,
-            internal::enable_unexpected_unexpected_constructor<
+            detail::enable_unexpected_unexpected_constructor<
                 E, Err, const Err&>* = nullptr,
             std::enable_if_t<!std::is_convertible_v<const Err&, E>>* = nullptr>
   constexpr explicit unexpected(const unexpected<Err>& other)
       : val_(other.value()) {}
 
   template <class Err,
-            internal::enable_unexpected_unexpected_constructor<E, Err, Err&&>* =
+            detail::enable_unexpected_unexpected_constructor<E, Err, Err&&>* =
                 nullptr,
             std::enable_if_t<std::is_convertible_v<Err&&, E>>* = nullptr>
   constexpr unexpected(unexpected<Err>&& other)
       : val_(std::move(other.value())) {}
 
   template <class Err,
-            internal::enable_unexpected_unexpected_constructor<E, Err, Err&&>* =
+            detail::enable_unexpected_unexpected_constructor<E, Err, Err&&>* =
                 nullptr,
             std::enable_if_t<!std::is_convertible_v<Err&&, E>>* = nullptr>
   constexpr explicit unexpected(unexpected<Err>&& other)
@@ -184,7 +184,7 @@ void swap(unexpected<E>& x, unexpected<E>& y) noexcept(noexcept(x.swap(y))) {
   x.swap(y);
 }
 
-namespace internal {
+namespace detail {
 
 template <class T>
 using is_default_constructible_or_void =
@@ -1041,17 +1041,17 @@ using expected_move_assignable_if = move_assignable_if<
     (is_nothrow_move_constructible_or_void_v<T> ||
      std::is_nothrow_move_constructible_v<E>)>;
 
-} // namespace internal
+} // namespace detail
 
 template <class T, class E>
-class expected : private internal::expected_move_assign_base<T, E>,
-                 private internal::expected_default_constructible_if<T, E>,
-                 private internal::expected_copy_constructible_if<T, E>,
-                 private internal::expected_move_constructible_if<T, E>,
-                 private internal::expected_copy_assignable_if<T, E>,
-                 private internal::expected_move_assignable_if<T, E> {
-  using base_type = internal::expected_move_assign_base<T, E>;
-  using ctor_base = internal::expected_default_constructible_if<T, E>;
+class expected : private detail::expected_move_assign_base<T, E>,
+                 private detail::expected_default_constructible_if<T, E>,
+                 private detail::expected_copy_constructible_if<T, E>,
+                 private detail::expected_move_constructible_if<T, E>,
+                 private detail::expected_copy_assignable_if<T, E>,
+                 private detail::expected_move_assignable_if<T, E> {
+  using base_type = detail::expected_move_assign_base<T, E>;
+  using ctor_base = detail::expected_default_constructible_if<T, E>;
 
 public:
   static_assert(!std::is_same_v<T, std::remove_cv_t<unexpected<E>>>);
@@ -1074,114 +1074,114 @@ public:
   constexpr expected(expected&&) = default;
 
   template <class U, class G,
-            internal::enable_expected_expected_void_constructor<
+            detail::enable_expected_expected_void_constructor<
                 T, E, U, G, const G&>* = nullptr,
             std::enable_if_t<std::is_convertible_v<const G&, E>>* = nullptr>
   constexpr expected(const expected<U, G>& other)
-      : base_type(internal::uninit), ctor_base(internal::construct) {
+      : base_type(detail::uninit), ctor_base(detail::construct) {
     this->construct_from_ex(other);
   }
 
   template <class U, class G,
-            internal::enable_expected_expected_void_constructor<
+            detail::enable_expected_expected_void_constructor<
                 T, E, U, G, const G&>* = nullptr,
             std::enable_if_t<!std::is_convertible_v<const G&, E>>* = nullptr>
   constexpr explicit expected(const expected<U, G>& other)
-      : base_type(internal::uninit), ctor_base(internal::construct) {
+      : base_type(detail::uninit), ctor_base(detail::construct) {
     this->construct_from_ex(other);
   }
 
   template <class U, class G,
-            internal::enable_expected_expected_constructor<T, E, U, G, const U&,
-                                                           const G&>* = nullptr,
+            detail::enable_expected_expected_constructor<T, E, U, G, const U&,
+                                                         const G&>* = nullptr,
             // clang-format off
             std::enable_if_t<(std::is_void_v<T> || std::is_void_v<U> ||
                               std::is_convertible_v<const U&, T>) &&
                              std::is_convertible_v<const G&, E>>* = nullptr>
   // clang-format on
   constexpr expected(const expected<U, G>& other)
-      : base_type(internal::uninit), ctor_base(internal::construct) {
+      : base_type(detail::uninit), ctor_base(detail::construct) {
     this->construct_from_ex(other);
   }
 
   template <class U, class G,
-            internal::enable_expected_expected_constructor<T, E, U, G, const U&,
-                                                           const G&>* = nullptr,
+            detail::enable_expected_expected_constructor<T, E, U, G, const U&,
+                                                         const G&>* = nullptr,
             std::enable_if_t<(!std::is_void_v<T> && !std::is_void_v<U> &&
                               !std::is_convertible_v<const U&, T>) ||
                              !std::is_convertible_v<const G&, E>>* = nullptr>
   constexpr explicit expected(const expected<U, G>& other)
-      : base_type(internal::uninit), ctor_base(internal::construct) {
+      : base_type(detail::uninit), ctor_base(detail::construct) {
     this->construct_from_ex(other);
   }
 
   template <class U, class G,
-            internal::enable_expected_expected_void_constructor<T, E, U, G,
-                                                                G&&>* = nullptr,
+            detail::enable_expected_expected_void_constructor<T, E, U, G,
+                                                              G&&>* = nullptr,
             std::enable_if_t<std::is_convertible_v<G&&, E>>* = nullptr>
   constexpr expected(expected<U, G>&& other)
-      : base_type(internal::uninit), ctor_base(internal::construct) {
+      : base_type(detail::uninit), ctor_base(detail::construct) {
     this->construct_from_ex(std::move(other));
   }
 
   template <class U, class G,
-            internal::enable_expected_expected_void_constructor<T, E, U, G,
-                                                                G&&>* = nullptr,
+            detail::enable_expected_expected_void_constructor<T, E, U, G,
+                                                              G&&>* = nullptr,
             std::enable_if_t<!std::is_convertible_v<G&&, E>>* = nullptr>
   constexpr explicit expected(expected<U, G>&& other)
-      : base_type(internal::uninit), ctor_base(internal::construct) {
+      : base_type(detail::uninit), ctor_base(detail::construct) {
     this->construct_from_ex(std::move(other));
   }
 
   template <class U, class G,
-            internal::enable_expected_expected_constructor<T, E, U, G, U&&,
-                                                           G&&>* = nullptr,
+            detail::enable_expected_expected_constructor<T, E, U, G, U&&,
+                                                         G&&>* = nullptr,
             // clang-format off
             std::enable_if_t<(std::is_void_v<T> || std::is_void_v<U> ||
                               std::is_convertible_v<U&&, T>) &&
                              std::is_convertible_v<G&&, E>>* = nullptr>
   // clang-format on
   constexpr expected(expected<U, G>&& other)
-      : base_type(internal::uninit), ctor_base(internal::construct) {
+      : base_type(detail::uninit), ctor_base(detail::construct) {
     this->construct_from_ex(std::move(other));
   }
 
   template <class U, class G,
-            internal::enable_expected_expected_constructor<T, E, U, G, U&&,
-                                                           G&&>* = nullptr,
+            detail::enable_expected_expected_constructor<T, E, U, G, U&&,
+                                                         G&&>* = nullptr,
             std::enable_if_t<(!std::is_void_v<T> && !std::is_void_v<U> &&
                               !std::is_convertible_v<U&&, T>) ||
                              !std::is_convertible_v<G&&, E>>* = nullptr>
   constexpr explicit expected(expected<U, G>&& other)
-      : base_type(internal::uninit), ctor_base(internal::construct) {
+      : base_type(detail::uninit), ctor_base(detail::construct) {
     this->construct_from_ex(std::move(other));
   }
 
   template <class U = T,
-            internal::enable_expected_value_constructor<T, E, U>* = nullptr,
+            detail::enable_expected_value_constructor<T, E, U>* = nullptr,
             std::enable_if_t<std::is_convertible_v<U&&, T>>* = nullptr>
   constexpr expected(U&& v)
       : base_type(std::in_place, std::forward<U>(v)),
-        ctor_base(internal::construct) {}
+        ctor_base(detail::construct) {}
 
   template <class U = T,
-            internal::enable_expected_value_constructor<T, E, U>* = nullptr,
+            detail::enable_expected_value_constructor<T, E, U>* = nullptr,
             std::enable_if_t<!std::is_convertible_v<U&&, T>>* = nullptr>
   constexpr explicit expected(U&& v)
       : base_type(std::in_place, std::forward<U>(v)),
-        ctor_base(internal::construct) {}
+        ctor_base(detail::construct) {}
 
   template <class G = E,
             std::enable_if_t<std::is_constructible_v<E, const G&>>* = nullptr,
             std::enable_if_t<std::is_convertible_v<const G&, E>>* = nullptr>
   constexpr expected(const unexpected<G>& e)
-      : base_type(unexpect, e.value()), ctor_base(internal::construct) {}
+      : base_type(unexpect, e.value()), ctor_base(detail::construct) {}
 
   template <class G = E,
             std::enable_if_t<std::is_constructible_v<E, const G&>>* = nullptr,
             std::enable_if_t<!std::is_convertible_v<const G&, E>>* = nullptr>
   constexpr explicit expected(const unexpected<G>& e)
-      : base_type(unexpect, e.value()), ctor_base(internal::construct) {}
+      : base_type(unexpect, e.value()), ctor_base(detail::construct) {}
 
   template <class G = E,
             std::enable_if_t<std::is_constructible_v<E, G&&>>* = nullptr,
@@ -1189,7 +1189,7 @@ public:
   constexpr expected(unexpected<G>&& e) noexcept(
       std::is_nothrow_constructible_v<E, G&&>)
       : base_type(unexpect, std::move(e.value())),
-        ctor_base(internal::construct) {}
+        ctor_base(detail::construct) {}
 
   template <class G = E,
             std::enable_if_t<std::is_constructible_v<E, G&&>>* = nullptr,
@@ -1197,7 +1197,7 @@ public:
   constexpr explicit expected(unexpected<G>&& e) noexcept(
       std::is_nothrow_constructible_v<E, G&&>)
       : base_type(unexpect, std::move(e.value())),
-        ctor_base(internal::construct) {}
+        ctor_base(detail::construct) {}
 
   template <
       class... Args,
@@ -1206,7 +1206,7 @@ public:
                         std::is_constructible_v<T, Args&&...>)>* = nullptr>
   constexpr explicit expected(std::in_place_t, Args&&... args)
       : base_type(std::in_place, std::forward<Args>(args)...),
-        ctor_base(internal::construct) {}
+        ctor_base(detail::construct) {}
 
   template <
       class U, class... Args,
@@ -1216,13 +1216,13 @@ public:
   constexpr explicit expected(std::in_place_t, std::initializer_list<U> il,
                               Args&&... args)
       : base_type(std::in_place, il, std::forward<Args>(args)...),
-        ctor_base(internal::construct) {}
+        ctor_base(detail::construct) {}
 
   template <class... Args,
             std::enable_if_t<std::is_constructible_v<E, Args&&...>>* = nullptr>
   constexpr explicit expected(unexpect_t, Args&&... args)
       : base_type(unexpect, std::forward<Args>(args)...),
-        ctor_base(internal::construct) {}
+        ctor_base(detail::construct) {}
 
   template <class U, class... Args,
             std::enable_if_t<std::is_constructible_v<
@@ -1230,7 +1230,7 @@ public:
   constexpr explicit expected(unexpect_t, std::initializer_list<U> il,
                               Args&&... args)
       : base_type(unexpect, il, std::forward<Args>(args)...),
-        ctor_base(internal::construct) {}
+        ctor_base(detail::construct) {}
 
   ~expected() = default;
 
@@ -1452,19 +1452,18 @@ public:
                           : static_cast<T>(std::forward<U>(v));
   }
 
-  template <
-      class T1 = T, class E1 = E,
-      std::enable_if_t<internal::is_move_constructible_or_void_v<T1> &&
-                       std::is_move_constructible_v<E1> &&
-                       internal::is_swappable_or_void_v<T1> &&
-                       std::is_swappable_v<E1> &&
-                       (internal::is_nothrow_move_constructible_or_void_v<T1> ||
-                        std::is_nothrow_move_constructible_v<E1>)>* = nullptr>
+  template <class T1 = T, class E1 = E,
+            std::enable_if_t<
+                detail::is_move_constructible_or_void_v<T1> &&
+                std::is_move_constructible_v<E1> &&
+                detail::is_swappable_or_void_v<T1> && std::is_swappable_v<E1> &&
+                (detail::is_nothrow_move_constructible_or_void_v<T1> ||
+                 std::is_nothrow_move_constructible_v<E1>)>* = nullptr>
   void swap(expected& other) noexcept(
       // clang-format off
-      internal::is_nothrow_move_constructible_or_void_v<T> &&
+      detail::is_nothrow_move_constructible_or_void_v<T> &&
       std::is_nothrow_move_constructible_v<E> &&
-      internal::is_nothrow_swappable_or_void_v<T> &&
+      detail::is_nothrow_swappable_or_void_v<T> &&
       std::is_nothrow_swappable_v<E>) {
     // clang-format on
     this->swap_impl(other);
@@ -1529,10 +1528,10 @@ constexpr bool operator!=(const unexpected<E2>& e, const expected<T1, E1>& x) {
 
 template <class T, class E,
           std::enable_if_t<
-              internal::is_move_constructible_or_void_v<T> &&
+              detail::is_move_constructible_or_void_v<T> &&
               std::is_move_constructible_v<E> &&
-              internal::is_swappable_or_void_v<T> && std::is_swappable_v<E> &&
-              (internal::is_nothrow_move_constructible_or_void_v<T> ||
+              detail::is_swappable_or_void_v<T> && std::is_swappable_v<E> &&
+              (detail::is_nothrow_move_constructible_or_void_v<T> ||
                std::is_nothrow_move_constructible_v<E>)>* = nullptr>
 void swap(expected<T, E>& x, expected<T, E>& y) noexcept(noexcept(x.swap(y))) {
   x.swap(y);

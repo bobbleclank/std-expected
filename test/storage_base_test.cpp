@@ -11,7 +11,7 @@
 #include <gtest/gtest.h>
 
 using namespace bc::exp;
-using namespace bc::exp::internal;
+using namespace bc::exp::detail;
 
 namespace {
 
