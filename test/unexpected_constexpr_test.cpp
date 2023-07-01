@@ -221,7 +221,7 @@ TEST(unexpected_constexpr, equality_operators) {
     ASSERT_TRUE(b);
   }
   {
-    constexpr bool b = not_equal_to_operator(2, 2);
-    ASSERT_FALSE(b);
+    constexpr bool b = not_equal_to_operator(1, 2);
+    ASSERT_TRUE(b);
   }
 }
