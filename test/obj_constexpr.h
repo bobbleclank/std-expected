@@ -108,6 +108,8 @@ template <class Tag> struct Obj_implicit {
 
   Obj_implicit& operator=(Obj_implicit&&) = delete;
 
+  ~Obj_implicit() = default;
+
   int x;
 };
 
