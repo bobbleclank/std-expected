@@ -40,7 +40,7 @@ template <class Tag> struct Obj_implicit {
 
   Obj_implicit& operator=(const Obj_implicit&) = delete;
 
-  Obj_implicit& operator=(Obj_implicit&& other) = delete;
+  Obj_implicit& operator=(Obj_implicit&&) = delete;
 
   ~Obj_implicit() { s = State::destructed; }
 
