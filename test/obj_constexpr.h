@@ -47,14 +47,11 @@ template <class Tag> struct Obj {
       x += *il.begin();
   }
 
-  constexpr Obj(const Obj& other) noexcept : x(other.x) {}
+  Obj(const Obj&) = default;
 
   constexpr Obj(Obj&& other) noexcept : x(other.x + 101) {}
 
-  constexpr Obj& operator=(const Obj& other) noexcept {
-    x = other.x;
-    return *this;
-  }
+  Obj& operator=(const Obj&) = default;
 
   constexpr Obj& operator=(Obj&& other) noexcept {
     x = other.x + 102;
