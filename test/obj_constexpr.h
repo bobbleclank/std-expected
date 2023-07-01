@@ -100,6 +100,14 @@ template <class Tag> struct Obj_implicit {
     x = arg.x;
   }
 
+  Obj_implicit(const Obj_implicit&) = delete;
+
+  Obj_implicit(Obj_implicit&&) = delete;
+
+  Obj_implicit& operator=(const Obj_implicit&) = delete;
+
+  Obj_implicit& operator=(Obj_implicit&&) = delete;
+
   int x;
 };
 
