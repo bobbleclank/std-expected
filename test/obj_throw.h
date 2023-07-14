@@ -7,7 +7,10 @@
 #include <initializer_list>
 #include <utility>
 
-enum class May_throw { do_not_throw, do_throw };
+enum class May_throw {
+  do_not_throw,
+  do_throw
+};
 
 template <class Tag> struct Obj_throw {
   inline static State s = State::none;
