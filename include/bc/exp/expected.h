@@ -376,8 +376,8 @@ struct expected_storage_base<T, E, false> {
   template <class... Args,
             std::enable_if_t<std::is_constructible_v<E, Args&&...>>* = nullptr>
   constexpr explicit expected_storage_base(unexpect_t, Args&&... args)
-      : unexpect_(std::in_place, std::forward<Args>(args)...), has_val_(false) {
-  }
+      : unexpect_(std::in_place, std::forward<Args>(args)...),
+        has_val_(false) {}
 
   template <class U, class... Args,
             std::enable_if_t<std::is_constructible_v<
@@ -430,8 +430,8 @@ struct expected_storage_base<T, E, true> {
   template <class... Args,
             std::enable_if_t<std::is_constructible_v<E, Args&&...>>* = nullptr>
   constexpr explicit expected_storage_base(unexpect_t, Args&&... args)
-      : unexpect_(std::in_place, std::forward<Args>(args)...), has_val_(false) {
-  }
+      : unexpect_(std::in_place, std::forward<Args>(args)...),
+        has_val_(false) {}
 
   template <class U, class... Args,
             std::enable_if_t<std::is_constructible_v<
@@ -466,8 +466,8 @@ struct expected_storage_base<void, E, false> {
   template <class... Args,
             std::enable_if_t<std::is_constructible_v<E, Args&&...>>* = nullptr>
   constexpr explicit expected_storage_base(unexpect_t, Args&&... args)
-      : unexpect_(std::in_place, std::forward<Args>(args)...), has_val_(false) {
-  }
+      : unexpect_(std::in_place, std::forward<Args>(args)...),
+        has_val_(false) {}
 
   template <class U, class... Args,
             std::enable_if_t<std::is_constructible_v<
@@ -507,8 +507,8 @@ struct expected_storage_base<void, E, true> {
   template <class... Args,
             std::enable_if_t<std::is_constructible_v<E, Args&&...>>* = nullptr>
   constexpr explicit expected_storage_base(unexpect_t, Args&&... args)
-      : unexpect_(std::in_place, std::forward<Args>(args)...), has_val_(false) {
-  }
+      : unexpect_(std::in_place, std::forward<Args>(args)...),
+        has_val_(false) {}
 
   template <class U, class... Args,
             std::enable_if_t<std::is_constructible_v<
