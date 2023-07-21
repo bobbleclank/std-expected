@@ -4,3 +4,4 @@ PointerAlignment: Left
 AllowShortEnumsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: Inline
 AlwaysBreakTemplateDeclarations: Yes
+PackConstructorInitializers: NextLine
