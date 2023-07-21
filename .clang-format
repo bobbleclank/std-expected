@@ -3,3 +3,4 @@ PointerAlignment: Left
 
 AllowShortEnumsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: Inline
+AlwaysBreakTemplateDeclarations: Yes
