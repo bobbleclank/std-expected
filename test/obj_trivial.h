@@ -6,7 +6,8 @@
 #include <initializer_list>
 #include <utility>
 
-template <class Tag> struct Obj_trivial {
+template <class Tag>
+struct Obj_trivial {
   Obj_trivial() = default;
 
   Obj_trivial(Arg&& arg_, int i) {

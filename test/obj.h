@@ -7,7 +7,8 @@
 #include <initializer_list>
 #include <utility>
 
-template <class Tag> struct Obj {
+template <class Tag>
+struct Obj {
   inline static State s = State::none;
   static void reset() { s = State::none; }
 

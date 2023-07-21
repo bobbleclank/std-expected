@@ -23,7 +23,8 @@ struct Arg {
   int x;
 };
 
-template <class Tag> struct Obj {
+template <class Tag>
+struct Obj {
   constexpr Obj() noexcept : x(20100) {}
 
   constexpr explicit Obj(int x_) noexcept : x(x_) {}
@@ -90,7 +91,8 @@ using Val = Obj<Val_tag>;
 struct Err_tag {};
 using Err = Obj<Err_tag>;
 
-template <class Tag> struct Obj_implicit {
+template <class Tag>
+struct Obj_implicit {
   constexpr Obj_implicit(int x_) : x(x_) {}
 
   constexpr Obj_implicit(const Arg& arg_) : x(arg_.x) {}

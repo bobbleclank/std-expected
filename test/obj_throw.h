@@ -12,7 +12,8 @@ enum class May_throw {
   do_throw
 };
 
-template <class Tag> struct Obj_throw {
+template <class Tag>
+struct Obj_throw {
   inline static State s = State::none;
   static void reset() { s = State::none; }
 
@@ -79,7 +80,8 @@ using Val_throw = Obj_throw<Val_throw_tag>;
 struct Err_throw_tag {};
 using Err_throw = Obj_throw<Err_throw_tag>;
 
-template <class Tag> struct Obj_throw_2 {
+template <class Tag>
+struct Obj_throw_2 {
   inline static State s = State::none;
   static void reset() { s = State::none; }
 
@@ -184,7 +186,8 @@ using Val_throw_2 = Obj_throw_2<Val_throw_2_tag>;
 struct Err_throw_2_tag {};
 using Err_throw_2 = Obj_throw_2<Err_throw_2_tag>;
 
-template <class Tag> struct Obj_throw_3 {
+template <class Tag>
+struct Obj_throw_3 {
   inline static State s = State::none;
   static void reset() { s = State::none; }
 

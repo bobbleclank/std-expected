@@ -61,13 +61,15 @@ TEST(unexpected_constexpr, value) {
 
 namespace {
 
-template <class E> constexpr int copy_constructor(int x) {
+template <class E>
+constexpr int copy_constructor(int x) {
   unexpected<E> other(x);
   unexpected<Err> e(other);
   return e.value().x;
 }
 
-template <class E> constexpr int move_constructor(int x) {
+template <class E>
+constexpr int move_constructor(int x) {
   unexpected<E> other(x);
   unexpected<Err> e(std::move(other));
   return e.value().x;
@@ -85,7 +87,8 @@ constexpr int implicit_move_constructor(int x) {
   return e.value().x;
 }
 
-template <class E> constexpr int value_constructor(int x) {
+template <class E>
+constexpr int value_constructor(int x) {
   E val(x);
   unexpected<Err> e(std::move(val));
   return e.value().x;
@@ -160,14 +163,16 @@ TEST(unexpected_constexpr, constructors) {
 
 namespace {
 
-template <class E> constexpr int copy_assignment(int x) {
+template <class E>
+constexpr int copy_assignment(int x) {
   unexpected<E> other(x);
   unexpected<Err> e(10 * x);
   e = other;
   return e.value().x;
 }
 
-template <class E> constexpr int move_assignment(int x) {
+template <class E>
+constexpr int move_assignment(int x) {
   unexpected<E> other(x);
   unexpected<Err> e(10 * x);
   e = std::move(other);

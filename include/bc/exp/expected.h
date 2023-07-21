@@ -14,16 +14,20 @@ namespace bc::exp {
 
 namespace cpp {
 
-template <class T> struct remove_cvref {
+template <class T>
+struct remove_cvref {
   typedef std::remove_cv_t<std::remove_reference_t<T>> type;
 };
 
-template <class T> using remove_cvref_t = typename remove_cvref<T>::type;
+template <class T>
+using remove_cvref_t = typename remove_cvref<T>::type;
 
 } // namespace cpp
 
-template <class T, class E> class expected;
-template <class E> class unexpected;
+template <class T, class E>
+class expected;
+template <class E>
+class unexpected;
 
 struct unexpect_t {
   explicit unexpect_t() = default;
@@ -31,9 +35,11 @@ struct unexpect_t {
 
 inline constexpr unexpect_t unexpect{};
 
-template <class E> class bad_expected_access;
+template <class E>
+class bad_expected_access;
 
-template <> class bad_expected_access<void> : public std::exception {
+template <>
+class bad_expected_access<void> : public std::exception {
 public:
   explicit bad_expected_access() = default;
 };
@@ -76,7 +82,8 @@ using enable_unexpected_unexpected_constructor =
 
 } // namespace detail
 
-template <class E> class unexpected {
+template <class E>
+class unexpected {
 public:
   static_assert(!std::is_same_v<E, void>);
   static_assert(!std::is_reference_v<E>);
@@ -167,7 +174,8 @@ private:
   E val_;
 };
 
-template <class E> unexpected(E) -> unexpected<E>;
+template <class E>
+unexpected(E) -> unexpected<E>;
 
 template <class E1, class E2>
 constexpr bool operator==(const unexpected<E1>& x, const unexpected<E2>& y) {
@@ -345,7 +353,8 @@ struct expected_storage_base;
 // clang-format on
 
 // Either T, E or both are not trivially destructible.
-template <class T, class E> struct expected_storage_base<T, E, false> {
+template <class T, class E>
+struct expected_storage_base<T, E, false> {
   constexpr expected_storage_base() : val_(), has_val_(true) {}
 
   constexpr explicit expected_storage_base(uninit_t)
@@ -398,7 +407,8 @@ template <class T, class E> struct expected_storage_base<T, E, false> {
 };
 
 // Both T and E are trivially destructible.
-template <class T, class E> struct expected_storage_base<T, E, true> {
+template <class T, class E>
+struct expected_storage_base<T, E, true> {
   constexpr expected_storage_base() : val_(), has_val_(true) {}
 
   constexpr explicit expected_storage_base(uninit_t)
@@ -443,7 +453,8 @@ template <class T, class E> struct expected_storage_base<T, E, true> {
 };
 
 // T is void, E is not trivially destructible.
-template <class E> struct expected_storage_base<void, E, false> {
+template <class E>
+struct expected_storage_base<void, E, false> {
   constexpr expected_storage_base() : dummy_(), has_val_(true) {}
 
   constexpr explicit expected_storage_base(uninit_t)
@@ -483,7 +494,8 @@ template <class E> struct expected_storage_base<void, E, false> {
 };
 
 // T is void, E is trivially destructible.
-template <class E> struct expected_storage_base<void, E, true> {
+template <class E>
+struct expected_storage_base<void, E, true> {
   constexpr expected_storage_base() : dummy_(), has_val_(true) {}
 
   constexpr explicit expected_storage_base(uninit_t)
@@ -548,7 +560,8 @@ struct expected_operations_base : expected_storage_base<T, E> {
       this->unexpect_.~unexpected<E>();
   }
 
-  template <class That> void construct_from(That&& other) {
+  template <class That>
+  void construct_from(That&& other) {
     if (other.has_val_) {
       construct(std::in_place, std::forward<That>(other).val_);
     } else {
@@ -556,7 +569,8 @@ struct expected_operations_base : expected_storage_base<T, E> {
     }
   }
 
-  template <class That> void construct_from_ex(That&& other) {
+  template <class That>
+  void construct_from_ex(That&& other) {
     if (other.has_value()) {
       construct(std::in_place, *std::forward<That>(other));
     } else {
@@ -700,7 +714,8 @@ struct expected_operations_base<void, E> : expected_storage_base<void, E> {
 
   using base_type::base_type;
 
-  template <class... Args> constexpr void construct(std::in_place_t) {
+  template <class... Args>
+  constexpr void construct(std::in_place_t) {
     this->has_val_ = true;
   }
 
@@ -718,7 +733,8 @@ struct expected_operations_base<void, E> : expected_storage_base<void, E> {
       this->unexpect_.~unexpected<E>();
   }
 
-  template <class That> void construct_from(That&& other) {
+  template <class That>
+  void construct_from(That&& other) {
     if (other.has_val_) {
       construct(std::in_place);
     } else {
@@ -726,7 +742,8 @@ struct expected_operations_base<void, E> : expected_storage_base<void, E> {
     }
   }
 
-  template <class That> void construct_from_ex(That&& other) {
+  template <class That>
+  void construct_from_ex(That&& other) {
     if (other.has_value()) {
       construct(std::in_place);
     } else {
@@ -957,13 +974,15 @@ struct construct_t {
 inline constexpr construct_t construct{};
 
 // Default constructible if T is.
-template <bool> struct default_constructible_if {
+template <bool>
+struct default_constructible_if {
   default_constructible_if() = default;
 
   constexpr explicit default_constructible_if(construct_t) {}
 };
 
-template <> struct default_constructible_if<false> {
+template <>
+struct default_constructible_if<false> {
   default_constructible_if() = delete;
 
   constexpr explicit default_constructible_if(construct_t) {}
@@ -974,9 +993,11 @@ using expected_default_constructible_if =
     default_constructible_if<is_default_constructible_or_void_v<T>>;
 
 // Copy constructible if both T and E are.
-template <bool> struct copy_constructible_if {};
+template <bool>
+struct copy_constructible_if {};
 
-template <> struct copy_constructible_if<false> {
+template <>
+struct copy_constructible_if<false> {
   copy_constructible_if() = default;
   copy_constructible_if(const copy_constructible_if&) = delete;
   copy_constructible_if(copy_constructible_if&&) = default;
@@ -990,9 +1011,11 @@ using expected_copy_constructible_if =
                           std::is_copy_constructible_v<E>>;
 
 // Move constructible if both T and E are.
-template <bool> struct move_constructible_if {};
+template <bool>
+struct move_constructible_if {};
 
-template <> struct move_constructible_if<false> {
+template <>
+struct move_constructible_if<false> {
   move_constructible_if() = default;
   move_constructible_if(const move_constructible_if&) = default;
   move_constructible_if(move_constructible_if&&) = delete;
@@ -1006,9 +1029,11 @@ using expected_move_constructible_if =
                           std::is_move_constructible_v<E>>;
 
 // Copy assignable if both T and E are.
-template <bool> struct copy_assignable_if {};
+template <bool>
+struct copy_assignable_if {};
 
-template <> struct copy_assignable_if<false> {
+template <>
+struct copy_assignable_if<false> {
   copy_assignable_if() = default;
   copy_assignable_if(const copy_assignable_if&) = default;
   copy_assignable_if(copy_assignable_if&&) = default;
@@ -1024,9 +1049,11 @@ using expected_copy_assignable_if = copy_assignable_if<
      std::is_nothrow_move_constructible_v<E>)>;
 
 // Move assignable if both T and E are.
-template <bool> struct move_assignable_if {};
+template <bool>
+struct move_assignable_if {};
 
-template <> struct move_assignable_if<false> {
+template <>
+struct move_assignable_if<false> {
   move_assignable_if() = default;
   move_assignable_if(const move_assignable_if&) = default;
   move_assignable_if(move_assignable_if&&) = default;
@@ -1066,7 +1093,8 @@ public:
   using error_type = E;
   using unexpected_type = unexpected<E>;
 
-  template <class U> using rebind = expected<U, error_type>;
+  template <class U>
+  using rebind = expected<U, error_type>;
 
   constexpr expected() = default;
 
