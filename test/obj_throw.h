@@ -5,6 +5,7 @@
 #include "state.h"
 
 #include <initializer_list>
+#include <iterator>
 #include <utility>
 
 enum class May_throw {

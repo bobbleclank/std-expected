@@ -5,6 +5,7 @@
 #include "state.h"
 
 #include <initializer_list>
+#include <iterator>
 #include <utility>
 
 template <class Tag>

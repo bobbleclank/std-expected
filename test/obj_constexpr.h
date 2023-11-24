@@ -2,6 +2,7 @@
 #define TEST_OBJ_CONSTEXPR_H
 
 #include <initializer_list>
+#include <iterator>
 #include <utility>
 
 struct Arg {
