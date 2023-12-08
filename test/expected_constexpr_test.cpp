@@ -34,3 +34,50 @@ TEST(expected_constexpr, member_access_operator) {
     ASSERT_EQ(x, 2);
   }
 }
+
+namespace {
+
+constexpr int indirection_operator_const_l_ref(int x) {
+  const expected<Val, Err> e(std::in_place, x);
+  const Val& val = *e;
+  return val.x;
+}
+
+constexpr int indirection_operator_non_const_l_ref(int x) {
+  expected<Val, Err> e(std::in_place, x);
+  Val& val = *e;
+  return val.x;
+}
+
+constexpr int indirection_operator_const_r_ref(int x) {
+  const expected<Val, Err> e(std::in_place, x);
+  const Val&& val = *std::move(e);
+  return val.x;
+}
+
+constexpr int indirection_operator_non_const_r_ref(int x) {
+  expected<Val, Err> e(std::in_place, x);
+  Val&& val = *std::move(e);
+  return val.x;
+}
+
+} // namespace
+
+TEST(expected_constexpr, indirection_operator) {
+  {
+    constexpr int x = indirection_operator_const_l_ref(1);
+    ASSERT_EQ(x, 1);
+  }
+  {
+    constexpr int x = indirection_operator_non_const_l_ref(2);
+    ASSERT_EQ(x, 2);
+  }
+  {
+    constexpr int x = indirection_operator_const_r_ref(3);
+    ASSERT_EQ(x, 3);
+  }
+  {
+    constexpr int x = indirection_operator_non_const_r_ref(4);
+    ASSERT_EQ(x, 4);
+  }
+}
