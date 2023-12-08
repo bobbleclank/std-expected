@@ -61,27 +61,37 @@ TEST(unexpected_constexpr, value) {
 
 namespace {
 
-template <class E>
 constexpr int copy_constructor(int x) {
-  unexpected<E> other(x);
+  unexpected<Err> other(x);
   unexpected<Err> e(other);
   return e.value().x;
 }
 
-template <class E>
 constexpr int move_constructor(int x) {
-  unexpected<E> other(x);
+  unexpected<Err> other(x);
   unexpected<Err> e(std::move(other));
   return e.value().x;
 }
 
-constexpr int implicit_copy_constructor(int x) {
+constexpr int explicit_copy_unexpected_constructor(int x) {
+  unexpected<Arg> other(x);
+  unexpected<Err> e(other);
+  return e.value().x;
+}
+
+constexpr int implicit_copy_unexpected_constructor(int x) {
   unexpected<Arg> other(x);
   unexpected<Err_implicit> e = other;
   return e.value().x;
 }
 
-constexpr int implicit_move_constructor(int x) {
+constexpr int explicit_move_unexpected_constructor(int x) {
+  unexpected<Arg> other(x);
+  unexpected<Err> e(std::move(other));
+  return e.value().x;
+}
+
+constexpr int implicit_move_unexpected_constructor(int x) {
   unexpected<Arg> other(x);
   unexpected<Err_implicit> e = std::move(other);
   return e.value().x;
@@ -111,32 +121,32 @@ constexpr int in_place_initializer_list_constructor(int x) {
 TEST(unexpected_constexpr, constructors) {
   // (const unexpected&)
   {
-    constexpr int x = copy_constructor<Err>(1);
+    constexpr int x = copy_constructor(1);
     ASSERT_EQ(x, 1);
   }
   // (unexpected&&)
   {
-    constexpr int x = move_constructor<Err>(2);
+    constexpr int x = move_constructor(2);
     ASSERT_EQ(x, 2 + 101);
   }
   // explicit (const unexpected<Err>&)
   {
-    constexpr int x = copy_constructor<Arg>(3);
+    constexpr int x = explicit_copy_unexpected_constructor(3);
     ASSERT_EQ(x, 3);
   }
   // implicit (const unexpected<Err>&)
   {
-    constexpr int x = implicit_copy_constructor(4);
+    constexpr int x = implicit_copy_unexpected_constructor(4);
     ASSERT_EQ(x, 4);
   }
   // explicit (unexpected<Err>&&)
   {
-    constexpr int x = move_constructor<Arg>(5);
+    constexpr int x = explicit_move_unexpected_constructor(5);
     ASSERT_EQ(x, 5 + 201);
   }
   // implicit (unexpected<Err>&&)
   {
-    constexpr int x = implicit_move_constructor(6);
+    constexpr int x = implicit_move_unexpected_constructor(6);
     ASSERT_EQ(x, 6 + 201);
   }
   // (Err&&) with Err = E
@@ -163,17 +173,29 @@ TEST(unexpected_constexpr, constructors) {
 
 namespace {
 
-template <class E>
 constexpr int copy_assignment(int x) {
-  unexpected<E> other(x);
+  unexpected<Err> other(x);
   unexpected<Err> e(10 * x);
   e = other;
   return e.value().x;
 }
 
-template <class E>
 constexpr int move_assignment(int x) {
-  unexpected<E> other(x);
+  unexpected<Err> other(x);
+  unexpected<Err> e(10 * x);
+  e = std::move(other);
+  return e.value().x;
+}
+
+constexpr int copy_unexpected_assignment(int x) {
+  unexpected<Arg> other(x);
+  unexpected<Err> e(10 * x);
+  e = other;
+  return e.value().x;
+}
+
+constexpr int move_unexpected_assignment(int x) {
+  unexpected<Arg> other(x);
   unexpected<Err> e(10 * x);
   e = std::move(other);
   return e.value().x;
@@ -184,22 +206,22 @@ constexpr int move_assignment(int x) {
 TEST(unexpected_constexpr, assignment_operators) {
   // (const unexpected&)
   {
-    constexpr int x = copy_assignment<Err>(1);
+    constexpr int x = copy_assignment(1);
     ASSERT_EQ(x, 1);
   }
   // (unexpected&&)
   {
-    constexpr int x = move_assignment<Err>(2);
+    constexpr int x = move_assignment(2);
     ASSERT_EQ(x, 2 + 102);
   }
   // (const unexpected<Err>&)
   {
-    constexpr int x = copy_assignment<Arg>(3);
+    constexpr int x = copy_unexpected_assignment(3);
     ASSERT_EQ(x, 3);
   }
   // (unexpected<Err>&&)
   {
-    constexpr int x = move_assignment<Arg>(4);
+    constexpr int x = move_unexpected_assignment(4);
     ASSERT_EQ(x, 4 + 201);
   }
 }
