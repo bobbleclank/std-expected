@@ -122,4 +122,27 @@ using Val_implicit = Obj_implicit<Val_implicit_tag>;
 struct Err_implicit_tag {};
 using Err_implicit = Obj_implicit<Err_implicit_tag>;
 
+template <class Tag>
+struct Obj_trivial {
+  constexpr explicit Obj_trivial(int x_) : x(x_) {}
+
+  Obj_trivial(const Obj_trivial&) = default;
+
+  Obj_trivial(Obj_trivial&&) = default;
+
+  Obj_trivial& operator=(const Obj_trivial&) = default;
+
+  Obj_trivial& operator=(Obj_trivial&&) = default;
+
+  ~Obj_trivial() = default;
+
+  int x;
+};
+
+struct Val_trivial_tag {};
+using Val_trivial = Obj_trivial<Val_trivial_tag>;
+
+struct Err_trivial_tag {};
+using Err_trivial = Obj_trivial<Err_trivial_tag>;
+
 #endif

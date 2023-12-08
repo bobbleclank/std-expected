@@ -282,3 +282,29 @@ TEST(expected_constexpr, copy_constructor) {
     ASSERT_EQ(x, 2);
   }
 }
+
+namespace {
+
+template <class Tag>
+constexpr int move_constructor(int x) {
+  expected<Val_trivial, Err_trivial> other(Tag(), x);
+  expected<Val_trivial, Err_trivial> e(std::move(other));
+  return std::is_same_v<Tag, std::in_place_t> ? e->x : e.error().x;
+}
+
+} // namespace
+
+TEST(expected_constexpr, move_constructor) {
+  static_assert(!std::is_trivially_move_constructible_v<Val> &&
+                !std::is_trivially_move_constructible_v<Err>);
+  static_assert(std::is_trivially_move_constructible_v<Val_trivial> &&
+                std::is_trivially_move_constructible_v<Err_trivial>);
+  {
+    constexpr int x = move_constructor<std::in_place_t>(1);
+    ASSERT_EQ(x, 1);
+  }
+  {
+    constexpr int x = move_constructor<unexpect_t>(2);
+    ASSERT_EQ(x, 2);
+  }
+}
