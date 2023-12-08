@@ -308,3 +308,40 @@ TEST(expected_constexpr, move_constructor) {
     ASSERT_EQ(x, 2);
   }
 }
+
+namespace {
+
+template <class Tag>
+constexpr int explicit_copy_expected_constructor(int x) {
+  expected<Arg, Arg> other(Tag(), x);
+  expected<Val, Err> e(other);
+  return std::is_same_v<Tag, std::in_place_t> ? e->x : e.error().x;
+}
+
+template <class Tag>
+constexpr int implicit_copy_expected_constructor(int x) {
+  expected<Arg, Arg> other(Tag(), x);
+  expected<Val_implicit, Err_implicit> e = other;
+  return std::is_same_v<Tag, std::in_place_t> ? e->x : e.error().x;
+}
+
+} // namespace
+
+TEST(expected_constexpr, copy_expected_constructor) {
+  {
+    constexpr int x = explicit_copy_expected_constructor<std::in_place_t>(1);
+    ASSERT_EQ(x, 1);
+  }
+  {
+    constexpr int x = explicit_copy_expected_constructor<unexpect_t>(2);
+    ASSERT_EQ(x, 2);
+  }
+  {
+    constexpr int x = implicit_copy_expected_constructor<std::in_place_t>(3);
+    ASSERT_EQ(x, 3);
+  }
+  {
+    constexpr int x = implicit_copy_expected_constructor<unexpect_t>(4);
+    ASSERT_EQ(x, 4);
+  }
+}
