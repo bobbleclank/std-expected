@@ -81,3 +81,50 @@ TEST(expected_constexpr, indirection_operator) {
     ASSERT_EQ(x, 4);
   }
 }
+
+namespace {
+
+constexpr int error_function_const_l_ref(int x) {
+  const expected<Val, Err> e(unexpect, x);
+  const Err& err = e.error();
+  return err.x;
+}
+
+constexpr int error_function_non_const_l_ref(int x) {
+  expected<Val, Err> e(unexpect, x);
+  Err& err = e.error();
+  return err.x;
+}
+
+constexpr int error_function_const_r_ref(int x) {
+  const expected<Val, Err> e(unexpect, x);
+  const Err&& err = std::move(e).error();
+  return err.x;
+}
+
+constexpr int error_function_non_const_r_ref(int x) {
+  expected<Val, Err> e(unexpect, x);
+  Err&& err = std::move(e).error();
+  return err.x;
+}
+
+} // namespace
+
+TEST(expected_constexpr, error) {
+  {
+    constexpr int x = error_function_const_l_ref(1);
+    ASSERT_EQ(x, 1);
+  }
+  {
+    constexpr int x = error_function_non_const_l_ref(2);
+    ASSERT_EQ(x, 2);
+  }
+  {
+    constexpr int x = error_function_const_r_ref(3);
+    ASSERT_EQ(x, 3);
+  }
+  {
+    constexpr int x = error_function_non_const_r_ref(4);
+    ASSERT_EQ(x, 4);
+  }
+}
