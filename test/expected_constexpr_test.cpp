@@ -186,3 +186,42 @@ TEST(expected_constexpr, value) {
     ASSERT_TRUE(b);
   }
 }
+
+namespace {
+
+template <class Tag>
+constexpr int value_or_function_const_l_ref(int x) {
+  const expected<Val, Err> e(Tag(), x);
+  Val v(x + x);
+  Val val = e.value_or(std::move(v));
+  return val.x;
+}
+
+template <class Tag>
+constexpr int value_or_function_non_const_r_ref(int x) {
+  expected<Val, Err> e(Tag(), x);
+  Val v(x + x);
+  Val val = std::move(e).value_or(std::move(v));
+  return val.x;
+}
+
+} // namespace
+
+TEST(expected_constexpr, value_or) {
+  {
+    constexpr int x = value_or_function_const_l_ref<std::in_place_t>(1);
+    ASSERT_EQ(x, 1);
+  }
+  {
+    constexpr int x = value_or_function_const_l_ref<unexpect_t>(2);
+    ASSERT_EQ(x, 2 + 2 + 101);
+  }
+  {
+    constexpr int x = value_or_function_non_const_r_ref<std::in_place_t>(3);
+    ASSERT_EQ(x, 3 + 101);
+  }
+  {
+    constexpr int x = value_or_function_non_const_r_ref<unexpect_t>(4);
+    ASSERT_EQ(x, 4 + 4 + 101);
+  }
+}
