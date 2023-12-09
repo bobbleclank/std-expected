@@ -258,3 +258,27 @@ TEST(expected_constexpr, default_constructor) {
     ASSERT_EQ(x, 20100);
   }
 }
+
+namespace {
+
+template <class Tag>
+constexpr int copy_constructor(int x) {
+  expected<Val, Err> other(Tag(), x);
+  expected<Val, Err> e(other);
+  return std::is_same_v<Tag, std::in_place_t> ? e->x : e.error().x;
+}
+
+} // namespace
+
+TEST(expected_constexpr, copy_constructor) {
+  static_assert(std::is_trivially_copy_constructible_v<Val> &&
+                std::is_trivially_copy_constructible_v<Err>);
+  {
+    constexpr int x = copy_constructor<std::in_place_t>(1);
+    ASSERT_EQ(x, 1);
+  }
+  {
+    constexpr int x = copy_constructor<unexpect_t>(2);
+    ASSERT_EQ(x, 2);
+  }
+}
