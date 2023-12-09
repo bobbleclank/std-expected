@@ -252,3 +252,28 @@ TEST(expected_constexpr, has_value) {
     ASSERT_TRUE(b);
   }
 }
+
+namespace {
+
+constexpr int default_constructor() {
+  expected<Val, Err> e;
+  return e->x;
+}
+
+constexpr bool default_constructor_void() {
+  expected<void, Err> e;
+  return e.has_value();
+}
+
+} // namespace
+
+TEST(expected_constexpr, default_constructor) {
+  {
+    constexpr int x = default_constructor();
+    ASSERT_EQ(x, 20100);
+  }
+  {
+    constexpr bool b = default_constructor_void();
+    ASSERT_TRUE(b);
+  }
+}
