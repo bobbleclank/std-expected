@@ -225,3 +225,30 @@ TEST(expected_constexpr, value_or) {
     ASSERT_EQ(x, 4 + 4 + 101);
   }
 }
+
+namespace {
+
+constexpr bool has_value_function() {
+  expected<Val, Err> e(std::in_place);
+  bool b = e.has_value();
+  return b;
+}
+
+constexpr bool operator_bool() {
+  expected<Val, Err> e(std::in_place);
+  bool b = static_cast<bool>(e);
+  return b;
+}
+
+} // namespace
+
+TEST(expected_constexpr, has_value) {
+  {
+    constexpr bool b = has_value_function();
+    ASSERT_TRUE(b);
+  }
+  {
+    constexpr bool b = operator_bool();
+    ASSERT_TRUE(b);
+  }
+}
