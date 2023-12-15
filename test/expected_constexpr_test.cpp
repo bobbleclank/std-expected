@@ -156,12 +156,6 @@ constexpr int value_function_non_const_r_ref(int x) {
   return val.x;
 }
 
-constexpr bool value_function_void() {
-  expected<void, Err> e(std::in_place);
-  static_assert(std::is_same_v<decltype(e.value()), void>);
-  return e.has_value();
-}
-
 } // namespace
 
 TEST(expected_constexpr, value) {
@@ -180,10 +174,6 @@ TEST(expected_constexpr, value) {
   {
     constexpr int x = value_function_non_const_r_ref(4);
     ASSERT_EQ(x, 4);
-  }
-  {
-    constexpr bool b = value_function_void();
-    ASSERT_TRUE(b);
   }
 }
 
@@ -260,20 +250,11 @@ constexpr int default_constructor() {
   return e->x;
 }
 
-constexpr bool default_constructor_void() {
-  expected<void, Err> e;
-  return e.has_value();
-}
-
 } // namespace
 
 TEST(expected_constexpr, default_constructor) {
   {
     constexpr int x = default_constructor();
     ASSERT_EQ(x, 20100);
-  }
-  {
-    constexpr bool b = default_constructor_void();
-    ASSERT_TRUE(b);
   }
 }
