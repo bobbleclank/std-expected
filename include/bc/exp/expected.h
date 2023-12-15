@@ -539,14 +539,14 @@ struct expected_operations_base : expected_storage_base<T, E> {
 
   template <class... Args>
   constexpr void construct(std::in_place_t, Args&&... args) {
-    ::new (std::addressof(this->val_)) T(std::forward<Args>(args)...);
+    std::construct_at(std::addressof(this->val_), std::forward<Args>(args)...);
     this->has_val_ = true;
   }
 
   template <class... Args>
   constexpr void construct(unexpect_t, Args&&... args) {
-    ::new (std::addressof(this->unexpect_))
-        unexpected<E>(std::forward<Args>(args)...);
+    std::construct_at(std::addressof(this->unexpect_),
+                      std::forward<Args>(args)...);
     this->has_val_ = false;
   }
 
@@ -721,8 +721,8 @@ struct expected_operations_base<void, E> : expected_storage_base<void, E> {
 
   template <class... Args>
   constexpr void construct(unexpect_t, Args&&... args) {
-    ::new (std::addressof(this->unexpect_))
-        unexpected<E>(std::forward<Args>(args)...);
+    std::construct_at(std::addressof(this->unexpect_),
+                      std::forward<Args>(args)...);
     this->has_val_ = false;
   }
 
