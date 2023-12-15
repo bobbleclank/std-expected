@@ -561,7 +561,7 @@ struct expected_operations_base : expected_storage_base<T, E> {
   }
 
   template <class That>
-  void construct_from(That&& other) {
+  constexpr void construct_from(That&& other) {
     if (other.has_val_) {
       construct(std::in_place, std::forward<That>(other).val_);
     } else {
@@ -734,7 +734,7 @@ struct expected_operations_base<void, E> : expected_storage_base<void, E> {
   }
 
   template <class That>
-  void construct_from(That&& other) {
+  constexpr void construct_from(That&& other) {
     if (other.has_val_) {
       construct(std::in_place);
     } else {
