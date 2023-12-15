@@ -158,7 +158,7 @@ constexpr int value_function_non_const_r_ref(int x) {
 
 constexpr bool value_function_void() {
   expected<void, Err> e(std::in_place);
-  static_assert(std::is_same<decltype(e.value()), void>());
+  static_assert(std::is_same_v<decltype(e.value()), void>);
   return e.has_value();
 }
 
