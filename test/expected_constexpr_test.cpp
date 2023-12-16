@@ -382,3 +382,40 @@ TEST(expected_constexpr, move_expected_constructor) {
     ASSERT_EQ(x, 201 + 4);
   }
 }
+
+namespace {
+
+template <class U>
+constexpr int explicit_value_constructor(int x) {
+  U val(x);
+  expected<Val, Err> e(std::move(val));
+  return e->x;
+}
+
+template <class U>
+constexpr int implicit_value_constructor(int x) {
+  U val(x);
+  expected<Val_implicit, Err> e = std::move(val);
+  return e->x;
+}
+
+} // namespace
+
+TEST(expected_constexpr, value_constructor) {
+  {
+    constexpr int x = explicit_value_constructor<Val>(1);
+    ASSERT_EQ(x, 101 + 1);
+  }
+  {
+    constexpr int x = explicit_value_constructor<Arg>(2);
+    ASSERT_EQ(x, 201 + 2);
+  }
+  {
+    constexpr int x = implicit_value_constructor<Val_implicit>(3);
+    ASSERT_EQ(x, 301 + 3);
+  }
+  {
+    constexpr int x = implicit_value_constructor<Arg>(4);
+    ASSERT_EQ(x, 201 + 4);
+  }
+}

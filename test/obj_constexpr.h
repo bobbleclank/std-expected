@@ -103,9 +103,9 @@ struct Obj_implicit {
     x = arg.x;
   }
 
-  Obj_implicit(const Obj_implicit&) = delete;
+  Obj_implicit(const Obj_implicit&) = default;
 
-  Obj_implicit(Obj_implicit&&) = delete;
+  constexpr Obj_implicit(Obj_implicit&& other) : x(other.x + 301) {}
 
   Obj_implicit& operator=(const Obj_implicit&) = delete;
 
