@@ -456,3 +456,40 @@ TEST(expected_constexpr, copy_unexpected_constructor) {
     ASSERT_EQ(x, 4);
   }
 }
+
+namespace {
+
+template <class U>
+constexpr int explicit_move_unexpected_constructor(int x) {
+  unexpected<U> val(x);
+  expected<Val, Err> e(std::move(val));
+  return e.error().x;
+}
+
+template <class U>
+constexpr int implicit_move_unexpected_constructor(int x) {
+  unexpected<U> val(x);
+  expected<Val, Err_implicit> e = std::move(val);
+  return e.error().x;
+}
+
+} // namespace
+
+TEST(expected_constexpr, move_unexpected_constructor) {
+  {
+    constexpr int x = explicit_move_unexpected_constructor<Err>(1);
+    ASSERT_EQ(x, 101 + 1);
+  }
+  {
+    constexpr int x = explicit_move_unexpected_constructor<Arg>(2);
+    ASSERT_EQ(x, 201 + 2);
+  }
+  {
+    constexpr int x = implicit_move_unexpected_constructor<Err_implicit>(3);
+    ASSERT_EQ(x, 301 + 3);
+  }
+  {
+    constexpr int x = implicit_move_unexpected_constructor<Arg>(4);
+    ASSERT_EQ(x, 201 + 4);
+  }
+}
