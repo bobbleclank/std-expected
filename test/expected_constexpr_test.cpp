@@ -419,3 +419,40 @@ TEST(expected_constexpr, value_constructor) {
     ASSERT_EQ(x, 201 + 4);
   }
 }
+
+namespace {
+
+template <class U>
+constexpr int explicit_copy_unexpected_constructor(int x) {
+  unexpected<U> val(x);
+  expected<Val, Err> e(val);
+  return e.error().x;
+}
+
+template <class U>
+constexpr int implicit_copy_unexpected_constructor(int x) {
+  unexpected<U> val(x);
+  expected<Val, Err_implicit> e = val;
+  return e.error().x;
+}
+
+} // namespace
+
+TEST(expected_constexpr, copy_unexpected_constructor) {
+  {
+    constexpr int x = explicit_copy_unexpected_constructor<Err>(1);
+    ASSERT_EQ(x, 1);
+  }
+  {
+    constexpr int x = explicit_copy_unexpected_constructor<Arg>(2);
+    ASSERT_EQ(x, 2);
+  }
+  {
+    constexpr int x = implicit_copy_unexpected_constructor<Err_implicit>(3);
+    ASSERT_EQ(x, 3);
+  }
+  {
+    constexpr int x = implicit_copy_unexpected_constructor<Arg>(4);
+    ASSERT_EQ(x, 4);
+  }
+}
