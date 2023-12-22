@@ -493,3 +493,47 @@ TEST(expected_constexpr, move_unexpected_constructor) {
     ASSERT_EQ(x, 201 + 4);
   }
 }
+
+namespace {
+
+template <class Tag, class... Args>
+constexpr int in_place_constructor(Args&&... args) {
+  expected<Val, Err> e(Tag(), std::forward<Args>(args)...);
+  return std::is_same_v<Tag, std::in_place_t> ? e->x : e.error().x;
+}
+
+template <class Tag, class... Args>
+constexpr int in_place_constructor(std::initializer_list<int> il,
+                                   Args&&... args) {
+  expected<Val, Err> e(Tag(), il, std::forward<Args>(args)...);
+  return std::is_same_v<Tag, std::in_place_t> ? e->x : e.error().x;
+}
+
+} // namespace
+
+TEST(expected_constexpr, in_place_constructor) {
+  {
+    constexpr int x = in_place_constructor<std::in_place_t>();
+    ASSERT_EQ(x, 20100);
+  }
+  {
+    constexpr int x = in_place_constructor<std::in_place_t>(Arg(1), 1);
+    ASSERT_EQ(x, 201 + 1 + 1);
+  }
+  {
+    constexpr int x = in_place_constructor<unexpect_t>();
+    ASSERT_EQ(x, 20100);
+  }
+  {
+    constexpr int x = in_place_constructor<unexpect_t>(Arg(2), 2);
+    ASSERT_EQ(x, 201 + 2 + 2);
+  }
+  {
+    constexpr int x = in_place_constructor<std::in_place_t>({3}, Arg(3), 3);
+    ASSERT_EQ(x, 3 + 201 + 3 + 3);
+  }
+  {
+    constexpr int x = in_place_constructor<unexpect_t>({4}, Arg(4), 4);
+    ASSERT_EQ(x, 4 + 201 + 4 + 4);
+  }
+}

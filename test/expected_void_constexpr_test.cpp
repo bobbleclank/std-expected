@@ -177,3 +177,19 @@ TEST(expected_void_constexpr, move_expected_constructor) {
     ASSERT_EQ(x, 201 + 2);
   }
 }
+
+namespace {
+
+constexpr bool in_place_constructor() {
+  expected<void, Err> e(std::in_place);
+  return e.has_value();
+}
+
+} // namespace
+
+TEST(expected_void_constexpr, in_place_constructor) {
+  {
+    constexpr bool b = in_place_constructor();
+    ASSERT_TRUE(b);
+  }
+}
