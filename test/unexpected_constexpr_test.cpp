@@ -204,7 +204,7 @@ TEST(unexpected_constexpr, assignment_operators) {
   }
   {
     constexpr int x = move_unexpected_assignment(4);
-    ASSERT_EQ(x, 4 + 201);
+    ASSERT_EQ(x, 4 + 202);
   }
 }
 

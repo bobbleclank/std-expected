@@ -66,7 +66,8 @@ struct Obj {
   }
 
   constexpr Obj& operator=(Arg&& arg_) noexcept {
-    Arg arg = std::move(arg_);
+    Arg arg(0);
+    arg = std::move(arg_);
     x = arg.x;
     return *this;
   }
