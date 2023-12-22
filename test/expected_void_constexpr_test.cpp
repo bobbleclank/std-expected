@@ -49,7 +49,10 @@ constexpr auto copy_constructor(Args&&... args)
     -> std::conditional_t<std::is_same_v<Tag, std::in_place_t>, bool, int> {
   expected<void, Err> other(Tag(), std::forward<Args>(args)...);
   expected<void, Err> e(other);
-  return std::is_same_v<Tag, std::in_place_t> ? e.has_value() : e.error().x;
+  if constexpr (std::is_same_v<Tag, std::in_place_t>)
+    return e.has_value();
+  else
+    return e.error().x;
 }
 
 } // namespace
@@ -75,7 +78,10 @@ constexpr auto move_constructor(Args&&... args)
     -> std::conditional_t<std::is_same_v<Tag, std::in_place_t>, bool, int> {
   expected<void, Err_trivial> other(Tag(), std::forward<Args>(args)...);
   expected<void, Err_trivial> e(std::move(other));
-  return std::is_same_v<Tag, std::in_place_t> ? e.has_value() : e.error().x;
+  if constexpr (std::is_same_v<Tag, std::in_place_t>)
+    return e.has_value();
+  else
+    return e.error().x;
 }
 
 } // namespace
@@ -102,7 +108,10 @@ constexpr auto explicit_copy_expected_constructor(Args&&... args)
     -> std::conditional_t<std::is_same_v<Tag, std::in_place_t>, bool, int> {
   expected<void, Arg> other(Tag(), std::forward<Args>(args)...);
   expected<void, Err> e(other);
-  return std::is_same_v<Tag, std::in_place_t> ? e.has_value() : e.error().x;
+  if constexpr (std::is_same_v<Tag, std::in_place_t>)
+    return e.has_value();
+  else
+    return e.error().x;
 }
 
 template <class Tag, class... Args>
@@ -110,7 +119,10 @@ constexpr auto implicit_copy_expected_constructor(Args&&... args)
     -> std::conditional_t<std::is_same_v<Tag, std::in_place_t>, bool, int> {
   expected<void, Arg> other(Tag(), std::forward<Args>(args)...);
   expected<void, Err_implicit> e = other;
-  return std::is_same_v<Tag, std::in_place_t> ? e.has_value() : e.error().x;
+  if constexpr (std::is_same_v<Tag, std::in_place_t>)
+    return e.has_value();
+  else
+    return e.error().x;
 }
 
 } // namespace
@@ -145,7 +157,10 @@ constexpr auto explicit_move_expected_constructor(Args&&... args)
     -> std::conditional_t<std::is_same_v<Tag, std::in_place_t>, bool, int> {
   expected<void, Arg> other(Tag(), std::forward<Args>(args)...);
   expected<void, Err> e(std::move(other));
-  return std::is_same_v<Tag, std::in_place_t> ? e.has_value() : e.error().x;
+  if constexpr (std::is_same_v<Tag, std::in_place_t>)
+    return e.has_value();
+  else
+    return e.error().x;
 }
 
 template <class Tag, class... Args>
@@ -153,7 +168,10 @@ constexpr auto implicit_move_expected_constructor(Args&&... args)
     -> std::conditional_t<std::is_same_v<Tag, std::in_place_t>, bool, int> {
   expected<void, Arg> other(Tag(), std::forward<Args>(args)...);
   expected<void, Err_implicit> e = std::move(other);
-  return std::is_same_v<Tag, std::in_place_t> ? e.has_value() : e.error().x;
+  if constexpr (std::is_same_v<Tag, std::in_place_t>)
+    return e.has_value();
+  else
+    return e.error().x;
 }
 
 } // namespace
