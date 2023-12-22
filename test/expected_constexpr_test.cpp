@@ -537,3 +537,113 @@ TEST(expected_constexpr, in_place_constructor) {
     ASSERT_EQ(x, 4 + 201 + 4 + 4);
   }
 }
+
+namespace {
+
+struct Equal_to {
+  template <class T, class U>
+  constexpr bool operator()(const T& lhs, const U& rhs) const {
+    return lhs == rhs;
+  }
+};
+
+struct Not_equal_to {
+  template <class T, class U>
+  constexpr bool operator()(const T& lhs, const U& rhs) const {
+    return lhs != rhs;
+  }
+};
+
+template <class Compare>
+constexpr bool equality_operators(int x, int y) {
+  expected<Val, Err> e1(std::in_place, x);
+  expected<Val, Err> e2(std::in_place, y);
+  return Compare()(e1, e2);
+}
+
+} // namespace
+
+TEST(expected_constexpr, equality_operators) {
+  {
+    constexpr bool b = equality_operators<Equal_to>(1, 1);
+    ASSERT_TRUE(b);
+  }
+  {
+    constexpr bool b = equality_operators<Not_equal_to>(1, 2);
+    ASSERT_TRUE(b);
+  }
+}
+
+namespace {
+
+template <class Compare>
+constexpr bool comparison_with_T_left(int x, int y) {
+  Val v(x);
+  expected<Val, Err> e(std::in_place, y);
+  return Compare()(v, e);
+}
+
+template <class Compare>
+constexpr bool comparison_with_T_right(int x, int y) {
+  expected<Val, Err> e(std::in_place, x);
+  Val v(y);
+  return Compare()(e, v);
+}
+
+} // namespace
+
+TEST(expected_constexpr, comparison_with_T) {
+  {
+    constexpr bool b = comparison_with_T_left<Equal_to>(1, 1);
+    ASSERT_TRUE(b);
+  }
+  {
+    constexpr bool b = comparison_with_T_right<Equal_to>(2, 2);
+    ASSERT_TRUE(b);
+  }
+  {
+    constexpr bool b = comparison_with_T_left<Not_equal_to>(1, 2);
+    ASSERT_TRUE(b);
+  }
+  {
+    constexpr bool b = comparison_with_T_right<Not_equal_to>(2, 1);
+    ASSERT_TRUE(b);
+  }
+}
+
+namespace {
+
+template <class Compare>
+constexpr bool comparison_with_unexpected_E_left(int x, int y) {
+  unexpected<Err> v(x);
+  expected<Val, Err> e(unexpect, y);
+  return Compare()(v, e);
+}
+
+template <class Compare>
+constexpr bool comparison_with_unexpected_E_right(int x, int y) {
+  expected<Val, Err> e(unexpect, x);
+  unexpected<Err> v(y);
+  return Compare()(e, v);
+}
+
+} // namespace
+
+TEST(expected_constexpr, comparison_with_unexpected_E) {
+  {
+    constexpr bool b = comparison_with_unexpected_E_left<Equal_to>(1, 1);
+    ASSERT_TRUE(b);
+  }
+  {
+    constexpr bool b = comparison_with_unexpected_E_right<Equal_to>(2, 2);
+    ASSERT_TRUE(b);
+  }
+  {
+    constexpr bool b = comparison_with_unexpected_E_left<Not_equal_to>(1, 2);
+    ASSERT_TRUE(b);
+  }
+  {
+    constexpr bool b = comparison_with_unexpected_E_right<Not_equal_to>(2, 1);
+    ASSERT_TRUE(b);
+  }
+}
