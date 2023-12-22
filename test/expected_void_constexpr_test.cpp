@@ -55,6 +55,7 @@ constexpr auto copy_constructor(Args&&... args)
 } // namespace
 
 TEST(expected_void_constexpr, copy_constructor) {
+  static_assert(std::is_trivially_copy_constructible_v<Err>);
   {
     constexpr auto b = copy_constructor<std::in_place_t>();
     static_assert(std::is_same_v<decltype(b), const bool>);
@@ -80,6 +81,8 @@ constexpr auto move_constructor(Args&&... args)
 } // namespace
 
 TEST(expected_void_constexpr, move_constructor) {
+  static_assert(!std::is_trivially_move_constructible_v<Err>);
+  static_assert(std::is_trivially_move_constructible_v<Err_trivial>);
   {
     constexpr auto b = move_constructor<std::in_place_t>();
     static_assert(std::is_same_v<decltype(b), const bool>);
