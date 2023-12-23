@@ -1,5 +1,6 @@
 #include "bc/exp/expected.h"
 
+#include "comp.h"
 #include "obj_constexpr.h"
 
 #include <type_traits>
@@ -539,20 +540,6 @@ TEST(expected_constexpr, in_place_constructor) {
 }
 
 namespace {
-
-struct Equal_to {
-  template <class T, class U>
-  constexpr bool operator()(const T& lhs, const U& rhs) const {
-    return lhs == rhs;
-  }
-};
-
-struct Not_equal_to {
-  template <class T, class U>
-  constexpr bool operator()(const T& lhs, const U& rhs) const {
-    return lhs != rhs;
-  }
-};
 
 template <class Compare>
 constexpr bool equality_operators(int x, int y) {
