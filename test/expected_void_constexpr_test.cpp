@@ -186,7 +186,7 @@ TEST(expected_void_constexpr, move_expected_constructor) {
   {
     constexpr auto x = explicit_move_expected_constructor<unexpect_t>(1);
     static_assert(std::is_same_v<decltype(x), const int>);
-    ASSERT_EQ(x, 201 + 1);
+    ASSERT_EQ(x, 1 + 201);
   }
   {
     constexpr auto b = implicit_move_expected_constructor<std::in_place_t>();
@@ -196,7 +196,7 @@ TEST(expected_void_constexpr, move_expected_constructor) {
   {
     constexpr auto x = implicit_move_expected_constructor<unexpect_t>(2);
     static_assert(std::is_same_v<decltype(x), const int>);
-    ASSERT_EQ(x, 201 + 2);
+    ASSERT_EQ(x, 2 + 201);
   }
 }
 

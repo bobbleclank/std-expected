@@ -368,19 +368,19 @@ constexpr int implicit_move_expected_constructor(int x) {
 TEST(expected_constexpr, move_expected_constructor) {
   {
     constexpr int x = explicit_move_expected_constructor<std::in_place_t>(1);
-    ASSERT_EQ(x, 201 + 1);
+    ASSERT_EQ(x, 1 + 201);
   }
   {
     constexpr int x = explicit_move_expected_constructor<unexpect_t>(2);
-    ASSERT_EQ(x, 201 + 2);
+    ASSERT_EQ(x, 2 + 201);
   }
   {
     constexpr int x = implicit_move_expected_constructor<std::in_place_t>(3);
-    ASSERT_EQ(x, 201 + 3);
+    ASSERT_EQ(x, 3 + 201);
   }
   {
     constexpr int x = implicit_move_expected_constructor<unexpect_t>(4);
-    ASSERT_EQ(x, 201 + 4);
+    ASSERT_EQ(x, 4 + 201);
   }
 }
 
@@ -405,19 +405,19 @@ constexpr int implicit_value_constructor(int x) {
 TEST(expected_constexpr, value_constructor) {
   {
     constexpr int x = explicit_value_constructor<Val>(1);
-    ASSERT_EQ(x, 101 + 1);
+    ASSERT_EQ(x, 1 + 101);
   }
   {
     constexpr int x = explicit_value_constructor<Arg>(2);
-    ASSERT_EQ(x, 201 + 2);
+    ASSERT_EQ(x, 2 + 201);
   }
   {
     constexpr int x = implicit_value_constructor<Val_implicit>(3);
-    ASSERT_EQ(x, 301 + 3);
+    ASSERT_EQ(x, 3 + 301);
   }
   {
     constexpr int x = implicit_value_constructor<Arg>(4);
-    ASSERT_EQ(x, 201 + 4);
+    ASSERT_EQ(x, 4 + 201);
   }
 }
 
@@ -479,19 +479,19 @@ constexpr int implicit_move_unexpected_constructor(int x) {
 TEST(expected_constexpr, move_unexpected_constructor) {
   {
     constexpr int x = explicit_move_unexpected_constructor<Err>(1);
-    ASSERT_EQ(x, 101 + 1);
+    ASSERT_EQ(x, 1 + 101);
   }
   {
     constexpr int x = explicit_move_unexpected_constructor<Arg>(2);
-    ASSERT_EQ(x, 201 + 2);
+    ASSERT_EQ(x, 2 + 201);
   }
   {
     constexpr int x = implicit_move_unexpected_constructor<Err_implicit>(3);
-    ASSERT_EQ(x, 301 + 3);
+    ASSERT_EQ(x, 3 + 301);
   }
   {
     constexpr int x = implicit_move_unexpected_constructor<Arg>(4);
-    ASSERT_EQ(x, 201 + 4);
+    ASSERT_EQ(x, 4 + 201);
   }
 }
 
@@ -519,7 +519,7 @@ TEST(expected_constexpr, in_place_constructor) {
   }
   {
     constexpr int x = in_place_constructor<std::in_place_t>(Arg(1), 1);
-    ASSERT_EQ(x, 201 + 1 + 1);
+    ASSERT_EQ(x, 1 + 1 + 201);
   }
   {
     constexpr int x = in_place_constructor<unexpect_t>();
@@ -527,15 +527,15 @@ TEST(expected_constexpr, in_place_constructor) {
   }
   {
     constexpr int x = in_place_constructor<unexpect_t>(Arg(2), 2);
-    ASSERT_EQ(x, 201 + 2 + 2);
+    ASSERT_EQ(x, 2 + 2 + 201);
   }
   {
     constexpr int x = in_place_constructor<std::in_place_t>({3}, Arg(3), 3);
-    ASSERT_EQ(x, 3 + 201 + 3 + 3);
+    ASSERT_EQ(x, 3 + 3 + 3 + 201);
   }
   {
     constexpr int x = in_place_constructor<unexpect_t>({4}, Arg(4), 4);
-    ASSERT_EQ(x, 4 + 201 + 4 + 4);
+    ASSERT_EQ(x, 4 + 4 + 4 + 201);
   }
 }
 
