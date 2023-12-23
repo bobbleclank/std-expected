@@ -1,5 +1,6 @@
 #include "bc/exp/expected.h"
 
+#include "comp.h"
 #include "obj_constexpr.h"
 
 #include <utility>
@@ -210,27 +211,22 @@ TEST(unexpected_constexpr, assignment_operators) {
 
 namespace {
 
-constexpr bool equal_to_operator(int x, int y) {
+template <class Compare>
+constexpr bool equality_operators(int x, int y) {
   unexpected<Err> e1(x);
   unexpected<Err> e2(y);
-  return e1 == e2;
-}
-
-constexpr bool not_equal_to_operator(int x, int y) {
-  unexpected<Err> e1(x);
-  unexpected<Err> e2(y);
-  return e1 != e2;
+  return Compare()(e1, e2);
 }
 
 } // namespace
 
 TEST(unexpected_constexpr, equality_operators) {
   {
-    constexpr bool b = equal_to_operator(1, 1);
+    constexpr bool b = equality_operators<Equal_to>(1, 1);
     ASSERT_TRUE(b);
   }
   {
-    constexpr bool b = not_equal_to_operator(1, 2);
+    constexpr bool b = equality_operators<Not_equal_to>(1, 2);
     ASSERT_TRUE(b);
   }
 }
