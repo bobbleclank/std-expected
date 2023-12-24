@@ -674,3 +674,95 @@ TEST(expected_void, swap) {
   ASSERT_EQ(Err::s, State::destructed);
   Err::reset();
 }
+
+TEST(expected_void, equality_operators) {
+  expected<void, Err> e_one(std::in_place);
+  expected<void, Err> u_one(unexpect, 1);
+
+  expected<void, Err> e1(std::in_place);
+
+  expected<void, Err> u1(unexpect, 1);
+  expected<void, Err> u2(unexpect, 2);
+
+  expected<void, Err2> e_two(std::in_place);
+  expected<void, Err2> u_two(unexpect, 2);
+
+  // Operands have same type.
+
+  ASSERT_TRUE(e_one == e1);
+  ASSERT_FALSE(e_one != e1);
+
+  ASSERT_TRUE(u_one == u1);
+  ASSERT_FALSE(u_one == u2);
+  ASSERT_FALSE(u_one != u1);
+  ASSERT_TRUE(u_one != u2);
+
+  ASSERT_FALSE(e_one == u1);
+  ASSERT_TRUE(e_one != u1);
+
+  ASSERT_FALSE(u_one == e1);
+  ASSERT_TRUE(u_one != e1);
+
+  // Operands have different types.
+
+  ASSERT_TRUE(e_two == e1);
+  ASSERT_FALSE(e_two != e1);
+
+  ASSERT_FALSE(u_two == u1);
+  ASSERT_TRUE(u_two == u2);
+  ASSERT_TRUE(u_two != u1);
+  ASSERT_FALSE(u_two != u2);
+
+  ASSERT_FALSE(e_two == u1);
+  ASSERT_TRUE(e_two != u1);
+
+  ASSERT_FALSE(u_two == e1);
+  ASSERT_TRUE(u_two != e1);
+}
+
+TEST(expected_void, comparison_with_unexpected_E) {
+  expected<void, Err> e_one(std::in_place);
+  expected<void, Err> u_one(unexpect, 1);
+
+  unexpected<Err> v1(1);
+  unexpected<Err> v2(2);
+
+  expected<void, Err2> e_two(std::in_place);
+  expected<void, Err2> u_two(unexpect, 2);
+
+  // expected::error_type and E have same type.
+
+  ASSERT_TRUE(u_one == v1);
+  ASSERT_FALSE(u_one == v2);
+  ASSERT_FALSE(u_one != v1);
+  ASSERT_TRUE(u_one != v2);
+
+  ASSERT_FALSE(e_one == v1);
+  ASSERT_TRUE(e_one != v1);
+
+  ASSERT_TRUE(v1 == u_one);
+  ASSERT_FALSE(v2 == u_one);
+  ASSERT_FALSE(v1 != u_one);
+  ASSERT_TRUE(v2 != u_one);
+
+  ASSERT_FALSE(v1 == e_one);
+  ASSERT_TRUE(v1 != e_one);
+
+  // expected::error_type and E have different types.
+
+  ASSERT_FALSE(u_two == v1);
+  ASSERT_TRUE(u_two == v2);
+  ASSERT_TRUE(u_two != v1);
+  ASSERT_FALSE(u_two != v2);
+
+  ASSERT_FALSE(e_two == v1);
+  ASSERT_TRUE(e_two != v1);
+
+  ASSERT_FALSE(v1 == u_two);
+  ASSERT_TRUE(v2 == u_two);
+  ASSERT_TRUE(v1 != u_two);
+  ASSERT_FALSE(v2 != u_two);
+
+  ASSERT_FALSE(v1 == e_two);
+  ASSERT_TRUE(v1 != e_two);
+}
