@@ -1514,6 +1514,22 @@ constexpr bool operator!=(const expected<T1, E1>& x,
              : (!x.has_value() ? x.error() != y.error() : *x != *y);
 }
 
+template <class E1, class E2>
+constexpr bool operator==(const expected<void, E1>& x,
+                          const expected<void, E2>& y) {
+  return x.has_value() != y.has_value()
+             ? false
+             : (!x.has_value() ? x.error() == y.error() : true);
+}
+
+template <class E1, class E2>
+constexpr bool operator!=(const expected<void, E1>& x,
+                          const expected<void, E2>& y) {
+  return x.has_value() != y.has_value()
+             ? true
+             : (!x.has_value() ? x.error() != y.error() : false);
+}
+
 template <class T1, class E1, class T2>
 constexpr bool operator==(const expected<T1, E1>& x, const T2& v) {
   return x.has_value() ? *x == v : false;
