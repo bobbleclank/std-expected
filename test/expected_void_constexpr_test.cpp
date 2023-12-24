@@ -1,5 +1,6 @@
 #include "bc/exp/expected.h"
 
+#include "comp.h"
 #include "obj_constexpr.h"
 
 #include <type_traits>
@@ -212,5 +213,27 @@ TEST(expected_void_constexpr, in_place_constructor) {
   {
     constexpr bool b = in_place_constructor();
     ASSERT_TRUE(b);
+  }
+}
+
+namespace {
+
+template <class Compare>
+constexpr bool equality_operators() {
+  expected<void, Err> e1(std::in_place);
+  expected<void, Err> e2(std::in_place);
+  return Compare()(e1, e2);
+}
+
+} // namespace
+
+TEST(expected_void_constexpr, equality_operators) {
+  {
+    constexpr bool b = equality_operators<Equal_to>();
+    ASSERT_TRUE(b);
+  }
+  {
+    constexpr bool b = equality_operators<Not_equal_to>();
+    ASSERT_FALSE(b);
   }
 }
