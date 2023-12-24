@@ -1498,7 +1498,9 @@ public:
   }
 };
 
-template <class T1, class E1, class T2, class E2>
+template <
+    class T1, class E1, class T2, class E2,
+    std::enable_if_t<!std::is_void_v<T1> && !std::is_void_v<T2>>* = nullptr>
 constexpr bool operator==(const expected<T1, E1>& x,
                           const expected<T2, E2>& y) {
   return x.has_value() != y.has_value()
@@ -1506,7 +1508,9 @@ constexpr bool operator==(const expected<T1, E1>& x,
              : (!x.has_value() ? x.error() == y.error() : *x == *y);
 }
 
-template <class T1, class E1, class T2, class E2>
+template <
+    class T1, class E1, class T2, class E2,
+    std::enable_if_t<!std::is_void_v<T1> && !std::is_void_v<T2>>* = nullptr>
 constexpr bool operator!=(const expected<T1, E1>& x,
                           const expected<T2, E2>& y) {
   return x.has_value() != y.has_value()
@@ -1530,22 +1534,30 @@ constexpr bool operator!=(const expected<void, E1>& x,
              : (!x.has_value() ? x.error() != y.error() : false);
 }
 
-template <class T1, class E1, class T2>
+template <
+    class T1, class E1, class T2,
+    std::enable_if_t<!std::is_void_v<T1> && !std::is_void_v<T2>>* = nullptr>
 constexpr bool operator==(const expected<T1, E1>& x, const T2& v) {
   return x.has_value() ? *x == v : false;
 }
 
-template <class T1, class E1, class T2>
+template <
+    class T1, class E1, class T2,
+    std::enable_if_t<!std::is_void_v<T1> && !std::is_void_v<T2>>* = nullptr>
 constexpr bool operator==(const T2& v, const expected<T1, E1>& x) {
   return x.has_value() ? *x == v : false;
 }
 
-template <class T1, class E1, class T2>
+template <
+    class T1, class E1, class T2,
+    std::enable_if_t<!std::is_void_v<T1> && !std::is_void_v<T2>>* = nullptr>
 constexpr bool operator!=(const expected<T1, E1>& x, const T2& v) {
   return x.has_value() ? *x != v : true;
 }
 
-template <class T1, class E1, class T2>
+template <
+    class T1, class E1, class T2,
+    std::enable_if_t<!std::is_void_v<T1> && !std::is_void_v<T2>>* = nullptr>
 constexpr bool operator!=(const T2& v, const expected<T1, E1>& x) {
   return x.has_value() ? *x != v : true;
 }
