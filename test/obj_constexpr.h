@@ -26,7 +26,7 @@ struct Arg {
 
 template <class Tag>
 struct Obj {
-  constexpr Obj() noexcept : x(20100) {}
+  Obj() = default;
 
   constexpr explicit Obj(int x_) noexcept : x(x_) {}
 
@@ -74,7 +74,7 @@ struct Obj {
 
   ~Obj() = default;
 
-  int x;
+  int x = 20100;
 };
 
 template <class Tag1, class Tag2>
