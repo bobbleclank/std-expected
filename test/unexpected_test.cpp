@@ -67,7 +67,7 @@ TEST(unexpected, value) {
 }
 
 TEST(unexpected, constructors) {
-  // Deduction guide
+  // Deduction guide via (Err&&) with Err != E
   {
     Err val(1);
     unexpected e(val);
@@ -75,6 +75,15 @@ TEST(unexpected, constructors) {
         (std::is_same_v<std::remove_reference_t<decltype(e.value())>, Err>));
     ASSERT_EQ(e.value().x, 1);
     ASSERT_EQ(val.x, 1);
+  }
+  // Deduction guide via (Err&&) with Err = E
+  {
+    Err val(12);
+    unexpected e(std::move(val));
+    ASSERT_TRUE(
+        (std::is_same_v<std::remove_reference_t<decltype(e.value())>, Err>));
+    ASSERT_EQ(e.value().x, 12);
+    ASSERT_EQ(val.x, -1);
   }
   // (const unexpected&)
   {
