@@ -71,6 +71,8 @@ TEST(unexpected, constructors) {
   {
     Err val(1);
     unexpected e(val);
+    ASSERT_TRUE(
+        (std::is_same_v<std::remove_reference_t<decltype(e.value())>, Err>));
     ASSERT_EQ(e.value().x, 1);
     ASSERT_EQ(val.x, 1);
   }
