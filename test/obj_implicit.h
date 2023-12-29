@@ -11,7 +11,7 @@ struct Obj_implicit {
   inline static State s = State::none;
   static void reset() { s = State::none; }
 
-  Obj_implicit(int x_) {
+  explicit Obj_implicit(int x_) {
     s = State::constructed;
     x = x_;
   }

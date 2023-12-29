@@ -95,7 +95,7 @@ using Err = Obj<Err_tag>;
 
 template <class Tag>
 struct Obj_implicit {
-  constexpr Obj_implicit(int x_) : x(x_) {}
+  constexpr explicit Obj_implicit(int x_) : x(x_) {}
 
   constexpr Obj_implicit(const Arg& arg_) : x(arg_.x) {}
 

@@ -619,7 +619,7 @@ TEST(expected, value_constructor) {
   }
   // implicit with U = T
   {
-    Val_implicit val = 3;
+    Val_implicit val(3);
     Val_implicit::reset();
     {
       expected<Val_implicit, Err> e = std::move(val);
