@@ -463,7 +463,7 @@ namespace {
 template <class U>
 constexpr int explicit_move_unexpected_constructor(int x) {
   unexpected<U> val(x);
-  expected<Val, Err> e(std::move(val));
+  expected<Val, Err_explicit> e(std::move(val));
   return e.error().x;
 }
 
@@ -478,8 +478,8 @@ constexpr int implicit_move_unexpected_constructor(int x) {
 
 TEST(expected_constexpr, move_unexpected_constructor) {
   {
-    constexpr int x = explicit_move_unexpected_constructor<Err>(1);
-    ASSERT_EQ(x, 1 + 101);
+    constexpr int x = explicit_move_unexpected_constructor<Err_explicit>(1);
+    ASSERT_EQ(x, 1 + 401);
   }
   {
     constexpr int x = explicit_move_unexpected_constructor<Arg>(2);
