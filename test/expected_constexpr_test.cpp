@@ -389,7 +389,7 @@ namespace {
 template <class U>
 constexpr int explicit_value_constructor(int x) {
   U val(x);
-  expected<Val, Err> e(std::move(val));
+  expected<Val_explicit, Err> e(std::move(val));
   return e->x;
 }
 
@@ -404,8 +404,8 @@ constexpr int implicit_value_constructor(int x) {
 
 TEST(expected_constexpr, value_constructor) {
   {
-    constexpr int x = explicit_value_constructor<Val>(1);
-    ASSERT_EQ(x, 1 + 101);
+    constexpr int x = explicit_value_constructor<Val_explicit>(1);
+    ASSERT_EQ(x, 1 + 401);
   }
   {
     constexpr int x = explicit_value_constructor<Arg>(2);

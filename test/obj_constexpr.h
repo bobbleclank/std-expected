@@ -124,6 +124,31 @@ struct Err_implicit_tag {};
 using Err_implicit = Obj_implicit<Err_implicit_tag>;
 
 template <class Tag>
+struct Obj_explicit {
+  constexpr explicit Obj_explicit(int x_) : x(x_) {}
+
+  constexpr explicit Obj_explicit(Arg&& arg_) {
+    Arg arg = std::move(arg_);
+    x = arg.x;
+  }
+
+  constexpr explicit Obj_explicit(const Obj_explicit& other) : x(other.x) {}
+
+  constexpr explicit Obj_explicit(Obj_explicit&& other) : x(other.x + 401) {}
+
+  Obj_explicit& operator=(const Obj_explicit&) = delete;
+
+  Obj_explicit& operator=(Obj_explicit&&) = delete;
+
+  ~Obj_explicit() = default;
+
+  int x;
+};
+
+struct Val_explicit_tag {};
+using Val_explicit = Obj_explicit<Val_explicit_tag>;
+
+template <class Tag>
 struct Obj_trivial {
   constexpr explicit Obj_trivial(int x_) : x(x_) {}
 

@@ -582,40 +582,40 @@ TEST(expected, move_expected_constructor) {
 }
 
 TEST(expected, value_constructor) {
-  Val::reset();
   Err::reset();
   Val_implicit::reset();
+  Val_explicit::reset();
   // explicit with U = T
   {
-    Val val(1);
-    Val::reset();
+    Val_explicit val(1);
+    Val_explicit::reset();
     {
-      expected<Val, Err> e(std::move(val));
-      ASSERT_EQ(Val::s, State::move_constructed);
+      expected<Val_explicit, Err> e(std::move(val));
+      ASSERT_EQ(Val_explicit::s, State::move_constructed);
       ASSERT_EQ(Err::s, State::none);
       ASSERT_TRUE(e.has_value());
       ASSERT_EQ(e->x, 1);
       ASSERT_EQ(val.x, -1);
     }
-    ASSERT_EQ(Val::s, State::destructed);
+    ASSERT_EQ(Val_explicit::s, State::destructed);
     ASSERT_EQ(Err::s, State::none);
-    Val::reset();
+    Val_explicit::reset();
   }
-  Val::reset();
+  Val_explicit::reset();
   // explicit with U != T
   {
     Arg val(2);
     {
-      expected<Val, Err> e(std::move(val));
-      ASSERT_EQ(Val::s, State::constructed);
+      expected<Val_explicit, Err> e(std::move(val));
+      ASSERT_EQ(Val_explicit::s, State::constructed);
       ASSERT_EQ(Err::s, State::none);
       ASSERT_TRUE(e.has_value());
       ASSERT_EQ(e->x, 2);
       ASSERT_EQ(val.x, -1);
     }
-    ASSERT_EQ(Val::s, State::destructed);
+    ASSERT_EQ(Val_explicit::s, State::destructed);
     ASSERT_EQ(Err::s, State::none);
-    Val::reset();
+    Val_explicit::reset();
   }
   // implicit with U = T
   {
