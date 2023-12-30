@@ -58,6 +58,18 @@ TEST(unexpected_constexpr, value) {
 
 namespace {
 
+constexpr int deduction_guide_copy(int x) {
+  Err val(x);
+  unexpected e(val);
+  return e.value().x;
+}
+
+constexpr int deduction_guide_move(int x) {
+  Err val(x);
+  unexpected e(std::move(val));
+  return e.value().x;
+}
+
 constexpr int copy_constructor(int x) {
   unexpected<Err> other(x);
   unexpected<Err> e(other);
@@ -116,6 +128,14 @@ constexpr int in_place_initializer_list_constructor(int x) {
 } // namespace
 
 TEST(unexpected_constexpr, constructors) {
+  {
+    constexpr int x = deduction_guide_copy(11);
+    ASSERT_EQ(x, 11);
+  }
+  {
+    constexpr int x = deduction_guide_move(12);
+    ASSERT_EQ(x, 12 + 101);
+  }
   {
     constexpr int x = copy_constructor(1);
     ASSERT_EQ(x, 1);
