@@ -1,5 +1,5 @@
-#ifndef INCLUDE_BC_EXP_EXPECTED_H
-#define INCLUDE_BC_EXP_EXPECTED_H
+#ifndef INCLUDE_BC_EXPECTED_H
+#define INCLUDE_BC_EXPECTED_H
 
 #define BC_STD_EXPECTED_VERSION_MAJOR 0
 #define BC_STD_EXPECTED_VERSION_MINOR 1
@@ -10,7 +10,7 @@
 #include <type_traits>
 #include <utility>
 
-namespace bc::exp {
+namespace bc {
 
 namespace cpp {
 
@@ -1593,6 +1593,6 @@ void swap(expected<T, E>& x, expected<T, E>& y) noexcept(noexcept(x.swap(y))) {
   x.swap(y);
 }
 
-} // namespace bc::exp
+} // namespace bc
 
 #endif

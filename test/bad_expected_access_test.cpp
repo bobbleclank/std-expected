@@ -1,4 +1,4 @@
-#include "bc/exp/expected.h"
+#include "bc/expected.h"
 
 #include "obj.h"
 
@@ -6,7 +6,7 @@
 
 #include <gtest/gtest.h>
 
-using namespace bc::exp;
+using namespace bc;
 
 TEST(bad_expected_access, what) {
   bad_expected_access<Err> e(Err(1));

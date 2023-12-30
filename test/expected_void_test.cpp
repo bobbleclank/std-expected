@@ -1,4 +1,4 @@
-#include "bc/exp/expected.h"
+#include "bc/expected.h"
 
 #include "arg.h"
 #include "obj.h"
@@ -11,7 +11,7 @@
 
 #include <gtest/gtest.h>
 
-using namespace bc::exp;
+using namespace bc;
 
 TEST(expected_void, error) {
   // const& overload
@@ -618,7 +618,7 @@ TEST(expected_void, swap) {
     expected<void, Err> other(std::in_place);
     {
       expected<void, Err> e(std::in_place);
-      bc::exp::swap(e, other);
+      bc::swap(e, other);
       ASSERT_TRUE(e.has_value());
       ASSERT_TRUE(other.has_value());
       Err::reset();
@@ -631,7 +631,7 @@ TEST(expected_void, swap) {
     expected<void, Err> other(unexpect, 1);
     {
       expected<void, Err> e(std::in_place);
-      bc::exp::swap(e, other);
+      bc::swap(e, other);
       ASSERT_FALSE(e.has_value());
       ASSERT_TRUE(other.has_value());
       ASSERT_EQ(e.error().x, 1);
@@ -646,7 +646,7 @@ TEST(expected_void, swap) {
     expected<void, Err> other(std::in_place);
     {
       expected<void, Err> e(unexpect, 10);
-      bc::exp::swap(e, other);
+      bc::swap(e, other);
       ASSERT_TRUE(e.has_value());
       ASSERT_FALSE(other.has_value());
       ASSERT_EQ(other.error().x, 10);
@@ -661,7 +661,7 @@ TEST(expected_void, swap) {
     expected<void, Err> other(unexpect, 3);
     {
       expected<void, Err> e(unexpect, 30);
-      bc::exp::swap(e, other);
+      bc::swap(e, other);
       ASSERT_FALSE(e.has_value());
       ASSERT_FALSE(other.has_value());
       ASSERT_EQ(e.error().x, 3);

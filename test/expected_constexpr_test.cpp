@@ -1,4 +1,4 @@
-#include "bc/exp/expected.h"
+#include "bc/expected.h"
 
 #include "comp.h"
 #include "obj_constexpr.h"
@@ -8,7 +8,7 @@
 
 #include <gtest/gtest.h>
 
-using namespace bc::exp;
+using namespace bc;
 
 namespace {
 

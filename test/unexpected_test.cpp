@@ -1,4 +1,4 @@
-#include "bc/exp/expected.h"
+#include "bc/expected.h"
 
 #include "arg.h"
 #include "obj.h"
@@ -10,7 +10,7 @@
 
 #include <gtest/gtest.h>
 
-using namespace bc::exp;
+using namespace bc;
 
 TEST(unexpected, value) {
   // const& overload
@@ -204,7 +204,7 @@ TEST(unexpected, swap) {
   {
     unexpected<Err> other(1);
     unexpected<Err> e(10);
-    bc::exp::swap(e, other);
+    bc::swap(e, other);
     ASSERT_EQ(e.value().x, 1);
     ASSERT_EQ(other.value().x, 10);
   }
@@ -214,7 +214,7 @@ TEST(unexpected, swap) {
     bool did_throw = false;
     try {
       Err_throw_2::t = May_throw::do_throw;
-      bc::exp::swap(e, other);
+      bc::swap(e, other);
     } catch (...) {
       did_throw = true;
       Err_throw_2::t = May_throw::do_not_throw;

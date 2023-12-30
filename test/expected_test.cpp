@@ -1,4 +1,4 @@
-#include "bc/exp/expected.h"
+#include "bc/expected.h"
 
 #include "arg.h"
 #include "con.h"
@@ -12,7 +12,7 @@
 
 #include <gtest/gtest.h>
 
-using namespace bc::exp;
+using namespace bc;
 
 TEST(expected, member_access_operator) {
   // const overload
@@ -1781,7 +1781,7 @@ TEST(expected, swap) {
     expected<Val, Err> other(std::in_place, 1);
     {
       expected<Val, Err> e(std::in_place, 10);
-      bc::exp::swap(e, other);
+      bc::swap(e, other);
       ASSERT_TRUE(e.has_value());
       ASSERT_TRUE(other.has_value());
       ASSERT_EQ(e->x, 1);
@@ -1802,7 +1802,7 @@ TEST(expected, swap) {
     expected<Val_throw_2, Err> other(unexpect, 2);
     {
       expected<Val_throw_2, Err> e(std::in_place, 20);
-      bc::exp::swap(e, other);
+      bc::swap(e, other);
       ASSERT_FALSE(e.has_value());
       ASSERT_TRUE(other.has_value());
       ASSERT_EQ(e.error().x, 2);
@@ -1823,7 +1823,7 @@ TEST(expected, swap) {
     expected<Val, Err_throw_2> other(unexpect, 3);
     {
       expected<Val, Err_throw_2> e(std::in_place, 30);
-      bc::exp::swap(e, other);
+      bc::swap(e, other);
       ASSERT_FALSE(e.has_value());
       ASSERT_TRUE(other.has_value());
       ASSERT_EQ(e.error().x, 3);
@@ -1844,7 +1844,7 @@ TEST(expected, swap) {
     expected<Val_throw_2, Err> other(std::in_place, 4);
     {
       expected<Val_throw_2, Err> e(unexpect, 40);
-      bc::exp::swap(e, other);
+      bc::swap(e, other);
       ASSERT_TRUE(e.has_value());
       ASSERT_FALSE(other.has_value());
       ASSERT_EQ(e->x, 4);
@@ -1865,7 +1865,7 @@ TEST(expected, swap) {
     expected<Val, Err_throw_2> other(std::in_place, 5);
     {
       expected<Val, Err_throw_2> e(unexpect, 50);
-      bc::exp::swap(e, other);
+      bc::swap(e, other);
       ASSERT_TRUE(e.has_value());
       ASSERT_FALSE(other.has_value());
       ASSERT_EQ(e->x, 5);
@@ -1885,7 +1885,7 @@ TEST(expected, swap) {
     expected<Val, Err> other(unexpect, 6);
     {
       expected<Val, Err> e(unexpect, 60);
-      bc::exp::swap(e, other);
+      bc::swap(e, other);
       ASSERT_FALSE(e.has_value());
       ASSERT_FALSE(other.has_value());
       ASSERT_EQ(e.error().x, 6);
