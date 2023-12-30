@@ -657,7 +657,7 @@ TEST(expected, copy_unexpected_constructor) {
   Err_implicit::reset();
   // explicit with G = E
   {
-    unexpected<Err> val(1);
+    unexpected val(Err(1));
     Err::reset();
     {
       expected<Val, Err> e(val);
@@ -674,7 +674,7 @@ TEST(expected, copy_unexpected_constructor) {
   Err::reset();
   // explicit with G != E
   {
-    unexpected<Arg> val(2);
+    unexpected val(Arg(2));
     {
       expected<Val, Err> e(val);
       ASSERT_EQ(Val::s, State::none);
@@ -689,7 +689,7 @@ TEST(expected, copy_unexpected_constructor) {
   }
   // implicit with G = E
   {
-    unexpected<Err_implicit> val(3);
+    unexpected val(Err_implicit(3));
     Err_implicit::reset();
     {
       expected<Val, Err_implicit> e = val;
@@ -706,7 +706,7 @@ TEST(expected, copy_unexpected_constructor) {
   Err_implicit::reset();
   // implicit with G != E
   {
-    unexpected<Arg> val(4);
+    unexpected val(Arg(4));
     {
       expected<Val, Err_implicit> e = val;
       ASSERT_EQ(Val::s, State::none);
@@ -727,7 +727,7 @@ TEST(expected, move_unexpected_constructor) {
   Err_implicit::reset();
   // explicit with G = E
   {
-    unexpected<Err> val(1);
+    unexpected val(Err(1));
     Err::reset();
     {
       expected<Val, Err> e(std::move(val));
@@ -744,7 +744,7 @@ TEST(expected, move_unexpected_constructor) {
   Err::reset();
   // explicit with G != E
   {
-    unexpected<Arg> val(2);
+    unexpected val(Arg(2));
     {
       expected<Val, Err> e(std::move(val));
       ASSERT_EQ(Val::s, State::none);
@@ -759,7 +759,7 @@ TEST(expected, move_unexpected_constructor) {
   }
   // implicit with G = E
   {
-    unexpected<Err_implicit> val(3);
+    unexpected val(Err_implicit(3));
     Err_implicit::reset();
     {
       expected<Val, Err_implicit> e = std::move(val);
@@ -776,7 +776,7 @@ TEST(expected, move_unexpected_constructor) {
   Err_implicit::reset();
   // implicit with G != E
   {
-    unexpected<Arg> val(4);
+    unexpected val(Arg(4));
     {
       expected<Val, Err_implicit> e = std::move(val);
       ASSERT_EQ(Val::s, State::none);
@@ -1246,7 +1246,7 @@ TEST(expected, copy_unexpected_assignment_operator) {
   Err_throw_3::reset();
   // has_value() with G = E
   {
-    unexpected<Err> val(1);
+    unexpected val(Err(1));
     Err::reset();
     {
       expected<Val, Err> e(std::in_place, 10);
@@ -1265,7 +1265,7 @@ TEST(expected, copy_unexpected_assignment_operator) {
   Err::reset();
   // !has_value() with G = E
   {
-    unexpected<Err> val(2);
+    unexpected val(Err(2));
     Err::reset();
     {
       expected<Val, Err> e(unexpect, 20);
@@ -1282,7 +1282,7 @@ TEST(expected, copy_unexpected_assignment_operator) {
   }
   Err::reset();
   {
-    unexpected<Err_throw_3> val(3);
+    unexpected val(Err_throw_3(3));
     Err_throw_3::reset();
     {
       expected<Val, Err_throw_3> e(unexpect, 30);
@@ -1308,7 +1308,7 @@ TEST(expected, copy_unexpected_assignment_operator) {
   Err_throw_3::reset();
   // has_value() with G != E
   {
-    unexpected<Arg> val(4);
+    unexpected val(Arg(4));
     {
       expected<Val, Err> e(std::in_place, 40);
       e = val;
@@ -1325,7 +1325,7 @@ TEST(expected, copy_unexpected_assignment_operator) {
   }
   // !has_value() with G != E
   {
-    unexpected<Arg> val(5);
+    unexpected val(Arg(5));
     {
       expected<Val, Err> e(unexpect, 50);
       e = val;
@@ -1340,7 +1340,7 @@ TEST(expected, copy_unexpected_assignment_operator) {
     Err::reset();
   }
   {
-    unexpected<Arg> val(6);
+    unexpected val(Arg(6));
     {
       expected<Val, Err_throw_3> e(unexpect, 60);
       bool did_throw = false;
@@ -1370,7 +1370,7 @@ TEST(expected, move_unexpected_assignment_operator) {
   Err_throw_3::reset();
   // has_value() with G = E
   {
-    unexpected<Err> val(1);
+    unexpected val(Err(1));
     Err::reset();
     {
       expected<Val, Err> e(std::in_place, 10);
@@ -1389,7 +1389,7 @@ TEST(expected, move_unexpected_assignment_operator) {
   Err::reset();
   // !has_value() with G = E
   {
-    unexpected<Err> val(2);
+    unexpected val(Err(2));
     Err::reset();
     {
       expected<Val, Err> e(unexpect, 20);
@@ -1406,7 +1406,7 @@ TEST(expected, move_unexpected_assignment_operator) {
   }
   Err::reset();
   {
-    unexpected<Err_throw_3> val(3);
+    unexpected val(Err_throw_3(3));
     Err_throw_3::reset();
     {
       expected<Val, Err_throw_3> e(unexpect, 30);
@@ -1432,7 +1432,7 @@ TEST(expected, move_unexpected_assignment_operator) {
   Err_throw_3::reset();
   // has_value() with G != E
   {
-    unexpected<Arg> val(4);
+    unexpected val(Arg(4));
     {
       expected<Val, Err> e(std::in_place, 40);
       e = std::move(val);
@@ -1449,7 +1449,7 @@ TEST(expected, move_unexpected_assignment_operator) {
   }
   // !has_value() with G != E
   {
-    unexpected<Arg> val(5);
+    unexpected val(Arg(5));
     {
       expected<Val, Err> e(unexpect, 50);
       e = std::move(val);
@@ -1464,7 +1464,7 @@ TEST(expected, move_unexpected_assignment_operator) {
     Err::reset();
   }
   {
-    unexpected<Arg> val(6);
+    unexpected val(Arg(6));
     {
       expected<Val, Err_throw_3> e(unexpect, 60);
       bool did_throw = false;
