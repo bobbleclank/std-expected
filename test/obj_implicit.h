@@ -64,6 +64,12 @@ struct Obj_explicit {
     x = x_;
   }
 
+  explicit Obj_explicit(const Arg& arg_) {
+    s = State::constructed;
+    Arg arg = arg_;
+    x = arg.x;
+  }
+
   explicit Obj_explicit(Arg&& arg_) {
     s = State::constructed;
     Arg arg = std::move(arg_);
@@ -92,5 +98,8 @@ struct Obj_explicit {
 
 struct Val_explicit_tag {};
 using Val_explicit = Obj_explicit<Val_explicit_tag>;
+
+struct Err_explicit_tag {};
+using Err_explicit = Obj_explicit<Err_explicit_tag>;
 
 #endif

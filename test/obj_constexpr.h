@@ -127,6 +127,8 @@ template <class Tag>
 struct Obj_explicit {
   constexpr explicit Obj_explicit(int x_) : x(x_) {}
 
+  constexpr explicit Obj_explicit(const Arg& arg_) : x(arg_.x) {}
+
   constexpr explicit Obj_explicit(Arg&& arg_) {
     Arg arg = std::move(arg_);
     x = arg.x;
@@ -147,6 +149,9 @@ struct Obj_explicit {
 
 struct Val_explicit_tag {};
 using Val_explicit = Obj_explicit<Val_explicit_tag>;
+
+struct Err_explicit_tag {};
+using Err_explicit = Obj_explicit<Err_explicit_tag>;
 
 template <class Tag>
 struct Obj_trivial {

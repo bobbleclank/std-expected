@@ -256,20 +256,20 @@ TEST(expected_void, move_expected_constructor) {
 }
 
 TEST(expected_void, copy_unexpected_constructor) {
-  Err::reset();
   Err_implicit::reset();
+  Err_explicit::reset();
   // explicit with G != E
   {
     unexpected val(Arg(1));
     {
-      expected<void, Err> e(val);
-      ASSERT_EQ(Err::s, State::constructed);
+      expected<void, Err_explicit> e(val);
+      ASSERT_EQ(Err_explicit::s, State::constructed);
       ASSERT_FALSE(e.has_value());
       ASSERT_EQ(e.error().x, 1);
       ASSERT_EQ(val.value().x, 1);
     }
-    ASSERT_EQ(Err::s, State::destructed);
-    Err::reset();
+    ASSERT_EQ(Err_explicit::s, State::destructed);
+    Err_explicit::reset();
   }
   // implicit with G != E
   {

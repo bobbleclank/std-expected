@@ -426,7 +426,7 @@ namespace {
 template <class U>
 constexpr int explicit_copy_unexpected_constructor(int x) {
   unexpected<U> val(x);
-  expected<Val, Err> e(val);
+  expected<Val, Err_explicit> e(val);
   return e.error().x;
 }
 
@@ -441,7 +441,7 @@ constexpr int implicit_copy_unexpected_constructor(int x) {
 
 TEST(expected_constexpr, copy_unexpected_constructor) {
   {
-    constexpr int x = explicit_copy_unexpected_constructor<Err>(1);
+    constexpr int x = explicit_copy_unexpected_constructor<Err_explicit>(1);
     ASSERT_EQ(x, 1);
   }
   {

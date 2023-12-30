@@ -653,39 +653,39 @@ TEST(expected, value_constructor) {
 
 TEST(expected, copy_unexpected_constructor) {
   Val::reset();
-  Err::reset();
   Err_implicit::reset();
+  Err_explicit::reset();
   // explicit with G = E
   {
-    unexpected val(Err(1));
-    Err::reset();
+    unexpected val(Err_explicit(1));
+    Err_explicit::reset();
     {
-      expected<Val, Err> e(val);
+      expected<Val, Err_explicit> e(val);
       ASSERT_EQ(Val::s, State::none);
-      ASSERT_EQ(Err::s, State::copy_constructed);
+      ASSERT_EQ(Err_explicit::s, State::copy_constructed);
       ASSERT_FALSE(e.has_value());
       ASSERT_EQ(e.error().x, 1);
       ASSERT_EQ(val.value().x, 1);
     }
     ASSERT_EQ(Val::s, State::none);
-    ASSERT_EQ(Err::s, State::destructed);
-    Err::reset();
+    ASSERT_EQ(Err_explicit::s, State::destructed);
+    Err_explicit::reset();
   }
-  Err::reset();
+  Err_explicit::reset();
   // explicit with G != E
   {
     unexpected val(Arg(2));
     {
-      expected<Val, Err> e(val);
+      expected<Val, Err_explicit> e(val);
       ASSERT_EQ(Val::s, State::none);
-      ASSERT_EQ(Err::s, State::constructed);
+      ASSERT_EQ(Err_explicit::s, State::constructed);
       ASSERT_FALSE(e.has_value());
       ASSERT_EQ(e.error().x, 2);
       ASSERT_EQ(val.value().x, 2);
     }
     ASSERT_EQ(Val::s, State::none);
-    ASSERT_EQ(Err::s, State::destructed);
-    Err::reset();
+    ASSERT_EQ(Err_explicit::s, State::destructed);
+    Err_explicit::reset();
   }
   // implicit with G = E
   {
