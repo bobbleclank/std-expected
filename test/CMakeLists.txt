@@ -12,4 +12,4 @@ add_executable(test_${PROJECT_NAME}
   storage_base_test.cpp
   unexpected_constexpr_test.cpp
   unexpected_test.cpp)
-target_link_libraries(test_${PROJECT_NAME} PUBLIC expected gtest_main gtest)
+target_link_libraries(test_${PROJECT_NAME} PUBLIC bcexpected gtest_main gtest)
