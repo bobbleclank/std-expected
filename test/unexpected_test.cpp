@@ -67,7 +67,7 @@ TEST(unexpected, value) {
 }
 
 TEST(unexpected, constructors) {
-  // Deduction guide via (Err&&) with Err != E
+  // Deduction guide via (Err&&) with copy
   {
     Err val(1);
     unexpected e(val);
@@ -76,7 +76,7 @@ TEST(unexpected, constructors) {
     ASSERT_EQ(e.value().x, 1);
     ASSERT_EQ(val.x, 1);
   }
-  // Deduction guide via (Err&&) with Err = E
+  // Deduction guide via (Err&&) with move
   {
     Err val(12);
     unexpected e(std::move(val));
