@@ -12,18 +12,6 @@
 
 namespace bc {
 
-namespace cpp {
-
-template <class T>
-struct remove_cvref {
-  typedef std::remove_cv_t<std::remove_reference_t<T>> type;
-};
-
-template <class T>
-using remove_cvref_t = typename remove_cvref<T>::type;
-
-} // namespace cpp
-
 template <class T, class E>
 class expected;
 template <class E>
@@ -124,8 +112,8 @@ public:
       class Err = E,
       std::enable_if_t<
           std::is_constructible_v<E, Err&&> &&
-          !std::is_same_v<cpp::remove_cvref_t<Err>, std::in_place_t> &&
-          !std::is_same_v<cpp::remove_cvref_t<Err>, unexpected<E>>>* = nullptr>
+          !std::is_same_v<std::remove_cvref_t<Err>, std::in_place_t> &&
+          !std::is_same_v<std::remove_cvref_t<Err>, unexpected<E>>>* = nullptr>
   constexpr explicit unexpected(Err&& val) : val_(std::forward<Err>(val)) {}
 
   template <class... Args,
@@ -334,9 +322,9 @@ using enable_expected_expected_void_constructor = std::enable_if_t<
 template <class T, class E, class U>
 using enable_expected_value_constructor =
     std::enable_if_t<!std::is_void_v<T> && std::is_constructible_v<T, U&&> &&
-                     !std::is_same_v<cpp::remove_cvref_t<U>, std::in_place_t> &&
-                     !std::is_same_v<expected<T, E>, cpp::remove_cvref_t<U>> &&
-                     !std::is_same_v<unexpected<E>, cpp::remove_cvref_t<U>>>;
+                     !std::is_same_v<std::remove_cvref_t<U>, std::in_place_t> &&
+                     !std::is_same_v<expected<T, E>, std::remove_cvref_t<U>> &&
+                     !std::is_same_v<unexpected<E>, std::remove_cvref_t<U>>>;
 
 struct uninit_t {
   explicit uninit_t() = default;
@@ -1269,9 +1257,9 @@ public:
       class U = T, class T1 = T,
       std::enable_if_t<!std::is_void_v<T1>>* = nullptr,
       std::enable_if_t<
-          !std::is_same_v<expected<T, E>, cpp::remove_cvref_t<U>> &&
+          !std::is_same_v<expected<T, E>, std::remove_cvref_t<U>> &&
           !std::conjunction_v<std::is_scalar<T>,
-                              std::is_same<T, cpp::remove_cvref_t<U>>> &&
+                              std::is_same<T, std::remove_cvref_t<U>>> &&
           std::is_constructible_v<T, U&&> && std::is_assignable_v<T1&, U&&> &&
           std::is_nothrow_move_constructible_v<E>>* = nullptr>
   expected& operator=(U&& v) {
