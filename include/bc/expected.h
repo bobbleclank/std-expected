@@ -2,7 +2,7 @@
 #define INCLUDE_BC_EXPECTED_H
 
 #define BC_STD_EXPECTED_VERSION_MAJOR 1
-#define BC_STD_EXPECTED_VERSION_MINOR 0
+#define BC_STD_EXPECTED_VERSION_MINOR 1
 
 #include <exception>
 #include <initializer_list>
