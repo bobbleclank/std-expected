@@ -1,0 +1,11 @@
+Checks:
+  - cppcoreguidelines-*
+  - -clang-analyzer-cplusplus.Move
+  - -cppcoreguidelines-avoid-magic-numbers
+  - -cppcoreguidelines-explicit-virtual-functions
+  - -cppcoreguidelines-macro-usage
+  - -cppcoreguidelines-noexcept-move-operations
+  - -cppcoreguidelines-prefer-member-initializer
+  - -cppcoreguidelines-pro-type-union-access
+  - -cppcoreguidelines-rvalue-reference-param-not-moved
+  - -cppcoreguidelines-special-member-functions
