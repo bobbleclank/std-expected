@@ -345,6 +345,9 @@ template <class T, class E>
 struct expected_storage_base<T, E, false> {
   constexpr expected_storage_base() : val_(), has_val_(true) {}
 
+  expected_storage_base(const expected_storage_base&) = delete;
+  expected_storage_base(expected_storage_base&&) = delete;
+
   constexpr explicit expected_storage_base(uninit_t)
       : uninit_(), has_val_(false) {}
 
@@ -386,6 +389,9 @@ struct expected_storage_base<T, E, false> {
     }
   }
 
+  expected_storage_base& operator=(const expected_storage_base&) = delete;
+  expected_storage_base& operator=(expected_storage_base&&) = delete;
+
   union {
     T val_;
     unexpected<E> unexpect_;
@@ -398,6 +404,9 @@ struct expected_storage_base<T, E, false> {
 template <class T, class E>
 struct expected_storage_base<T, E, true> {
   constexpr expected_storage_base() : val_(), has_val_(true) {}
+
+  expected_storage_base(const expected_storage_base&) = default;
+  expected_storage_base(expected_storage_base&&) = default;
 
   constexpr explicit expected_storage_base(uninit_t)
       : uninit_(), has_val_(false) {}
@@ -432,6 +441,9 @@ struct expected_storage_base<T, E, true> {
 
   ~expected_storage_base() = default;
 
+  expected_storage_base& operator=(const expected_storage_base&) = default;
+  expected_storage_base& operator=(expected_storage_base&&) = default;
+
   union {
     T val_;
     unexpected<E> unexpect_;
@@ -444,6 +456,9 @@ struct expected_storage_base<T, E, true> {
 template <class E>
 struct expected_storage_base<void, E, false> {
   constexpr expected_storage_base() : dummy_(), has_val_(true) {}
+
+  expected_storage_base(const expected_storage_base&) = delete;
+  expected_storage_base(expected_storage_base&&) = delete;
 
   constexpr explicit expected_storage_base(uninit_t)
       : uninit_(), has_val_(false) {}
@@ -472,6 +487,9 @@ struct expected_storage_base<void, E, false> {
     }
   }
 
+  expected_storage_base& operator=(const expected_storage_base&) = delete;
+  expected_storage_base& operator=(expected_storage_base&&) = delete;
+
   struct dummy {};
   union {
     dummy dummy_;
@@ -485,6 +503,9 @@ struct expected_storage_base<void, E, false> {
 template <class E>
 struct expected_storage_base<void, E, true> {
   constexpr expected_storage_base() : dummy_(), has_val_(true) {}
+
+  expected_storage_base(const expected_storage_base&) = default;
+  expected_storage_base(expected_storage_base&&) = default;
 
   constexpr explicit expected_storage_base(uninit_t)
       : uninit_(), has_val_(false) {}
@@ -508,6 +529,9 @@ struct expected_storage_base<void, E, true> {
         has_val_(false) {}
 
   ~expected_storage_base() = default;
+
+  expected_storage_base& operator=(const expected_storage_base&) = default;
+  expected_storage_base& operator=(expected_storage_base&&) = default;
 
   struct dummy {};
   union {
@@ -826,6 +850,7 @@ struct expected_copy_base<T, E, false> : expected_operations_base<T, E> {
   }
 
   expected_copy_base(expected_copy_base&&) = default;
+  ~expected_copy_base() = default;
   expected_copy_base& operator=(const expected_copy_base&) = default;
   expected_copy_base& operator=(expected_copy_base&&) = default;
 };
@@ -865,6 +890,7 @@ struct expected_move_base<T, E, false> : expected_copy_base<T, E> {
     this->construct_from(std::move(other));
   }
 
+  ~expected_move_base() = default;
   expected_move_base& operator=(const expected_move_base&) = default;
   expected_move_base& operator=(expected_move_base&&) = default;
 };
@@ -899,6 +925,7 @@ struct expected_copy_assign_base<T, E, false> : expected_move_base<T, E> {
   expected_copy_assign_base() = default;
   expected_copy_assign_base(const expected_copy_assign_base&) = default;
   expected_copy_assign_base(expected_copy_assign_base&&) = default;
+  ~expected_copy_assign_base() = default;
 
   expected_copy_assign_base& operator=(const expected_copy_assign_base& other) {
     this->assign(other);
@@ -939,6 +966,7 @@ struct expected_move_assign_base<T, E, false>
   expected_move_assign_base() = default;
   expected_move_assign_base(const expected_move_assign_base&) = default;
   expected_move_assign_base(expected_move_assign_base&&) = default;
+  ~expected_move_assign_base() = default;
   expected_move_assign_base&
   operator=(const expected_move_assign_base&) = default;
 
@@ -989,6 +1017,7 @@ struct copy_constructible_if<false> {
   copy_constructible_if() = default;
   copy_constructible_if(const copy_constructible_if&) = delete;
   copy_constructible_if(copy_constructible_if&&) = default;
+  ~copy_constructible_if() = default;
   copy_constructible_if& operator=(const copy_constructible_if&) = default;
   copy_constructible_if& operator=(copy_constructible_if&&) = default;
 };
@@ -1007,6 +1036,7 @@ struct move_constructible_if<false> {
   move_constructible_if() = default;
   move_constructible_if(const move_constructible_if&) = default;
   move_constructible_if(move_constructible_if&&) = delete;
+  ~move_constructible_if() = default;
   move_constructible_if& operator=(const move_constructible_if&) = default;
   move_constructible_if& operator=(move_constructible_if&&) = default;
 };
@@ -1025,6 +1055,7 @@ struct copy_assignable_if<false> {
   copy_assignable_if() = default;
   copy_assignable_if(const copy_assignable_if&) = default;
   copy_assignable_if(copy_assignable_if&&) = default;
+  ~copy_assignable_if() = default;
   copy_assignable_if& operator=(const copy_assignable_if&) = delete;
   copy_assignable_if& operator=(copy_assignable_if&&) = default;
 };
@@ -1045,6 +1076,7 @@ struct move_assignable_if<false> {
   move_assignable_if() = default;
   move_assignable_if(const move_assignable_if&) = default;
   move_assignable_if(move_assignable_if&&) = default;
+  ~move_assignable_if() = default;
   move_assignable_if& operator=(const move_assignable_if&) = default;
   move_assignable_if& operator=(move_assignable_if&&) = delete;
 };
