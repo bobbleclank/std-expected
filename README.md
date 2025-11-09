@@ -1,7 +1,7 @@
 # std-expected
 
 An implementation of std::expected as proposed in
-[p0323r10](http://wg21.link/p0323r10).
+[p0323r10](https://wg21.link/p0323r10).
 
 This project is an exercise for the author. Using the following implementations
 as references:
