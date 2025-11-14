@@ -5,5 +5,4 @@ Checks:
   - -cppcoreguidelines-explicit-virtual-functions
   - -cppcoreguidelines-macro-usage
   - -cppcoreguidelines-noexcept-move-operations
-  - -cppcoreguidelines-prefer-member-initializer
   - -cppcoreguidelines-pro-type-union-access
