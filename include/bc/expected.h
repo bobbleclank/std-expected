@@ -98,6 +98,7 @@ public:
             detail::enable_unexpected_unexpected_constructor<E, Err, Err&&>* =
                 nullptr,
             std::enable_if_t<std::is_convertible_v<Err&&, E>>* = nullptr>
+  // NOLINTNEXTLINE(*-rvalue-reference-param-not-moved): Moved via value
   constexpr unexpected(unexpected<Err>&& other)
       : val_(std::move(other.value())) {}
 
@@ -105,6 +106,7 @@ public:
             detail::enable_unexpected_unexpected_constructor<E, Err, Err&&>* =
                 nullptr,
             std::enable_if_t<!std::is_convertible_v<Err&&, E>>* = nullptr>
+  // NOLINTNEXTLINE(*-rvalue-reference-param-not-moved): Moved via value
   constexpr explicit unexpected(unexpected<Err>&& other)
       : val_(std::move(other.value())) {}
 
@@ -142,6 +144,7 @@ public:
 
   template <class Err,
             std::enable_if_t<std::is_assignable_v<E&, Err&&>>* = nullptr>
+  // NOLINTNEXTLINE(*-rvalue-reference-param-not-moved): Moved via value
   constexpr unexpected& operator=(unexpected<Err>&& other) {
     val_ = std::move(other.value());
     return *this;
@@ -1234,6 +1237,7 @@ public:
   template <class G = E,
             std::enable_if_t<std::is_constructible_v<E, G&&>>* = nullptr,
             std::enable_if_t<std::is_convertible_v<G&&, E>>* = nullptr>
+  // NOLINTNEXTLINE(*-rvalue-reference-param-not-moved): Moved via value
   constexpr expected(unexpected<G>&& e) noexcept(
       std::is_nothrow_constructible_v<E, G&&>)
       : base_type(unexpect, std::move(e.value())),
@@ -1242,6 +1246,7 @@ public:
   template <class G = E,
             std::enable_if_t<std::is_constructible_v<E, G&&>>* = nullptr,
             std::enable_if_t<!std::is_convertible_v<G&&, E>>* = nullptr>
+  // NOLINTNEXTLINE(*-rvalue-reference-param-not-moved): Moved via value
   constexpr explicit expected(unexpected<G>&& e) noexcept(
       std::is_nothrow_constructible_v<E, G&&>)
       : base_type(unexpect, std::move(e.value())),
