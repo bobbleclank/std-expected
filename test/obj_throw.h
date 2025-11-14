@@ -18,10 +18,7 @@ struct Obj_throw {
   inline static State s = State::none;
   static void reset() { s = State::none; }
 
-  explicit Obj_throw(int x_) {
-    s = State::constructed;
-    x = x_;
-  }
+  explicit Obj_throw(int x_) : x(x_) { s = State::constructed; }
 
   Obj_throw(Arg&& arg_, int i) {
     s = State::constructed;
@@ -41,16 +38,14 @@ struct Obj_throw {
       throw t;
   }
 
-  Obj_throw(const Obj_throw& other) {
+  Obj_throw(const Obj_throw& other) : x(other.x) {
     s = State::copy_constructed;
-    x = other.x;
     if (t == May_throw::do_throw)
       throw t;
   }
 
-  Obj_throw(Obj_throw&& other) noexcept {
+  Obj_throw(Obj_throw&& other) noexcept : x(other.x) {
     s = State::move_constructed;
-    x = other.x;
     other.x = -1;
   }
 
@@ -86,10 +81,7 @@ struct Obj_throw_2 {
   inline static State s = State::none;
   static void reset() { s = State::none; }
 
-  explicit Obj_throw_2(int x_) {
-    s = State::constructed;
-    x = x_;
-  }
+  explicit Obj_throw_2(int x_) : x(x_) { s = State::constructed; }
 
   explicit Obj_throw_2(const Arg& arg_) {
     s = State::constructed;
@@ -125,16 +117,14 @@ struct Obj_throw_2 {
       throw t;
   }
 
-  Obj_throw_2(const Obj_throw_2& other) {
+  Obj_throw_2(const Obj_throw_2& other) : x(other.x) {
     s = State::copy_constructed;
-    x = other.x;
     if (t == May_throw::do_throw)
       throw t;
   }
 
-  Obj_throw_2(Obj_throw_2&& other) {
+  Obj_throw_2(Obj_throw_2&& other) : x(other.x) {
     s = State::move_constructed;
-    x = other.x;
     other.x = -1;
     if (t == May_throw::do_throw)
       throw t;
@@ -192,10 +182,7 @@ struct Obj_throw_3 {
   inline static State s = State::none;
   static void reset() { s = State::none; }
 
-  explicit Obj_throw_3(int x_) {
-    s = State::constructed;
-    x = x_;
-  }
+  explicit Obj_throw_3(int x_) : x(x_) { s = State::constructed; }
 
   explicit Obj_throw_3(const Arg& arg_) noexcept {
     s = State::constructed;
@@ -209,14 +196,12 @@ struct Obj_throw_3 {
     x = arg.x;
   }
 
-  Obj_throw_3(const Obj_throw_3& other) noexcept {
+  Obj_throw_3(const Obj_throw_3& other) noexcept : x(other.x) {
     s = State::copy_constructed;
-    x = other.x;
   }
 
-  Obj_throw_3(Obj_throw_3&& other) noexcept {
+  Obj_throw_3(Obj_throw_3&& other) noexcept : x(other.x) {
     s = State::move_constructed;
-    x = other.x;
     other.x = -1;
   }
 

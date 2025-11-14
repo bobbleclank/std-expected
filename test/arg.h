@@ -6,10 +6,7 @@ struct Arg {
 
   Arg(const Arg&) = default;
 
-  Arg(Arg&& other) noexcept {
-    x = other.x;
-    other.x = -1;
-  }
+  Arg(Arg&& other) noexcept : x(other.x) { other.x = -1; }
 
   Arg& operator=(const Arg&) = default;
 

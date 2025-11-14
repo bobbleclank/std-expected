@@ -11,10 +11,7 @@ struct Obj_implicit {
   inline static State s = State::none;
   static void reset() { s = State::none; }
 
-  explicit Obj_implicit(int x_) {
-    s = State::constructed;
-    x = x_;
-  }
+  explicit Obj_implicit(int x_) : x(x_) { s = State::constructed; }
 
   Obj_implicit(const Arg& arg_) {
     s = State::constructed;
@@ -28,14 +25,12 @@ struct Obj_implicit {
     x = arg.x;
   }
 
-  Obj_implicit(const Obj_implicit& other) {
+  Obj_implicit(const Obj_implicit& other) : x(other.x) {
     s = State::copy_constructed;
-    x = other.x;
   }
 
-  Obj_implicit(Obj_implicit&& other) {
+  Obj_implicit(Obj_implicit&& other) : x(other.x) {
     s = State::move_constructed;
-    x = other.x;
     other.x = -1;
   }
 
@@ -59,10 +54,7 @@ struct Obj_explicit {
   inline static State s = State::none;
   static void reset() { s = State::none; }
 
-  explicit Obj_explicit(int x_) {
-    s = State::constructed;
-    x = x_;
-  }
+  explicit Obj_explicit(int x_) : x(x_) { s = State::constructed; }
 
   explicit Obj_explicit(const Arg& arg_) {
     s = State::constructed;
@@ -76,14 +68,12 @@ struct Obj_explicit {
     x = arg.x;
   }
 
-  explicit Obj_explicit(const Obj_explicit& other) {
+  explicit Obj_explicit(const Obj_explicit& other) : x(other.x) {
     s = State::copy_constructed;
-    x = other.x;
   }
 
-  explicit Obj_explicit(Obj_explicit&& other) {
+  explicit Obj_explicit(Obj_explicit&& other) : x(other.x) {
     s = State::move_constructed;
-    x = other.x;
     other.x = -1;
   }
 

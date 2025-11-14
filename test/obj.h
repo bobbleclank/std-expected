@@ -15,10 +15,7 @@ struct Obj {
 
   Obj() noexcept { s = State::default_constructed; }
 
-  explicit Obj(int x_) noexcept {
-    s = State::constructed;
-    x = x_;
-  }
+  explicit Obj(int x_) noexcept : x(x_) { s = State::constructed; }
 
   explicit Obj(const Arg& arg_) noexcept {
     s = State::constructed;
@@ -46,14 +43,10 @@ struct Obj {
       x += *il.begin();
   }
 
-  Obj(const Obj& other) noexcept {
-    s = State::copy_constructed;
-    x = other.x;
-  }
+  Obj(const Obj& other) noexcept : x(other.x) { s = State::copy_constructed; }
 
-  Obj(Obj&& other) noexcept {
+  Obj(Obj&& other) noexcept : x(other.x) {
     s = State::move_constructed;
-    x = other.x;
     other.x = -1;
   }
 
