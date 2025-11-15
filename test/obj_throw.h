@@ -123,6 +123,7 @@ struct Obj_throw_2 {
       throw t;
   }
 
+  // NOLINTNEXTLINE(*-noexcept-move-operations): May throw
   Obj_throw_2(Obj_throw_2&& other) : x(other.x) {
     s = State::move_constructed;
     other.x = -1;
@@ -138,6 +139,7 @@ struct Obj_throw_2 {
     return *this;
   }
 
+  // NOLINTNEXTLINE(*-noexcept-move-operations): May throw
   Obj_throw_2& operator=(Obj_throw_2&& other) {
     s = State::move_assigned;
     x = other.x;
@@ -213,6 +215,7 @@ struct Obj_throw_3 {
     return *this;
   }
 
+  // NOLINTNEXTLINE(*-noexcept-move-operations): May throw
   Obj_throw_3& operator=(Obj_throw_3&& other) {
     s = State::move_assigned;
     x = other.x;
