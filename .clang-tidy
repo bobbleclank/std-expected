@@ -1,5 +1,4 @@
 Checks:
   - cppcoreguidelines-*
   - -clang-analyzer-cplusplus.Move
-  - -cppcoreguidelines-macro-usage
   - -cppcoreguidelines-pro-type-union-access
