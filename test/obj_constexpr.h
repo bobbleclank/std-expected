@@ -106,7 +106,7 @@ struct Obj_implicit {
 
   Obj_implicit(const Obj_implicit&) = default;
 
-  constexpr Obj_implicit(Obj_implicit&& other) : x(other.x + 301) {}
+  constexpr Obj_implicit(Obj_implicit&& other) noexcept : x(other.x + 301) {}
 
   Obj_implicit& operator=(const Obj_implicit&) = delete;
 
@@ -136,7 +136,8 @@ struct Obj_explicit {
 
   constexpr explicit Obj_explicit(const Obj_explicit& other) : x(other.x) {}
 
-  constexpr explicit Obj_explicit(Obj_explicit&& other) : x(other.x + 401) {}
+  constexpr explicit Obj_explicit(Obj_explicit&& other) noexcept
+      : x(other.x + 401) {}
 
   Obj_explicit& operator=(const Obj_explicit&) = delete;
 

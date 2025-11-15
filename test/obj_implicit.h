@@ -29,7 +29,7 @@ struct Obj_implicit {
     s = State::copy_constructed;
   }
 
-  Obj_implicit(Obj_implicit&& other) : x(other.x) {
+  Obj_implicit(Obj_implicit&& other) noexcept : x(other.x) {
     s = State::move_constructed;
     other.x = -1;
   }
@@ -72,7 +72,7 @@ struct Obj_explicit {
     s = State::copy_constructed;
   }
 
-  explicit Obj_explicit(Obj_explicit&& other) : x(other.x) {
+  explicit Obj_explicit(Obj_explicit&& other) noexcept : x(other.x) {
     s = State::move_constructed;
     other.x = -1;
   }
