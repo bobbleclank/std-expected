@@ -4,5 +4,4 @@ Checks:
   - -cppcoreguidelines-avoid-magic-numbers
   - -cppcoreguidelines-explicit-virtual-functions
   - -cppcoreguidelines-macro-usage
-  - -cppcoreguidelines-noexcept-move-operations
   - -cppcoreguidelines-pro-type-union-access
