@@ -23,6 +23,8 @@ using B_void_trivial = expected_copy_assign_base<void, Err_trivial>;
 
 } // namespace
 
+// NOLINTBEGIN(*-avoid-magic-numbers): Test values
+
 TEST(expected_copy_assign_base, type_traits) {
   ASSERT_FALSE(std::is_trivially_copy_assignable_v<Val>);
   ASSERT_FALSE(std::is_trivially_copy_assignable_v<Err>);
@@ -115,3 +117,5 @@ TEST(expected_copy_assign_base, copy_assignment_operator_void) {
   }
   Err::reset();
 }
+
+// NOLINTEND(*-avoid-magic-numbers): Test values

@@ -8,6 +8,8 @@
 
 using namespace bc;
 
+// NOLINTBEGIN(*-avoid-magic-numbers): Test values
+
 TEST(bad_expected_access, what) {
   bad_expected_access<Err> e(Err(1));
   ASSERT_STREQ(e.what(), "bad expected access");
@@ -81,3 +83,5 @@ TEST(bad_expected_access, constructor) {
     ASSERT_EQ(err.x, -1);
   }
 }
+
+// NOLINTEND(*-avoid-magic-numbers): Test values

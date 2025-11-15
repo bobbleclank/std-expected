@@ -13,6 +13,8 @@
 
 using namespace bc;
 
+// NOLINTBEGIN(*-avoid-magic-numbers): Test values
+
 TEST(expected_void, error) {
   // const& overload
   {
@@ -766,3 +768,5 @@ TEST(expected_void, comparison_with_unexpected_E) {
   ASSERT_FALSE(v1 == e_two);
   ASSERT_TRUE(v1 != e_two);
 }
+
+// NOLINTEND(*-avoid-magic-numbers): Test values

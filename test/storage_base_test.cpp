@@ -25,6 +25,8 @@ using B_void_trivial = expected_storage_base<void, Err_trivial>;
 
 } // namespace
 
+// NOLINTBEGIN(*-avoid-magic-numbers): Test values
+
 TEST(expected_storage_base, type_traits) {
   ASSERT_FALSE(std::is_trivially_destructible_v<Val>);
   ASSERT_FALSE(std::is_trivially_destructible_v<Err>);
@@ -357,3 +359,5 @@ TEST(expected_storage_base, unexpect_t_initializer_list_constructor) {
     ASSERT_EQ(arg.x, -1);
   }
 }
+
+// NOLINTEND(*-avoid-magic-numbers): Test values

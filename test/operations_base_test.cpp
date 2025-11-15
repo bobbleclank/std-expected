@@ -53,6 +53,8 @@ using B_void_arg = expected_operations<void, Arg>;
 
 } // namespace
 
+// NOLINTBEGIN(*-avoid-magic-numbers): Test values
+
 TEST(expected_operations_base, in_place_t_construct_destroy) {
   Val::reset();
   Err::reset();
@@ -1560,3 +1562,5 @@ TEST(expected_operations_base, swap_impl_void) {
   ASSERT_EQ(Err_throw_2::s, State::destructed);
   Err_throw_2::reset();
 }
+
+// NOLINTEND(*-avoid-magic-numbers): Test values

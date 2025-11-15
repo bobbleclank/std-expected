@@ -12,6 +12,8 @@
 
 using namespace bc;
 
+// NOLINTBEGIN(*-avoid-magic-numbers): Test values
+
 TEST(unexpected, value) {
   // const& overload
   {
@@ -247,3 +249,5 @@ TEST(unexpected, equality_operators) {
   ASSERT_TRUE(e_two != e1);
   ASSERT_FALSE(e_two != e2);
 }
+
+// NOLINTEND(*-avoid-magic-numbers): Test values

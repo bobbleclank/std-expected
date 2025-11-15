@@ -31,6 +31,8 @@ using B_void_throw_2 = expected_move_assign_base<void, Err_throw_2>;
 
 } // namespace
 
+// NOLINTBEGIN(*-avoid-magic-numbers): Test values
+
 TEST(expected_move_assign_base, type_traits) {
   // is_trivially_move_assignable
 
@@ -140,3 +142,5 @@ TEST(expected_move_assign_base, move_assignment_operator_void) {
   }
   Err::reset();
 }
+
+// NOLINTEND(*-avoid-magic-numbers): Test values

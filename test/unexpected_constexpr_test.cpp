@@ -37,6 +37,8 @@ constexpr int value_function_non_const_r_ref(int x) {
 
 } // namespace
 
+// NOLINTBEGIN(*-avoid-magic-numbers): Test values
+
 TEST(unexpected_constexpr, value) {
   {
     constexpr int x = value_function_const_l_ref(1);
@@ -250,3 +252,5 @@ TEST(unexpected_constexpr, equality_operators) {
     ASSERT_TRUE(b);
   }
 }
+
+// NOLINTEND(*-avoid-magic-numbers): Test values
