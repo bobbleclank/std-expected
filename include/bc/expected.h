@@ -1,8 +1,10 @@
 #ifndef INCLUDE_BC_EXPECTED_H
 #define INCLUDE_BC_EXPECTED_H
 
+// NOLINTBEGIN(*-macro-usage): Version
 #define BC_STD_EXPECTED_VERSION_MAJOR 1
 #define BC_STD_EXPECTED_VERSION_MINOR 1
+// NOLINTEND(*-macro-usage): Version
 
 #include <exception>
 #include <initializer_list>
