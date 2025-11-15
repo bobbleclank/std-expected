@@ -79,6 +79,7 @@ struct Obj {
 
   ~Obj() { s = State::destructed; }
 
+  // NOLINTNEXTLINE(*-avoid-magic-numbers): Default value
   int x = 20100;
 };
 

@@ -33,6 +33,7 @@ struct Obj_trivial {
 
   ~Obj_trivial() = default;
 
+  // NOLINTNEXTLINE(*-avoid-magic-numbers): Default value
   int x = 20100;
 };
 
