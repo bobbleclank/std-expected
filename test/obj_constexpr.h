@@ -6,16 +6,19 @@
 #include <utility>
 
 struct Arg {
+  static constexpr auto move_constructor_offset = 201;
+  static constexpr auto move_assignment_offset = 202;
+
   constexpr explicit Arg(int x_) : x(x_) {}
 
   Arg(const Arg&) = default;
 
-  constexpr Arg(Arg&& other) noexcept : x(other.x + 201) {}
+  constexpr Arg(Arg&& other) noexcept : x(other.x + move_constructor_offset) {}
 
   Arg& operator=(const Arg&) = default;
 
   constexpr Arg& operator=(Arg&& other) noexcept {
-    x = other.x + 202;
+    x = other.x + move_assignment_offset;
     return *this;
   }
 
@@ -26,6 +29,9 @@ struct Arg {
 
 template <class Tag>
 struct Obj {
+  static constexpr auto move_constructor_offset = 101;
+  static constexpr auto move_assignment_offset = 102;
+
   Obj() = default;
 
   constexpr explicit Obj(int x_) noexcept : x(x_) {}
@@ -51,12 +57,12 @@ struct Obj {
 
   Obj(const Obj&) = default;
 
-  constexpr Obj(Obj&& other) noexcept : x(other.x + 101) {}
+  constexpr Obj(Obj&& other) noexcept : x(other.x + move_constructor_offset) {}
 
   Obj& operator=(const Obj&) = default;
 
   constexpr Obj& operator=(Obj&& other) noexcept {
-    x = other.x + 102;
+    x = other.x + move_assignment_offset;
     return *this;
   }
 
@@ -96,6 +102,8 @@ using Err = Obj<Err_tag>;
 
 template <class Tag>
 struct Obj_implicit {
+  static constexpr auto move_constructor_offset = 301;
+
   constexpr explicit Obj_implicit(int x_) : x(x_) {}
 
   constexpr Obj_implicit(const Arg& arg_) : x(arg_.x) {}
@@ -107,7 +115,8 @@ struct Obj_implicit {
 
   Obj_implicit(const Obj_implicit&) = default;
 
-  constexpr Obj_implicit(Obj_implicit&& other) noexcept : x(other.x + 301) {}
+  constexpr Obj_implicit(Obj_implicit&& other) noexcept
+      : x(other.x + move_constructor_offset) {}
 
   Obj_implicit& operator=(const Obj_implicit&) = delete;
 
@@ -126,6 +135,8 @@ using Err_implicit = Obj_implicit<Err_implicit_tag>;
 
 template <class Tag>
 struct Obj_explicit {
+  static constexpr auto move_constructor_offset = 401;
+
   constexpr explicit Obj_explicit(int x_) : x(x_) {}
 
   constexpr explicit Obj_explicit(const Arg& arg_) : x(arg_.x) {}
@@ -138,7 +149,7 @@ struct Obj_explicit {
   constexpr explicit Obj_explicit(const Obj_explicit& other) : x(other.x) {}
 
   constexpr explicit Obj_explicit(Obj_explicit&& other) noexcept
-      : x(other.x + 401) {}
+      : x(other.x + move_constructor_offset) {}
 
   Obj_explicit& operator=(const Obj_explicit&) = delete;
 
