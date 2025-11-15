@@ -1,6 +1,5 @@
 Checks:
   - cppcoreguidelines-*
   - -clang-analyzer-cplusplus.Move
-  - -cppcoreguidelines-avoid-magic-numbers
   - -cppcoreguidelines-macro-usage
   - -cppcoreguidelines-pro-type-union-access
