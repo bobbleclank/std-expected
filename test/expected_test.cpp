@@ -15,6 +15,7 @@
 using namespace bc;
 
 // NOLINTBEGIN(*-avoid-magic-numbers): Test values
+// NOLINTBEGIN(clang-analyzer-cplusplus.Move)
 
 TEST(expected, member_access_operator) {
   // const overload
@@ -2072,4 +2073,5 @@ TEST(expected, comparison_with_unexpected_E) {
   ASSERT_TRUE(v2 != e_two);
 }
 
+// NOLINTEND(clang-analyzer-cplusplus.Move)
 // NOLINTEND(*-avoid-magic-numbers): Test values

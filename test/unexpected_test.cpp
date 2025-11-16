@@ -13,6 +13,7 @@
 using namespace bc;
 
 // NOLINTBEGIN(*-avoid-magic-numbers): Test values
+// NOLINTBEGIN(clang-analyzer-cplusplus.Move)
 
 TEST(unexpected, value) {
   // const& overload
@@ -250,4 +251,5 @@ TEST(unexpected, equality_operators) {
   ASSERT_FALSE(e_two != e2);
 }
 
+// NOLINTEND(clang-analyzer-cplusplus.Move)
 // NOLINTEND(*-avoid-magic-numbers): Test values

@@ -26,6 +26,7 @@ using B_void_trivial = expected_storage_base<void, Err_trivial>;
 } // namespace
 
 // NOLINTBEGIN(*-avoid-magic-numbers): Test values
+// NOLINTBEGIN(clang-analyzer-cplusplus.Move)
 
 TEST(expected_storage_base, type_traits) {
   ASSERT_FALSE(std::is_trivially_destructible_v<Val>);
@@ -360,4 +361,5 @@ TEST(expected_storage_base, unexpect_t_initializer_list_constructor) {
   }
 }
 
+// NOLINTEND(clang-analyzer-cplusplus.Move)
 // NOLINTEND(*-avoid-magic-numbers): Test values

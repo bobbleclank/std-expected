@@ -54,6 +54,7 @@ using B_void_arg = expected_operations<void, Arg>;
 } // namespace
 
 // NOLINTBEGIN(*-avoid-magic-numbers): Test values
+// NOLINTBEGIN(clang-analyzer-cplusplus.Move)
 
 TEST(expected_operations_base, in_place_t_construct_destroy) {
   Val::reset();
@@ -1563,4 +1564,5 @@ TEST(expected_operations_base, swap_impl_void) {
   Err_throw_2::reset();
 }
 
+// NOLINTEND(clang-analyzer-cplusplus.Move)
 // NOLINTEND(*-avoid-magic-numbers): Test values

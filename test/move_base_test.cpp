@@ -31,6 +31,8 @@ using B_void_throw_2 = expected_move_base<void, Err_throw_2>;
 
 } // namespace
 
+// NOLINTBEGIN(clang-analyzer-cplusplus.Move)
+
 TEST(expected_move_base, type_traits) {
   // is_trivially_move_constructible
 
@@ -136,3 +138,5 @@ TEST(expected_move_base, move_constructor_void) {
   }
   Err::reset();
 }
+
+// NOLINTEND(clang-analyzer-cplusplus.Move)

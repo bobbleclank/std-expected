@@ -9,6 +9,7 @@
 using namespace bc;
 
 // NOLINTBEGIN(*-avoid-magic-numbers): Test values
+// NOLINTBEGIN(clang-analyzer-cplusplus.Move)
 
 TEST(bad_expected_access, what) {
   bad_expected_access<Err> e(Err(1));
@@ -84,4 +85,5 @@ TEST(bad_expected_access, constructor) {
   }
 }
 
+// NOLINTEND(clang-analyzer-cplusplus.Move)
 // NOLINTEND(*-avoid-magic-numbers): Test values
