@@ -1,4 +1,3 @@
 Checks:
   - cppcoreguidelines-*
-  - -clang-analyzer-cplusplus.Move
   - -cppcoreguidelines-pro-type-union-access
