@@ -9,17 +9,16 @@
 #include <gtest/gtest.h>
 
 using namespace bc;
-using namespace bc::detail;
 
 namespace {
 
-using Base = expected_copy_assign_base<Val, Err>;
-using B_e_trivial = expected_copy_assign_base<Val, Err_trivial>;
-using B_t_trivial = expected_copy_assign_base<Val_trivial, Err>;
-using B_trivial = expected_copy_assign_base<Val_trivial, Err_trivial>;
+using Base = detail::expected_copy_assign_base<Val, Err>;
+using B_e_trivial = detail::expected_copy_assign_base<Val, Err_trivial>;
+using B_t_trivial = detail::expected_copy_assign_base<Val_trivial, Err>;
+using B_trivial = detail::expected_copy_assign_base<Val_trivial, Err_trivial>;
 
-using Base_void = expected_copy_assign_base<void, Err>;
-using B_void_trivial = expected_copy_assign_base<void, Err_trivial>;
+using Base_void = detail::expected_copy_assign_base<void, Err>;
+using B_void_trivial = detail::expected_copy_assign_base<void, Err_trivial>;
 
 } // namespace
 

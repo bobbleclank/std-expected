@@ -11,17 +11,16 @@
 #include <gtest/gtest.h>
 
 using namespace bc;
-using namespace bc::detail;
 
 namespace {
 
-using Base = expected_storage_base<Val, Err>;
-using B_e_trivial = expected_storage_base<Val, Err_trivial>;
-using B_t_trivial = expected_storage_base<Val_trivial, Err>;
-using B_trivial = expected_storage_base<Val_trivial, Err_trivial>;
+using Base = detail::expected_storage_base<Val, Err>;
+using B_e_trivial = detail::expected_storage_base<Val, Err_trivial>;
+using B_t_trivial = detail::expected_storage_base<Val_trivial, Err>;
+using B_trivial = detail::expected_storage_base<Val_trivial, Err_trivial>;
 
-using Base_void = expected_storage_base<void, Err>;
-using B_void_trivial = expected_storage_base<void, Err_trivial>;
+using Base_void = detail::expected_storage_base<void, Err>;
+using B_void_trivial = detail::expected_storage_base<void, Err_trivial>;
 
 } // namespace
 
@@ -95,7 +94,7 @@ TEST(expected_storage_base, uninit_t_constructor) {
   Val::reset();
   Err::reset();
   {
-    Base b(uninit);
+    Base b(detail::uninit);
     ASSERT_EQ(b.uninit_, '\0');
     ASSERT_FALSE(b.has_val_);
     ASSERT_EQ(Val::s, State::none);
@@ -105,14 +104,14 @@ TEST(expected_storage_base, uninit_t_constructor) {
   ASSERT_EQ(Err::s, State::destructed);
   Err::reset();
   {
-    B_e_trivial b(uninit);
+    B_e_trivial b(detail::uninit);
     ASSERT_EQ(b.uninit_, '\0');
     ASSERT_FALSE(b.has_val_);
     ASSERT_EQ(Val::s, State::none);
   }
   ASSERT_EQ(Val::s, State::none);
   {
-    B_t_trivial b(uninit);
+    B_t_trivial b(detail::uninit);
     ASSERT_EQ(b.uninit_, '\0');
     ASSERT_FALSE(b.has_val_);
     ASSERT_EQ(Err::s, State::none);
@@ -120,13 +119,13 @@ TEST(expected_storage_base, uninit_t_constructor) {
   ASSERT_EQ(Err::s, State::destructed);
   Err::reset();
   {
-    B_trivial b(uninit);
+    B_trivial b(detail::uninit);
     ASSERT_EQ(b.uninit_, '\0');
     ASSERT_FALSE(b.has_val_);
   }
   // T is void
   {
-    Base_void b(uninit);
+    Base_void b(detail::uninit);
     ASSERT_EQ(b.uninit_, '\0');
     ASSERT_FALSE(b.has_val_);
     ASSERT_EQ(Err::s, State::none);
@@ -134,7 +133,7 @@ TEST(expected_storage_base, uninit_t_constructor) {
   ASSERT_EQ(Err::s, State::destructed);
   Err::reset();
   {
-    B_void_trivial b(uninit);
+    B_void_trivial b(detail::uninit);
     ASSERT_EQ(b.uninit_, '\0');
     ASSERT_FALSE(b.has_val_);
   }

@@ -11,23 +11,22 @@
 #include <gtest/gtest.h>
 
 using namespace bc;
-using namespace bc::detail;
 
 namespace {
 
-using Base = expected_move_base<Val, Err>;
-using B_e_trivial = expected_move_base<Val, Err_trivial>;
-using B_t_trivial = expected_move_base<Val_trivial, Err>;
-using B_trivial = expected_move_base<Val_trivial, Err_trivial>;
+using Base = detail::expected_move_base<Val, Err>;
+using B_e_trivial = detail::expected_move_base<Val, Err_trivial>;
+using B_t_trivial = detail::expected_move_base<Val_trivial, Err>;
+using B_trivial = detail::expected_move_base<Val_trivial, Err_trivial>;
 
-using Base_void = expected_move_base<void, Err>;
-using B_void_trivial = expected_move_base<void, Err_trivial>;
+using Base_void = detail::expected_move_base<void, Err>;
+using B_void_trivial = detail::expected_move_base<void, Err_trivial>;
 
-using B_e_throw_2 = expected_move_base<Val, Err_throw_2>;
-using B_t_throw_2 = expected_move_base<Val_throw_2, Err>;
-using B_throw_2 = expected_move_base<Val_throw_2, Err_throw_2>;
+using B_e_throw_2 = detail::expected_move_base<Val, Err_throw_2>;
+using B_t_throw_2 = detail::expected_move_base<Val_throw_2, Err>;
+using B_throw_2 = detail::expected_move_base<Val_throw_2, Err_throw_2>;
 
-using B_void_throw_2 = expected_move_base<void, Err_throw_2>;
+using B_void_throw_2 = detail::expected_move_base<void, Err_throw_2>;
 
 } // namespace
 
