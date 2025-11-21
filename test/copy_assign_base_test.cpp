@@ -3,6 +3,7 @@
 #include "obj.h"
 #include "obj_trivial.h"
 #include "state.h"
+#include "union_access.h"
 
 #include <type_traits>
 
@@ -53,8 +54,8 @@ TEST(expected_copy_assign_base, copy_assignment_operator) {
       ASSERT_EQ(Err::s, State::none);
       ASSERT_TRUE(b.has_val_);
       ASSERT_TRUE(other.has_val_);
-      ASSERT_EQ(b.val_.x, 1);
-      ASSERT_EQ(other.val_.x, 1);
+      ASSERT_EQ(val(b).x, 1);
+      ASSERT_EQ(val(other).x, 1);
     }
     ASSERT_EQ(Val::s, State::destructed);
     ASSERT_EQ(Err::s, State::none);
@@ -72,8 +73,8 @@ TEST(expected_copy_assign_base, copy_assignment_operator) {
       ASSERT_EQ(Err::s, State::copy_assigned);
       ASSERT_FALSE(b.has_val_);
       ASSERT_FALSE(other.has_val_);
-      ASSERT_EQ(b.unexpect_.value().x, 2);
-      ASSERT_EQ(other.unexpect_.value().x, 2);
+      ASSERT_EQ(unexpect_value(b).x, 2);
+      ASSERT_EQ(unexpect_value(other).x, 2);
     }
     ASSERT_EQ(Val::s, State::none);
     ASSERT_EQ(Err::s, State::destructed);
@@ -93,8 +94,8 @@ TEST(expected_copy_assign_base, copy_assignment_operator_void) {
       ASSERT_EQ(Err::s, State::none);
       ASSERT_TRUE(b.has_val_);
       ASSERT_TRUE(other.has_val_);
-      (void)b.dummy_;
-      (void)other.dummy_;
+      (void)dummy(b);
+      (void)dummy(other);
     }
     ASSERT_EQ(Err::s, State::none);
   }
@@ -108,8 +109,8 @@ TEST(expected_copy_assign_base, copy_assignment_operator_void) {
       ASSERT_EQ(Err::s, State::copy_assigned);
       ASSERT_FALSE(b.has_val_);
       ASSERT_FALSE(other.has_val_);
-      ASSERT_EQ(b.unexpect_.value().x, 1);
-      ASSERT_EQ(other.unexpect_.value().x, 1);
+      ASSERT_EQ(unexpect_value(b).x, 1);
+      ASSERT_EQ(unexpect_value(other).x, 1);
     }
     ASSERT_EQ(Err::s, State::destructed);
     Err::reset();
