@@ -3,7 +3,7 @@
 
 // NOLINTBEGIN(*-macro-usage): Version
 #define BC_STD_EXPECTED_VERSION_MAJOR 1
-#define BC_STD_EXPECTED_VERSION_MINOR 1
+#define BC_STD_EXPECTED_VERSION_MINOR 2
 // NOLINTEND(*-macro-usage): Version
 
 #include <exception>
