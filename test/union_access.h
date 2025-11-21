@@ -7,7 +7,7 @@ inline auto& val(auto& b) {
   return b.val_;
 }
 
-inline auto& unexpect_value(auto& b) {
+inline auto& err(auto& b) {
   return b.unexpect_.value();
 }
 

@@ -96,8 +96,8 @@ TEST(expected_move_base, move_constructor) {
       ASSERT_EQ(Err::s, State::move_constructed);
       ASSERT_FALSE(b.has_val_);
       ASSERT_FALSE(other.has_val_);
-      ASSERT_EQ(unexpect_value(b).x, 2);
-      ASSERT_EQ(unexpect_value(other).x, -1);
+      ASSERT_EQ(err(b).x, 2);
+      ASSERT_EQ(err(other).x, -1);
     }
     ASSERT_EQ(Val::s, State::none);
     ASSERT_EQ(Err::s, State::destructed);
@@ -130,8 +130,8 @@ TEST(expected_move_base, move_constructor_void) {
       ASSERT_EQ(Err::s, State::move_constructed);
       ASSERT_FALSE(b.has_val_);
       ASSERT_FALSE(other.has_val_);
-      ASSERT_EQ(unexpect_value(b).x, 1);
-      ASSERT_EQ(unexpect_value(other).x, -1);
+      ASSERT_EQ(err(b).x, 1);
+      ASSERT_EQ(err(other).x, -1);
     }
     ASSERT_EQ(Err::s, State::destructed);
     Err::reset();
