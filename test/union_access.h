@@ -1,6 +1,8 @@
 #ifndef TEST_UNION_ACCESS_H
 #define TEST_UNION_ACCESS_H
 
+// NOLINTBEGIN(*-pro-type-union-access): Tagged union
+
 inline auto& val(auto& b) {
   return b.val_;
 }
@@ -16,5 +18,7 @@ inline auto& uninit(auto& b) {
 inline auto& dummy(auto& b) {
   return b.dummy_;
 }
+
+// NOLINTEND(*-pro-type-union-access): Tagged union
 
 #endif
