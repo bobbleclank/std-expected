@@ -32,7 +32,7 @@ struct expected_operations : detail::expected_operations_base<T, E> {
   const T& operator*() const& { return val(*this); }
   T&& operator*() && { return std::move(val(*this)); }
 
-  bool has_value() const { return this->has_val_; }
+  bool has_value() const { return has_val(*this); }
 
   const E& error() const& { return err(*this); }
   E&& error() && { return std::move(err(*this)); }
@@ -43,7 +43,7 @@ struct expected_operations<void, E>
     : detail::expected_operations_base<void, E> {
   using detail::expected_operations_base<void, E>::expected_operations_base;
 
-  bool has_value() const { return this->has_val_; }
+  bool has_value() const { return has_val(*this); }
 
   const E& error() const& { return err(*this); }
   E&& error() && { return std::move(err(*this)); }
@@ -66,7 +66,7 @@ TEST(expected_operations_base, in_place_t_construct_destroy) {
     b.construct(std::in_place, std::move(arg), 1);
     ASSERT_EQ(Val::s, State::constructed);
     ASSERT_EQ(Err::s, State::none);
-    ASSERT_TRUE(b.has_val_);
+    ASSERT_TRUE(has_val(b));
     ASSERT_EQ(val(b).x, 1 + 1);
     ASSERT_EQ(arg.x, -1);
     b.destroy(std::in_place);
@@ -82,7 +82,7 @@ TEST(expected_operations_base, in_place_t_construct_destroy) {
     Base_void b(detail::uninit);
     b.construct(std::in_place);
     ASSERT_EQ(Err::s, State::none);
-    ASSERT_TRUE(b.has_val_);
+    ASSERT_TRUE(has_val(b));
     (void)dummy(b);
     b.destroy(std::in_place);
     ASSERT_EQ(Err::s, State::none);
@@ -99,7 +99,7 @@ TEST(expected_operations_base, unexpect_t_construct_destroy) {
     b.construct(unexpect, std::in_place, std::move(arg), 1);
     ASSERT_EQ(Val::s, State::none);
     ASSERT_EQ(Err::s, State::constructed);
-    ASSERT_FALSE(b.has_val_);
+    ASSERT_FALSE(has_val(b));
     ASSERT_EQ(err(b).x, 1 + 1);
     ASSERT_EQ(arg.x, -1);
     b.destroy(unexpect);
@@ -116,7 +116,7 @@ TEST(expected_operations_base, unexpect_t_construct_destroy) {
     Base_void b(detail::uninit);
     b.construct(unexpect, std::in_place, std::move(arg), 2);
     ASSERT_EQ(Err::s, State::constructed);
-    ASSERT_FALSE(b.has_val_);
+    ASSERT_FALSE(has_val(b));
     ASSERT_EQ(err(b).x, 2 + 2);
     ASSERT_EQ(arg.x, -1);
     b.destroy(unexpect);
@@ -139,8 +139,8 @@ TEST(expected_operations_base, construct_from) {
       b.construct_from(other);
       ASSERT_EQ(Val::s, State::copy_constructed);
       ASSERT_EQ(Err::s, State::none);
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_TRUE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_TRUE(has_val(other));
       ASSERT_EQ(val(b).x, 1);
       ASSERT_EQ(val(other).x, 1);
     }
@@ -157,8 +157,8 @@ TEST(expected_operations_base, construct_from) {
       b.construct_from(std::move(other));
       ASSERT_EQ(Val::s, State::move_constructed);
       ASSERT_EQ(Err::s, State::none);
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_TRUE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_TRUE(has_val(other));
       ASSERT_EQ(val(b).x, 2);
       ASSERT_EQ(val(other).x, -1);
     }
@@ -176,8 +176,8 @@ TEST(expected_operations_base, construct_from) {
       b.construct_from(other);
       ASSERT_EQ(Val::s, State::none);
       ASSERT_EQ(Err::s, State::copy_constructed);
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(err(b).x, 3);
       ASSERT_EQ(err(other).x, 3);
     }
@@ -194,8 +194,8 @@ TEST(expected_operations_base, construct_from) {
       b.construct_from(std::move(other));
       ASSERT_EQ(Val::s, State::none);
       ASSERT_EQ(Err::s, State::move_constructed);
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(err(b).x, 4);
       ASSERT_EQ(err(other).x, -1);
     }
@@ -215,8 +215,8 @@ TEST(expected_operations_base, construct_from_void) {
       Base_void b(detail::uninit);
       b.construct_from(other);
       ASSERT_EQ(Err::s, State::none);
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_TRUE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_TRUE(has_val(other));
       (void)dummy(b);
       (void)dummy(other);
     }
@@ -228,8 +228,8 @@ TEST(expected_operations_base, construct_from_void) {
       Base_void b(detail::uninit);
       b.construct_from(std::move(other));
       ASSERT_EQ(Err::s, State::none);
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_TRUE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_TRUE(has_val(other));
       (void)dummy(b);
       (void)dummy(other);
     }
@@ -243,8 +243,8 @@ TEST(expected_operations_base, construct_from_void) {
       Base_void b(detail::uninit);
       b.construct_from(other);
       ASSERT_EQ(Err::s, State::copy_constructed);
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(err(b).x, 1);
       ASSERT_EQ(err(other).x, 1);
     }
@@ -259,8 +259,8 @@ TEST(expected_operations_base, construct_from_void) {
       Base_void b(detail::uninit);
       b.construct_from(std::move(other));
       ASSERT_EQ(Err::s, State::move_constructed);
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(err(b).x, 2);
       ASSERT_EQ(err(other).x, -1);
     }
@@ -281,8 +281,8 @@ TEST(expected_operations_base, construct_from_ex) {
       b.construct_from_ex(other);
       ASSERT_EQ(Val::s, State::constructed);
       ASSERT_EQ(Err::s, State::none);
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_TRUE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_TRUE(has_val(other));
       ASSERT_EQ(val(b).x, 1);
       ASSERT_EQ(val(other).x, 1);
     }
@@ -297,8 +297,8 @@ TEST(expected_operations_base, construct_from_ex) {
       b.construct_from_ex(std::move(other));
       ASSERT_EQ(Val::s, State::constructed);
       ASSERT_EQ(Err::s, State::none);
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_TRUE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_TRUE(has_val(other));
       ASSERT_EQ(val(b).x, 2);
       ASSERT_EQ(val(other).x, -1);
     }
@@ -314,8 +314,8 @@ TEST(expected_operations_base, construct_from_ex) {
       b.construct_from_ex(other);
       ASSERT_EQ(Val::s, State::none);
       ASSERT_EQ(Err::s, State::constructed);
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(err(b).x, 3);
       ASSERT_EQ(err(other).x, 3);
     }
@@ -330,8 +330,8 @@ TEST(expected_operations_base, construct_from_ex) {
       b.construct_from_ex(std::move(other));
       ASSERT_EQ(Val::s, State::none);
       ASSERT_EQ(Err::s, State::constructed);
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(err(b).x, 4);
       ASSERT_EQ(err(other).x, -1);
     }
@@ -350,8 +350,8 @@ TEST(expected_operations_base, construct_from_ex_void) {
       Base_void b(detail::uninit);
       b.construct_from_ex(other);
       ASSERT_EQ(Err::s, State::none);
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_TRUE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_TRUE(has_val(other));
       (void)dummy(b);
       (void)dummy(other);
     }
@@ -363,8 +363,8 @@ TEST(expected_operations_base, construct_from_ex_void) {
       Base_void b(detail::uninit);
       b.construct_from_ex(std::move(other));
       ASSERT_EQ(Err::s, State::none);
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_TRUE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_TRUE(has_val(other));
       (void)dummy(b);
       (void)dummy(other);
     }
@@ -377,8 +377,8 @@ TEST(expected_operations_base, construct_from_ex_void) {
       Base_void b(detail::uninit);
       b.construct_from_ex(other);
       ASSERT_EQ(Err::s, State::constructed);
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(err(b).x, 1);
       ASSERT_EQ(err(other).x, 1);
     }
@@ -391,8 +391,8 @@ TEST(expected_operations_base, construct_from_ex_void) {
       Base_void b(detail::uninit);
       b.construct_from_ex(std::move(other));
       ASSERT_EQ(Err::s, State::constructed);
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(err(b).x, 2);
       ASSERT_EQ(err(other).x, -1);
     }
@@ -417,8 +417,8 @@ TEST(expected_operations_base, copy_assign) {
       b.assign(other);
       ASSERT_EQ(Val::s, State::copy_assigned);
       ASSERT_EQ(Err::s, State::none);
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_TRUE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_TRUE(has_val(other));
       ASSERT_EQ(val(b).x, 1);
       ASSERT_EQ(val(other).x, 1);
     }
@@ -442,8 +442,8 @@ TEST(expected_operations_base, copy_assign) {
         did_throw = true;
         Val_throw::t = May_throw::do_not_throw;
       }
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_TRUE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_TRUE(has_val(other));
       ASSERT_EQ(val(b).x, 2); // No exception safety guarantee.
       ASSERT_EQ(val(other).x, 2);
       ASSERT_TRUE(did_throw);
@@ -463,8 +463,8 @@ TEST(expected_operations_base, copy_assign) {
       b.assign(other);
       ASSERT_EQ(Val::s, State::destructed);
       ASSERT_EQ(Err::s, State::copy_constructed);
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(err(b).x, 3);
       ASSERT_EQ(err(other).x, 3);
       Val::reset();
@@ -485,8 +485,8 @@ TEST(expected_operations_base, copy_assign) {
       ASSERT_EQ(Val::s, State::destructed);
       // copy_constructed (tmp), move_constructed (this), destructed (tmp)
       ASSERT_EQ(Err_throw::s, State::destructed);
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(err(b).x, 4);
       ASSERT_EQ(err(other).x, 4);
       Err_throw::s = State::copy_constructed;
@@ -512,8 +512,8 @@ TEST(expected_operations_base, copy_assign) {
         did_throw = true;
         Err_throw::t = May_throw::do_not_throw;
       }
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(val(b).x, 50);
       ASSERT_EQ(err(other).x, 5);
       ASSERT_TRUE(did_throw);
@@ -534,8 +534,8 @@ TEST(expected_operations_base, copy_assign) {
       b.assign(other);
       ASSERT_EQ(Val::s, State::destructed);
       ASSERT_EQ(Err_throw_2::s, State::copy_constructed);
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(err(b).x, 6);
       ASSERT_EQ(err(other).x, 6);
       Val::reset();
@@ -561,8 +561,8 @@ TEST(expected_operations_base, copy_assign) {
         did_throw = true;
         Err_throw_2::t = May_throw::do_not_throw;
       }
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(val(b).x, 70);
       ASSERT_EQ(err(other).x, 7);
       ASSERT_TRUE(did_throw);
@@ -583,8 +583,8 @@ TEST(expected_operations_base, copy_assign) {
       b.assign(other);
       ASSERT_EQ(Val::s, State::none);
       ASSERT_EQ(Err::s, State::copy_assigned);
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(err(b).x, 1);
       ASSERT_EQ(err(other).x, 1);
     }
@@ -608,8 +608,8 @@ TEST(expected_operations_base, copy_assign) {
         did_throw = true;
         Err_throw::t = May_throw::do_not_throw;
       }
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(err(b).x, 2); // No exception safety guarantee.
       ASSERT_EQ(err(other).x, 2);
       ASSERT_TRUE(did_throw);
@@ -629,8 +629,8 @@ TEST(expected_operations_base, copy_assign) {
       b.assign(other);
       ASSERT_EQ(Val::s, State::copy_constructed);
       ASSERT_EQ(Err::s, State::destructed);
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_TRUE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_TRUE(has_val(other));
       ASSERT_EQ(val(b).x, 3);
       ASSERT_EQ(val(other).x, 3);
       Err::reset();
@@ -651,8 +651,8 @@ TEST(expected_operations_base, copy_assign) {
       // copy_constructed (tmp), move_constructed (this), destructed (tmp)
       ASSERT_EQ(Val_throw::s, State::destructed);
       ASSERT_EQ(Err::s, State::destructed);
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_TRUE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_TRUE(has_val(other));
       ASSERT_EQ(val(b).x, 4);
       ASSERT_EQ(val(other).x, 4);
       Val_throw::s = State::copy_constructed;
@@ -678,8 +678,8 @@ TEST(expected_operations_base, copy_assign) {
         did_throw = true;
         Val_throw::t = May_throw::do_not_throw;
       }
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_TRUE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_TRUE(has_val(other));
       ASSERT_EQ(err(b).x, 50);
       ASSERT_EQ(val(other).x, 5);
       ASSERT_TRUE(did_throw);
@@ -700,8 +700,8 @@ TEST(expected_operations_base, copy_assign) {
       b.assign(other);
       ASSERT_EQ(Val_throw_2::s, State::copy_constructed);
       ASSERT_EQ(Err::s, State::destructed);
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_TRUE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_TRUE(has_val(other));
       ASSERT_EQ(val(b).x, 6);
       ASSERT_EQ(val(other).x, 6);
       Err::reset();
@@ -727,8 +727,8 @@ TEST(expected_operations_base, copy_assign) {
         did_throw = true;
         Val_throw_2::t = May_throw::do_not_throw;
       }
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_TRUE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_TRUE(has_val(other));
       ASSERT_EQ(err(b).x, 70);
       ASSERT_EQ(val(other).x, 7);
       ASSERT_TRUE(did_throw);
@@ -756,8 +756,8 @@ TEST(expected_operations_base, move_assign) {
       b.assign(std::move(other));
       ASSERT_EQ(Val::s, State::move_assigned);
       ASSERT_EQ(Err::s, State::none);
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_TRUE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_TRUE(has_val(other));
       ASSERT_EQ(val(b).x, 1);
       ASSERT_EQ(val(other).x, -2);
     }
@@ -781,8 +781,8 @@ TEST(expected_operations_base, move_assign) {
         did_throw = true;
         Val_throw_2::t = May_throw::do_not_throw;
       }
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_TRUE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_TRUE(has_val(other));
       ASSERT_EQ(val(b).x, 2); // No exception safety guarantee.
       ASSERT_EQ(val(other).x, -2);
       ASSERT_TRUE(did_throw);
@@ -802,8 +802,8 @@ TEST(expected_operations_base, move_assign) {
       b.assign(std::move(other));
       ASSERT_EQ(Val::s, State::destructed);
       ASSERT_EQ(Err::s, State::move_constructed);
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(err(b).x, 3);
       ASSERT_EQ(err(other).x, -1);
       Val::reset();
@@ -823,8 +823,8 @@ TEST(expected_operations_base, move_assign) {
       b.assign(std::move(other));
       ASSERT_EQ(Val::s, State::destructed);
       ASSERT_EQ(Err_throw_2::s, State::move_constructed);
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(err(b).x, 6);
       ASSERT_EQ(err(other).x, -1);
       Val::reset();
@@ -850,8 +850,8 @@ TEST(expected_operations_base, move_assign) {
         did_throw = true;
         Err_throw_2::t = May_throw::do_not_throw;
       }
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(val(b).x, 70);
       ASSERT_EQ(err(other).x, -1);
       ASSERT_TRUE(did_throw);
@@ -872,8 +872,8 @@ TEST(expected_operations_base, move_assign) {
       b.assign(std::move(other));
       ASSERT_EQ(Val::s, State::none);
       ASSERT_EQ(Err::s, State::move_assigned);
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(err(b).x, 1);
       ASSERT_EQ(err(other).x, -2);
     }
@@ -897,8 +897,8 @@ TEST(expected_operations_base, move_assign) {
         did_throw = true;
         Err_throw_2::t = May_throw::do_not_throw;
       }
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(err(b).x, 2); // No exception safety guarantee.
       ASSERT_EQ(err(other).x, -2);
       ASSERT_TRUE(did_throw);
@@ -918,8 +918,8 @@ TEST(expected_operations_base, move_assign) {
       b.assign(std::move(other));
       ASSERT_EQ(Val::s, State::move_constructed);
       ASSERT_EQ(Err::s, State::destructed);
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_TRUE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_TRUE(has_val(other));
       ASSERT_EQ(val(b).x, 3);
       ASSERT_EQ(val(other).x, -1);
       Err::reset();
@@ -939,8 +939,8 @@ TEST(expected_operations_base, move_assign) {
       b.assign(std::move(other));
       ASSERT_EQ(Val_throw_2::s, State::move_constructed);
       ASSERT_EQ(Err::s, State::destructed);
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_TRUE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_TRUE(has_val(other));
       ASSERT_EQ(val(b).x, 6);
       ASSERT_EQ(val(other).x, -1);
       Err::reset();
@@ -966,8 +966,8 @@ TEST(expected_operations_base, move_assign) {
         did_throw = true;
         Val_throw_2::t = May_throw::do_not_throw;
       }
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_TRUE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_TRUE(has_val(other));
       ASSERT_EQ(err(b).x, 70);
       ASSERT_EQ(val(other).x, -1);
       ASSERT_TRUE(did_throw);
@@ -991,8 +991,8 @@ TEST(expected_operations_base, copy_assign_void) {
       Base_void b(std::in_place);
       b.assign(other);
       ASSERT_EQ(Err::s, State::none);
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_TRUE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_TRUE(has_val(other));
       (void)dummy(b);
       (void)dummy(other);
     }
@@ -1006,8 +1006,8 @@ TEST(expected_operations_base, copy_assign_void) {
       Base_void b(std::in_place);
       b.assign(other);
       ASSERT_EQ(Err::s, State::copy_constructed);
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(err(b).x, 1);
       ASSERT_EQ(err(other).x, 1);
     }
@@ -1029,8 +1029,8 @@ TEST(expected_operations_base, copy_assign_void) {
         did_throw = true;
         Err_throw::t = May_throw::do_not_throw;
       }
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       (void)dummy(b);
       ASSERT_EQ(err(other).x, 2);
       ASSERT_TRUE(did_throw);
@@ -1047,8 +1047,8 @@ TEST(expected_operations_base, copy_assign_void) {
       Base_void b(unexpect, 30);
       b.assign(other);
       ASSERT_EQ(Err::s, State::copy_assigned);
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(err(b).x, 3);
       ASSERT_EQ(err(other).x, 3);
     }
@@ -1070,8 +1070,8 @@ TEST(expected_operations_base, copy_assign_void) {
         did_throw = true;
         Err_throw::t = May_throw::do_not_throw;
       }
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(err(b).x, 4); // No exception safety guarantee.
       ASSERT_EQ(err(other).x, 4);
       ASSERT_TRUE(did_throw);
@@ -1087,8 +1087,8 @@ TEST(expected_operations_base, copy_assign_void) {
       Base_void b(unexpect, 50);
       b.assign(other);
       ASSERT_EQ(Err::s, State::destructed);
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_TRUE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_TRUE(has_val(other));
       (void)dummy(b);
       (void)dummy(other);
       Err::reset();
@@ -1108,8 +1108,8 @@ TEST(expected_operations_base, move_assign_void) {
       Base_void b(std::in_place);
       b.assign(std::move(other));
       ASSERT_EQ(Err::s, State::none);
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_TRUE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_TRUE(has_val(other));
       (void)dummy(b);
       (void)dummy(other);
     }
@@ -1123,8 +1123,8 @@ TEST(expected_operations_base, move_assign_void) {
       Base_void b(std::in_place);
       b.assign(std::move(other));
       ASSERT_EQ(Err::s, State::move_constructed);
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(err(b).x, 1);
       ASSERT_EQ(err(other).x, -1);
     }
@@ -1146,8 +1146,8 @@ TEST(expected_operations_base, move_assign_void) {
         did_throw = true;
         Err_throw_2::t = May_throw::do_not_throw;
       }
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       (void)dummy(b);
       ASSERT_EQ(err(other).x, -1);
       ASSERT_TRUE(did_throw);
@@ -1164,8 +1164,8 @@ TEST(expected_operations_base, move_assign_void) {
       Base_void b(unexpect, 30);
       b.assign(std::move(other));
       ASSERT_EQ(Err::s, State::move_assigned);
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(err(b).x, 3);
       ASSERT_EQ(err(other).x, -2);
     }
@@ -1187,8 +1187,8 @@ TEST(expected_operations_base, move_assign_void) {
         did_throw = true;
         Err_throw_2::t = May_throw::do_not_throw;
       }
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(err(b).x, 4); // No exception safety guarantee.
       ASSERT_EQ(err(other).x, -2);
       ASSERT_TRUE(did_throw);
@@ -1204,8 +1204,8 @@ TEST(expected_operations_base, move_assign_void) {
       Base_void b(unexpect, 50);
       b.assign(std::move(other));
       ASSERT_EQ(Err::s, State::destructed);
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_TRUE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_TRUE(has_val(other));
       (void)dummy(b);
       (void)dummy(other);
       Err::reset();
@@ -1221,8 +1221,8 @@ TEST(expected_operations_base, swap_impl) {
     {
       Base b(std::in_place, 10);
       b.swap_impl(other);
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_TRUE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_TRUE(has_val(other));
       ASSERT_EQ(val(b).x, 1);
       ASSERT_EQ(val(other).x, 10);
       Val::reset();
@@ -1247,8 +1247,8 @@ TEST(expected_operations_base, swap_impl) {
         did_throw = true;
         Val_throw_2::t = May_throw::do_not_throw;
       }
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_TRUE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_TRUE(has_val(other));
       ASSERT_EQ(val(b).x, -1); // No exception safety guarantee.
       ASSERT_EQ(val(other).x, 2);
       ASSERT_TRUE(did_throw);
@@ -1269,8 +1269,8 @@ TEST(expected_operations_base, swap_impl) {
     {
       B_t_throw_2 b(std::in_place, 30);
       b.swap_impl(other);
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_TRUE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_TRUE(has_val(other));
       ASSERT_EQ(err(b).x, 3);
       ASSERT_EQ(val(other).x, 30);
       Val_throw_2::reset();
@@ -1295,8 +1295,8 @@ TEST(expected_operations_base, swap_impl) {
         did_throw = true;
         Val_throw_2::t = May_throw::do_not_throw;
       }
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(val(b).x, -1); // No exception safety guarantee.
       ASSERT_EQ(err(other).x, 4);
       ASSERT_TRUE(did_throw);
@@ -1317,8 +1317,8 @@ TEST(expected_operations_base, swap_impl) {
     {
       B_e_throw_2 b(std::in_place, 50);
       b.swap_impl(other);
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_TRUE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_TRUE(has_val(other));
       ASSERT_EQ(err(b).x, 5);
       ASSERT_EQ(val(other).x, 50);
       Val::reset();
@@ -1343,8 +1343,8 @@ TEST(expected_operations_base, swap_impl) {
         did_throw = true;
         Err_throw_2::t = May_throw::do_not_throw;
       }
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(val(b).x, 60);
       ASSERT_EQ(err(other).x,
                 -1); // No exception safety guarantee.
@@ -1366,8 +1366,8 @@ TEST(expected_operations_base, swap_impl) {
     {
       B_t_throw_2 b(unexpect, 30);
       b.swap_impl(other);
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(val(b).x, 3);
       ASSERT_EQ(err(other).x, 30);
       Val_throw_2::reset();
@@ -1387,8 +1387,8 @@ TEST(expected_operations_base, swap_impl) {
     {
       B_e_throw_2 b(unexpect, 50);
       b.swap_impl(other);
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(val(b).x, 5);
       ASSERT_EQ(err(other).x, 50);
       Val::reset();
@@ -1407,8 +1407,8 @@ TEST(expected_operations_base, swap_impl) {
     {
       Base b(unexpect, 70);
       b.swap_impl(other);
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(err(b).x, 7);
       ASSERT_EQ(err(other).x, 70);
       Val::reset();
@@ -1433,8 +1433,8 @@ TEST(expected_operations_base, swap_impl) {
         did_throw = true;
         Err_throw_2::t = May_throw::do_not_throw;
       }
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(err(b).x, -1); // No exception safety guarantee.
       ASSERT_EQ(err(other).x, 8);
       ASSERT_TRUE(did_throw);
@@ -1457,8 +1457,8 @@ TEST(expected_operations_base, swap_impl_void) {
     {
       Base_void b(std::in_place);
       b.swap_impl(other);
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_TRUE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_TRUE(has_val(other));
       (void)dummy(b);
       (void)dummy(other);
       Err::reset();
@@ -1472,8 +1472,8 @@ TEST(expected_operations_base, swap_impl_void) {
     {
       Base_void b(std::in_place);
       b.swap_impl(other);
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_TRUE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_TRUE(has_val(other));
       ASSERT_EQ(err(b).x, 1);
       (void)dummy(other);
       Err::reset();
@@ -1494,8 +1494,8 @@ TEST(expected_operations_base, swap_impl_void) {
         did_throw = true;
         Err_throw_2::t = May_throw::do_not_throw;
       }
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       (void)dummy(b);
       ASSERT_EQ(err(other).x,
                 -1); // No exception safety guarantee.
@@ -1512,8 +1512,8 @@ TEST(expected_operations_base, swap_impl_void) {
     {
       Base_void b(unexpect, 10);
       b.swap_impl(other);
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       (void)dummy(b);
       ASSERT_EQ(err(other).x, 10);
       Err::reset();
@@ -1528,8 +1528,8 @@ TEST(expected_operations_base, swap_impl_void) {
     {
       Base_void b(unexpect, 30);
       b.swap_impl(other);
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(err(b).x, 3);
       ASSERT_EQ(err(other).x, 30);
       Err::reset();
@@ -1551,8 +1551,8 @@ TEST(expected_operations_base, swap_impl_void) {
         did_throw = true;
         Err_throw_2::t = May_throw::do_not_throw;
       }
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(err(b).x, -1); // No exception safety guarantee.
       ASSERT_EQ(err(other).x, 4);
       ASSERT_TRUE(did_throw);

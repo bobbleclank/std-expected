@@ -19,6 +19,10 @@ inline auto& dummy(auto& b) {
   return b.dummy_;
 }
 
+inline bool has_val(auto& b) {
+  return b.has_val_;
+}
+
 // NOLINTEND(*-pro-type-union-access): Tagged union
 
 #endif

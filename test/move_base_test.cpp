@@ -76,8 +76,8 @@ TEST(expected_move_base, move_constructor) {
       Base b(std::move(other));
       ASSERT_EQ(Val::s, State::move_constructed);
       ASSERT_EQ(Err::s, State::none);
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_TRUE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_TRUE(has_val(other));
       ASSERT_EQ(val(b).x, 1);
       ASSERT_EQ(val(other).x, -1);
     }
@@ -94,8 +94,8 @@ TEST(expected_move_base, move_constructor) {
       Base b(std::move(other));
       ASSERT_EQ(Val::s, State::none);
       ASSERT_EQ(Err::s, State::move_constructed);
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(err(b).x, 2);
       ASSERT_EQ(err(other).x, -1);
     }
@@ -114,8 +114,8 @@ TEST(expected_move_base, move_constructor_void) {
     {
       Base_void b(std::move(other));
       ASSERT_EQ(Err::s, State::none);
-      ASSERT_TRUE(b.has_val_);
-      ASSERT_TRUE(other.has_val_);
+      ASSERT_TRUE(has_val(b));
+      ASSERT_TRUE(has_val(other));
       (void)dummy(b);
       (void)dummy(other);
     }
@@ -128,8 +128,8 @@ TEST(expected_move_base, move_constructor_void) {
     {
       Base_void b(std::move(other));
       ASSERT_EQ(Err::s, State::move_constructed);
-      ASSERT_FALSE(b.has_val_);
-      ASSERT_FALSE(other.has_val_);
+      ASSERT_FALSE(has_val(b));
+      ASSERT_FALSE(has_val(other));
       ASSERT_EQ(err(b).x, 1);
       ASSERT_EQ(err(other).x, -1);
     }
