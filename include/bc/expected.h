@@ -14,6 +14,8 @@
 
 namespace bc {
 
+// NOLINTBEGIN(*-pro-type-union-access): Tagged union
+
 template <class T, class E>
 class expected;
 template <class E>
@@ -1617,6 +1619,8 @@ template <class T, class E,
 void swap(expected<T, E>& x, expected<T, E>& y) noexcept(noexcept(x.swap(y))) {
   x.swap(y);
 }
+
+// NOLINTEND(*-pro-type-union-access): Tagged union
 
 } // namespace bc
 
