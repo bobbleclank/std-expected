@@ -13,6 +13,13 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 add_library(bcexpected INTERFACE)
-target_include_directories(bcexpected INTERFACE "${CMAKE_SOURCE_DIR}/include")
+target_sources(bcexpected
+  INTERFACE
+    FILE_SET HEADERS
+    BASE_DIRS
+      include
+    FILES
+      include/bc/expected.h
+)
 
 add_subdirectory(test)
