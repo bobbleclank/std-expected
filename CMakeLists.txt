@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.20)
 project(bc_std_expected VERSION 1.2)
 
 set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_compile_options(-Wall -Wextra -pedantic -Werror)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
