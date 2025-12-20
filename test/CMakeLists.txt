@@ -15,4 +15,4 @@ target_sources(test_${PROJECT_NAME}
     unexpected_constexpr_test.cpp
     unexpected_test.cpp
 )
-target_link_libraries(test_${PROJECT_NAME} PUBLIC bcexpected gtest_main gtest)
+target_link_libraries(test_${PROJECT_NAME} PRIVATE bcexpected gtest_main gtest)
