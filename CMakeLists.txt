@@ -23,3 +23,10 @@ target_sources(bcexpected
 )
 
 add_subdirectory(test)
+
+install(
+  DIRECTORY include/
+  TYPE INCLUDE
+  FILES_MATCHING
+  PATTERN "*.h"
+)
