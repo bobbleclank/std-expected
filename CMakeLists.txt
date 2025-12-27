@@ -13,16 +13,7 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release")
 endif()
 
-add_library(bcexpected INTERFACE)
-target_sources(bcexpected
-  INTERFACE
-    FILE_SET HEADERS
-    BASE_DIRS
-      include
-    FILES
-      include/bc/expected.h
-)
-
+add_subdirectory(include)
 add_subdirectory(test)
 
 install(
