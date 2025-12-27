@@ -5,3 +5,7 @@ target_sources(bcexpected
     FILES
       bc/expected.h
 )
+target_compile_features(bcexpected
+  INTERFACE
+    cxx_std_23
+)
