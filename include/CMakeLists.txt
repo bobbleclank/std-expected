@@ -9,3 +9,10 @@ target_compile_features(bcexpected
   INTERFACE
     cxx_std_23
 )
+target_compile_options(bcexpected
+  INTERFACE
+    -Wall
+    -Wextra
+    -pedantic
+    -Werror
+)
