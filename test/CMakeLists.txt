@@ -1,3 +1,5 @@
+find_package(GTest CONFIG REQUIRED)
+
 add_executable(test_${PROJECT_NAME})
 target_sources(test_${PROJECT_NAME}
   PRIVATE
@@ -18,8 +20,8 @@ target_sources(test_${PROJECT_NAME}
 target_link_libraries(test_${PROJECT_NAME}
   PRIVATE
     bcexpected
-    gtest_main
-    gtest
+    GTest::gtest_main
+    GTest::gtest
 )
 target_compile_features(test_${PROJECT_NAME}
   PRIVATE
