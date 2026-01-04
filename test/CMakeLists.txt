@@ -35,3 +35,8 @@ target_compile_options(test_${PROJECT_NAME}
     -pedantic
     -Werror
 )
+
+add_test(
+  NAME ${PROJECT_NAME}
+  COMMAND test_${PROJECT_NAME}
+)
