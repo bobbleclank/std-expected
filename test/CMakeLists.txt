@@ -1,7 +1,7 @@
 FetchContent_MakeAvailable(googletest)
 
-add_executable(test_${PROJECT_NAME})
-target_sources(test_${PROJECT_NAME}
+add_executable(test_bcexpected)
+target_sources(test_bcexpected
   PRIVATE
     bad_expected_access_test.cpp
     copy_assign_base_test.cpp
@@ -17,17 +17,17 @@ target_sources(test_${PROJECT_NAME}
     unexpected_constexpr_test.cpp
     unexpected_test.cpp
 )
-target_link_libraries(test_${PROJECT_NAME}
+target_link_libraries(test_bcexpected
   PRIVATE
     bcexpected
     GTest::gtest_main
     GTest::gtest
 )
-target_compile_features(test_${PROJECT_NAME}
+target_compile_features(test_bcexpected
   PRIVATE
     cxx_std_23
 )
-target_compile_options(test_${PROJECT_NAME}
+target_compile_options(test_bcexpected
   PRIVATE
     -Wall
     -Wextra
@@ -36,6 +36,6 @@ target_compile_options(test_${PROJECT_NAME}
 )
 
 add_test(
-  NAME ${PROJECT_NAME}
-  COMMAND test_${PROJECT_NAME}
+  NAME test_bcexpected
+  COMMAND test_bcexpected
 )
