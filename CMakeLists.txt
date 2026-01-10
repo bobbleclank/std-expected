@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.23)
 
-project(bc_std_expected
+project(bc_expected
   VERSION 1.2
 )
 
