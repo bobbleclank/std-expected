@@ -22,8 +22,20 @@ if(BCEXPECTED_BUILD_TESTS)
   add_subdirectory(test)
 endif()
 
+include(GNUInstallDirs)
 install(
   TARGETS
     bcexpected
+  EXPORT BcExpectedTargets
   FILE_SET HEADERS
+)
+install(
+  EXPORT BcExpectedTargets
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/BcExpected
+  NAMESPACE BcExpected::
+)
+install(
+  FILES
+    cmake/BcExpectedConfig.cmake
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/BcExpected
 )
