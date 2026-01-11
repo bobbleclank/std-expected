@@ -23,6 +23,7 @@ if(BCEXPECTED_BUILD_TESTS)
 endif()
 
 include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
 install(
   TARGETS
     bcexpected
@@ -34,8 +35,13 @@ install(
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/BcExpected
   NAMESPACE BcExpected::
 )
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/BcExpectedConfigVersion.cmake
+  COMPATIBILITY ExactVersion
+)
 install(
   FILES
     cmake/BcExpectedConfig.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/BcExpectedConfigVersion.cmake
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/BcExpected
 )
