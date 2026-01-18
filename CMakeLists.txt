@@ -30,6 +30,7 @@ install(
   EXPORT BcExpectedTargets
   FILE_SET HEADERS
 )
+add_library(BcExpected::bcexpected ALIAS bcexpected)
 install(
   EXPORT BcExpectedTargets
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/BcExpected
