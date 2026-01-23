@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.23)
 
 project(bc_expected
-  VERSION 1.2
+  VERSION 1.3
 )
 
 option(BCEXPECTED_BUILD_TESTS "Build the unit tests" ON)
