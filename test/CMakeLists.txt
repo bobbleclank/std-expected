@@ -31,7 +31,7 @@ target_compile_options(test_bcexpected
   PRIVATE
     -Wall
     -Wextra
-    -pedantic
+    -Wpedantic
     -Werror
 )
 

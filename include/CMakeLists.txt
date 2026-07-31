@@ -13,6 +13,6 @@ target_compile_options(bcexpected
   INTERFACE
     -Wall
     -Wextra
-    -pedantic
+    -Wpedantic
     -Werror
 )
