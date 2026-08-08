@@ -19,6 +19,7 @@ target_sources(test_bcexpected
 )
 target_link_libraries(test_bcexpected
   PRIVATE
+    bcexpected_warnings
     bcexpected
     GTest::gtest_main
     GTest::gtest
@@ -26,13 +27,6 @@ target_link_libraries(test_bcexpected
 target_compile_features(test_bcexpected
   PRIVATE
     cxx_std_23
-)
-target_compile_options(test_bcexpected
-  PRIVATE
-    -Wall
-    -Wextra
-    -Wpedantic
-    -Werror
 )
 
 add_test(

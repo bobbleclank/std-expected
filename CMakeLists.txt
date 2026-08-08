@@ -15,6 +15,15 @@ FetchContent_Declare(
 )
 set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
 
+add_library(bcexpected_warnings INTERFACE)
+target_compile_options(bcexpected_warnings
+  INTERFACE
+    -Wall
+    -Wextra
+    -Wpedantic
+    -Werror
+)
+
 add_subdirectory(include)
 
 if(BCEXPECTED_BUILD_TESTS)
