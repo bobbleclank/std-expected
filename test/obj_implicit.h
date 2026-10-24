@@ -13,12 +13,14 @@ struct Obj_implicit {
 
   explicit Obj_implicit(int x_) : x(x_) { s = State::constructed; }
 
+  // NOLINTNEXTLINE(*-explicit-constructor): To test implicit conversion
   Obj_implicit(const Arg& arg_) {
     s = State::constructed;
     Arg arg = arg_;
     x = arg.x;
   }
 
+  // NOLINTNEXTLINE(*-explicit-constructor): To test implicit conversion
   Obj_implicit(Arg&& arg_) {
     s = State::constructed;
     Arg arg = std::move(arg_);
@@ -68,10 +70,12 @@ struct Obj_explicit {
     x = arg.x;
   }
 
+  // NOLINTNEXTLINE(*-explicit-constructor): To test explicit copy
   explicit Obj_explicit(const Obj_explicit& other) : x(other.x) {
     s = State::copy_constructed;
   }
 
+  // NOLINTNEXTLINE(*-explicit-constructor): To test explicit move
   explicit Obj_explicit(Obj_explicit&& other) noexcept : x(other.x) {
     s = State::move_constructed;
     other.x = -1;

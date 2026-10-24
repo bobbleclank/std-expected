@@ -106,8 +106,10 @@ struct Obj_implicit {
 
   constexpr explicit Obj_implicit(int x_) : x(x_) {}
 
+  // NOLINTNEXTLINE(*-explicit-constructor): To test implicit conversion
   constexpr Obj_implicit(const Arg& arg_) : x(arg_.x) {}
 
+  // NOLINTNEXTLINE(*-explicit-constructor): To test implicit conversion
   constexpr Obj_implicit(Arg&& arg_) {
     Arg arg = std::move(arg_);
     x = arg.x;
@@ -146,8 +148,10 @@ struct Obj_explicit {
     x = arg.x;
   }
 
+  // NOLINTNEXTLINE(*-explicit-constructor): To test explicit copy
   constexpr explicit Obj_explicit(const Obj_explicit& other) : x(other.x) {}
 
+  // NOLINTNEXTLINE(*-explicit-constructor): To test explicit move
   constexpr explicit Obj_explicit(Obj_explicit&& other) noexcept
       : x(other.x + move_constructor_offset) {}
 
