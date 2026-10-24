@@ -87,6 +87,7 @@ public:
             detail::enable_unexpected_unexpected_constructor<
                 E, Err, const Err&>* = nullptr,
             std::enable_if_t<std::is_convertible_v<const Err&, E>>* = nullptr>
+  // NOLINTNEXTLINE(*-explicit-constructor): Conditionally explicit
   constexpr unexpected(const unexpected<Err>& other) : val_(other.value()) {}
 
   template <class Err,
@@ -100,9 +101,11 @@ public:
             detail::enable_unexpected_unexpected_constructor<E, Err, Err&&>* =
                 nullptr,
             std::enable_if_t<std::is_convertible_v<Err&&, E>>* = nullptr>
+  // NOLINTBEGIN(*-explicit-constructor): Conditionally explicit
   // NOLINTNEXTLINE(*-rvalue-reference-param-not-moved): Moved via value
   constexpr unexpected(unexpected<Err>&& other)
       : val_(std::move(other.value())) {}
+  // NOLINTEND(*-explicit-constructor): Conditionally explicit
 
   template <class Err,
             detail::enable_unexpected_unexpected_constructor<E, Err, Err&&>* =
@@ -1130,6 +1133,7 @@ public:
             detail::enable_expected_expected_void_constructor<
                 T, E, U, G, const G&>* = nullptr,
             std::enable_if_t<std::is_convertible_v<const G&, E>>* = nullptr>
+  // NOLINTNEXTLINE(*-explicit-constructor): Conditionally explicit
   constexpr expected(const expected<U, G>& other)
       : base_type(detail::uninit), ctor_base(detail::construct) {
     this->construct_from_ex(other);
@@ -1152,6 +1156,7 @@ public:
                               std::is_convertible_v<const U&, T>) &&
                              std::is_convertible_v<const G&, E>>* = nullptr>
   // clang-format on
+  // NOLINTNEXTLINE(*-explicit-constructor): Conditionally explicit
   constexpr expected(const expected<U, G>& other)
       : base_type(detail::uninit), ctor_base(detail::construct) {
     this->construct_from_ex(other);
@@ -1172,6 +1177,7 @@ public:
             detail::enable_expected_expected_void_constructor<T, E, U, G,
                                                               G&&>* = nullptr,
             std::enable_if_t<std::is_convertible_v<G&&, E>>* = nullptr>
+  // NOLINTNEXTLINE(*-explicit-constructor): Conditionally explicit
   constexpr expected(expected<U, G>&& other)
       : base_type(detail::uninit), ctor_base(detail::construct) {
     this->construct_from_ex(std::move(other));
@@ -1194,6 +1200,7 @@ public:
                               std::is_convertible_v<U&&, T>) &&
                              std::is_convertible_v<G&&, E>>* = nullptr>
   // clang-format on
+  // NOLINTNEXTLINE(*-explicit-constructor): Conditionally explicit
   constexpr expected(expected<U, G>&& other)
       : base_type(detail::uninit), ctor_base(detail::construct) {
     this->construct_from_ex(std::move(other));
@@ -1213,6 +1220,7 @@ public:
   template <class U = T,
             detail::enable_expected_value_constructor<T, E, U>* = nullptr,
             std::enable_if_t<std::is_convertible_v<U&&, T>>* = nullptr>
+  // NOLINTNEXTLINE(*-explicit-constructor): Conditionally explicit
   constexpr expected(U&& v)
       : base_type(std::in_place, std::forward<U>(v)),
         ctor_base(detail::construct) {}
@@ -1227,6 +1235,7 @@ public:
   template <class G = E,
             std::enable_if_t<std::is_constructible_v<E, const G&>>* = nullptr,
             std::enable_if_t<std::is_convertible_v<const G&, E>>* = nullptr>
+  // NOLINTNEXTLINE(*-explicit-constructor): Conditionally explicit
   constexpr expected(const unexpected<G>& e)
       : base_type(unexpect, e.value()), ctor_base(detail::construct) {}
 
@@ -1239,11 +1248,13 @@ public:
   template <class G = E,
             std::enable_if_t<std::is_constructible_v<E, G&&>>* = nullptr,
             std::enable_if_t<std::is_convertible_v<G&&, E>>* = nullptr>
+  // NOLINTBEGIN(*-explicit-constructor): Conditionally explicit
   // NOLINTNEXTLINE(*-rvalue-reference-param-not-moved): Moved via value
   constexpr expected(unexpected<G>&& e) noexcept(
       std::is_nothrow_constructible_v<E, G&&>)
       : base_type(unexpect, std::move(e.value())),
         ctor_base(detail::construct) {}
+  // NOLINTEND(*-explicit-constructor): Conditionally explicit
 
   template <class G = E,
             std::enable_if_t<std::is_constructible_v<E, G&&>>* = nullptr,
