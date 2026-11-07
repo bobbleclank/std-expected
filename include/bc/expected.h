@@ -322,12 +322,10 @@ struct uninit_t {
 inline constexpr uninit_t uninit{};
 
 // Storage of values. Trivially destructible if both T and E are.
-// clang-format off
 template <class T, class E,
           bool = is_trivially_destructible_or_void_v<T> &&
                  std::is_trivially_destructible_v<E>>
 struct expected_storage_base;
-// clang-format on
 
 // Either T, E or both are not trivially destructible.
 template <class T, class E>
@@ -810,12 +808,10 @@ struct expected_operations_base<void, E> : expected_storage_base<void, E> {
 };
 
 // Copy constructor. Trivially copy constructible if both T and E are.
-// clang-format off
 template <class T, class E,
           bool = is_trivially_copy_constructible_or_void_v<T> &&
                  std::is_trivially_copy_constructible_v<E>>
 struct expected_copy_base;
-// clang-format on
 
 // Both T and E are trivially copy constructible.
 template <class T, class E>
@@ -845,12 +841,10 @@ struct expected_copy_base<T, E, false> : expected_operations_base<T, E> {
 };
 
 // Move constructor. Trivially move constructible if both T and E are.
-// clang-format off
 template <class T, class E,
           bool = is_trivially_move_constructible_or_void_v<T> &&
                  std::is_trivially_move_constructible_v<E>>
 struct expected_move_base;
-// clang-format on
 
 // Both T and E are trivially move constructible.
 template <class T, class E>
@@ -871,10 +865,8 @@ struct expected_move_base<T, E, false> : expected_copy_base<T, E> {
   expected_move_base(const expected_move_base&) = default;
 
   expected_move_base(expected_move_base&& other) noexcept(
-      // clang-format off
       is_nothrow_move_constructible_or_void_v<T> &&
       std::is_nothrow_move_constructible_v<E>)
-      // clang-format on
       : base_type(uninit) {
     this->construct_from(std::move(other));
   }
@@ -885,7 +877,6 @@ struct expected_move_base<T, E, false> : expected_copy_base<T, E> {
 };
 
 // Copy assignment operator. Trivially copy assignable if both T and E are.
-// clang-format off
 template <class T, class E,
           bool = is_trivially_copy_assignable_or_void_v<T> &&
                  is_trivially_copy_constructible_or_void_v<T> &&
@@ -894,7 +885,6 @@ template <class T, class E,
                  std::is_trivially_copy_constructible_v<E> &&
                  std::is_trivially_destructible_v<E>>
 struct expected_copy_assign_base;
-// clang-format on
 
 // Both T and E are trivially copy assignable.
 template <class T, class E>
@@ -925,7 +915,6 @@ struct expected_copy_assign_base<T, E, false> : expected_move_base<T, E> {
 };
 
 // Move assignment operator. Trivially move assignable if both T and E are.
-// clang-format off
 template <class T, class E,
           bool = is_trivially_move_assignable_or_void_v<T> &&
                  is_trivially_move_constructible_or_void_v<T> &&
@@ -934,7 +923,6 @@ template <class T, class E,
                  std::is_trivially_move_constructible_v<E> &&
                  std::is_trivially_destructible_v<E>>
 struct expected_move_assign_base;
-// clang-format on
 
 // Both T and E are trivially move assignable.
 template <class T, class E>
@@ -961,12 +949,10 @@ struct expected_move_assign_base<T, E, false>
 
   expected_move_assign_base&
   operator=(expected_move_assign_base&& other) noexcept(
-      // clang-format off
       is_nothrow_move_assignable_or_void_v<T> &&
       is_nothrow_move_constructible_or_void_v<T> &&
       std::is_nothrow_move_assignable_v<E> &&
       std::is_nothrow_move_constructible_v<E>) {
-    // clang-format on
     this->assign(std::move(other));
     return *this;
   }
@@ -1431,12 +1417,10 @@ public:
                 (detail::is_nothrow_move_constructible_or_void_v<T1> ||
                  std::is_nothrow_move_constructible_v<E1>)>* = nullptr>
   void swap(expected& other) noexcept(
-      // clang-format off
       detail::is_nothrow_move_constructible_or_void_v<T> &&
       std::is_nothrow_move_constructible_v<E> &&
       detail::is_nothrow_swappable_or_void_v<T> &&
       std::is_nothrow_swappable_v<E>) {
-    // clang-format on
     this->swap_impl(other);
   }
 };
