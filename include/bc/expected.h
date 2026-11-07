@@ -83,36 +83,17 @@ public:
   constexpr unexpected(const unexpected&) = default;
   constexpr unexpected(unexpected&&) = default;
 
-  template <class Err,
-            detail::enable_unexpected_unexpected_constructor<
-                E, Err, const Err&>* = nullptr,
-            std::enable_if_t<std::is_convertible_v<const Err&, E>>* = nullptr>
-  // NOLINTNEXTLINE(*-explicit-constructor): Conditionally explicit
-  constexpr unexpected(const unexpected<Err>& other) : val_(other.value()) {}
-
-  template <class Err,
-            detail::enable_unexpected_unexpected_constructor<
-                E, Err, const Err&>* = nullptr,
-            std::enable_if_t<!std::is_convertible_v<const Err&, E>>* = nullptr>
-  constexpr explicit unexpected(const unexpected<Err>& other)
+  template <class Err, detail::enable_unexpected_unexpected_constructor<
+                           E, Err, const Err&>* = nullptr>
+  constexpr explicit(!std::is_convertible_v<const Err&, E>)
+      unexpected(const unexpected<Err>& other)
       : val_(other.value()) {}
 
-  template <class Err,
-            detail::enable_unexpected_unexpected_constructor<E, Err, Err&&>* =
-                nullptr,
-            std::enable_if_t<std::is_convertible_v<Err&&, E>>* = nullptr>
-  // NOLINTBEGIN(*-explicit-constructor): Conditionally explicit
-  // NOLINTNEXTLINE(*-rvalue-reference-param-not-moved): Moved via value
-  constexpr unexpected(unexpected<Err>&& other)
-      : val_(std::move(other.value())) {}
-  // NOLINTEND(*-explicit-constructor): Conditionally explicit
-
-  template <class Err,
-            detail::enable_unexpected_unexpected_constructor<E, Err, Err&&>* =
-                nullptr,
-            std::enable_if_t<!std::is_convertible_v<Err&&, E>>* = nullptr>
-  // NOLINTNEXTLINE(*-rvalue-reference-param-not-moved): Moved via value
-  constexpr explicit unexpected(unexpected<Err>&& other)
+  template <class Err, detail::enable_unexpected_unexpected_constructor<
+                           E, Err, Err&&>* = nullptr>
+  constexpr explicit(!std::is_convertible_v<Err&&, E>)
+      // NOLINTNEXTLINE(*-rvalue-reference-param-not-moved): Moved via value
+      unexpected(unexpected<Err>&& other)
       : val_(std::move(other.value())) {}
 
   template <
@@ -1131,137 +1112,61 @@ public:
 
   template <class U, class G,
             detail::enable_expected_expected_void_constructor<
-                T, E, U, G, const G&>* = nullptr,
-            std::enable_if_t<std::is_convertible_v<const G&, E>>* = nullptr>
-  // NOLINTNEXTLINE(*-explicit-constructor): Conditionally explicit
-  constexpr expected(const expected<U, G>& other)
-      : base_type(detail::uninit), ctor_base(detail::construct) {
-    this->construct_from_ex(other);
-  }
-
-  template <class U, class G,
-            detail::enable_expected_expected_void_constructor<
-                T, E, U, G, const G&>* = nullptr,
-            std::enable_if_t<!std::is_convertible_v<const G&, E>>* = nullptr>
-  constexpr explicit expected(const expected<U, G>& other)
+                T, E, U, G, const G&>* = nullptr>
+  constexpr explicit(!std::is_convertible_v<const G&, E>)
+      expected(const expected<U, G>& other)
       : base_type(detail::uninit), ctor_base(detail::construct) {
     this->construct_from_ex(other);
   }
 
   template <class U, class G,
             detail::enable_expected_expected_constructor<T, E, U, G, const U&,
-                                                         const G&>* = nullptr,
-            // clang-format off
-            std::enable_if_t<(std::is_void_v<T> || std::is_void_v<U> ||
-                              std::is_convertible_v<const U&, T>) &&
-                             std::is_convertible_v<const G&, E>>* = nullptr>
-  // clang-format on
-  // NOLINTNEXTLINE(*-explicit-constructor): Conditionally explicit
-  constexpr expected(const expected<U, G>& other)
-      : base_type(detail::uninit), ctor_base(detail::construct) {
-    this->construct_from_ex(other);
-  }
-
-  template <class U, class G,
-            detail::enable_expected_expected_constructor<T, E, U, G, const U&,
-                                                         const G&>* = nullptr,
-            std::enable_if_t<(!std::is_void_v<T> && !std::is_void_v<U> &&
-                              !std::is_convertible_v<const U&, T>) ||
-                             !std::is_convertible_v<const G&, E>>* = nullptr>
-  constexpr explicit expected(const expected<U, G>& other)
+                                                         const G&>* = nullptr>
+  constexpr explicit((!std::is_void_v<T> && !std::is_void_v<U> &&
+                      !std::is_convertible_v<const U&, T>) ||
+                     !std::is_convertible_v<const G&, E>)
+      expected(const expected<U, G>& other)
       : base_type(detail::uninit), ctor_base(detail::construct) {
     this->construct_from_ex(other);
   }
 
   template <class U, class G,
             detail::enable_expected_expected_void_constructor<T, E, U, G,
-                                                              G&&>* = nullptr,
-            std::enable_if_t<std::is_convertible_v<G&&, E>>* = nullptr>
-  // NOLINTNEXTLINE(*-explicit-constructor): Conditionally explicit
-  constexpr expected(expected<U, G>&& other)
-      : base_type(detail::uninit), ctor_base(detail::construct) {
-    this->construct_from_ex(std::move(other));
-  }
-
-  template <class U, class G,
-            detail::enable_expected_expected_void_constructor<T, E, U, G,
-                                                              G&&>* = nullptr,
-            std::enable_if_t<!std::is_convertible_v<G&&, E>>* = nullptr>
-  constexpr explicit expected(expected<U, G>&& other)
+                                                              G&&>* = nullptr>
+  constexpr explicit(!std::is_convertible_v<G&&, E>)
+      expected(expected<U, G>&& other)
       : base_type(detail::uninit), ctor_base(detail::construct) {
     this->construct_from_ex(std::move(other));
   }
 
   template <class U, class G,
             detail::enable_expected_expected_constructor<T, E, U, G, U&&,
-                                                         G&&>* = nullptr,
-            // clang-format off
-            std::enable_if_t<(std::is_void_v<T> || std::is_void_v<U> ||
-                              std::is_convertible_v<U&&, T>) &&
-                             std::is_convertible_v<G&&, E>>* = nullptr>
-  // clang-format on
-  // NOLINTNEXTLINE(*-explicit-constructor): Conditionally explicit
-  constexpr expected(expected<U, G>&& other)
-      : base_type(detail::uninit), ctor_base(detail::construct) {
-    this->construct_from_ex(std::move(other));
-  }
-
-  template <class U, class G,
-            detail::enable_expected_expected_constructor<T, E, U, G, U&&,
-                                                         G&&>* = nullptr,
-            std::enable_if_t<(!std::is_void_v<T> && !std::is_void_v<U> &&
-                              !std::is_convertible_v<U&&, T>) ||
-                             !std::is_convertible_v<G&&, E>>* = nullptr>
-  constexpr explicit expected(expected<U, G>&& other)
+                                                         G&&>* = nullptr>
+  constexpr explicit((!std::is_void_v<T> && !std::is_void_v<U> &&
+                      !std::is_convertible_v<U&&, T>) ||
+                     !std::is_convertible_v<G&&, E>)
+      expected(expected<U, G>&& other)
       : base_type(detail::uninit), ctor_base(detail::construct) {
     this->construct_from_ex(std::move(other));
   }
 
   template <class U = T,
-            detail::enable_expected_value_constructor<T, E, U>* = nullptr,
-            std::enable_if_t<std::is_convertible_v<U&&, T>>* = nullptr>
-  // NOLINTNEXTLINE(*-explicit-constructor): Conditionally explicit
-  constexpr expected(U&& v)
-      : base_type(std::in_place, std::forward<U>(v)),
-        ctor_base(detail::construct) {}
-
-  template <class U = T,
-            detail::enable_expected_value_constructor<T, E, U>* = nullptr,
-            std::enable_if_t<!std::is_convertible_v<U&&, T>>* = nullptr>
-  constexpr explicit expected(U&& v)
+            detail::enable_expected_value_constructor<T, E, U>* = nullptr>
+  constexpr explicit(!std::is_convertible_v<U&&, T>) expected(U&& v)
       : base_type(std::in_place, std::forward<U>(v)),
         ctor_base(detail::construct) {}
 
   template <class G = E,
-            std::enable_if_t<std::is_constructible_v<E, const G&>>* = nullptr,
-            std::enable_if_t<std::is_convertible_v<const G&, E>>* = nullptr>
-  // NOLINTNEXTLINE(*-explicit-constructor): Conditionally explicit
-  constexpr expected(const unexpected<G>& e)
+            std::enable_if_t<std::is_constructible_v<E, const G&>>* = nullptr>
+  constexpr explicit(!std::is_convertible_v<const G&, E>)
+      expected(const unexpected<G>& e)
       : base_type(unexpect, e.value()), ctor_base(detail::construct) {}
 
   template <class G = E,
-            std::enable_if_t<std::is_constructible_v<E, const G&>>* = nullptr,
-            std::enable_if_t<!std::is_convertible_v<const G&, E>>* = nullptr>
-  constexpr explicit expected(const unexpected<G>& e)
-      : base_type(unexpect, e.value()), ctor_base(detail::construct) {}
-
-  template <class G = E,
-            std::enable_if_t<std::is_constructible_v<E, G&&>>* = nullptr,
-            std::enable_if_t<std::is_convertible_v<G&&, E>>* = nullptr>
-  // NOLINTBEGIN(*-explicit-constructor): Conditionally explicit
-  // NOLINTNEXTLINE(*-rvalue-reference-param-not-moved): Moved via value
-  constexpr expected(unexpected<G>&& e) noexcept(
-      std::is_nothrow_constructible_v<E, G&&>)
-      : base_type(unexpect, std::move(e.value())),
-        ctor_base(detail::construct) {}
-  // NOLINTEND(*-explicit-constructor): Conditionally explicit
-
-  template <class G = E,
-            std::enable_if_t<std::is_constructible_v<E, G&&>>* = nullptr,
-            std::enable_if_t<!std::is_convertible_v<G&&, E>>* = nullptr>
-  // NOLINTNEXTLINE(*-rvalue-reference-param-not-moved): Moved via value
-  constexpr explicit expected(unexpected<G>&& e) noexcept(
-      std::is_nothrow_constructible_v<E, G&&>)
+            std::enable_if_t<std::is_constructible_v<E, G&&>>* = nullptr>
+  constexpr explicit(!std::is_convertible_v<G&&, E>) expected(
+      // NOLINTNEXTLINE(*-rvalue-reference-param-not-moved): Moved via value
+      unexpected<G>&& e) noexcept(std::is_nothrow_constructible_v<E, G&&>)
       : base_type(unexpect, std::move(e.value())),
         ctor_base(detail::construct) {}
 
